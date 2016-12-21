@@ -42,7 +42,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.symphonyoss.integration.core.service.UserService;
+import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.entity.Entity;
 import org.symphonyoss.integration.entity.EntityBuilder;
 import org.symphonyoss.integration.entity.model.User;
