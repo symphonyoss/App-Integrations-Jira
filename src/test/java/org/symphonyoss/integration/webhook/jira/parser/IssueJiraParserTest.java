@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ASSIGNEE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.CHANGELOG_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.DESCRIPTION_PATH;
@@ -38,10 +37,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.IntegrationAtlas;
-import org.symphonyoss.integration.authentication.AuthenticationProxy;
-import org.symphonyoss.integration.core.service.UserService;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.parser.SafeString;
+import org.symphonyoss.integration.service.UserService;
 
 /**
  * Test class to validate {@link IssueJiraParser}
@@ -66,13 +64,8 @@ public class IssueJiraParserTest {
 
   private static final String JIRA_USER = "jiraWebHookIntegration";
 
-  private static final String SESSION_TOKEN = "95248a7075f53c5458b276d";
-
   @Mock
   private IntegrationAtlas integrationAtlas;
-
-  @Mock
-  private AuthenticationProxy authenticationProxy;
 
   @Mock
   private UserService userService;
@@ -82,8 +75,6 @@ public class IssueJiraParserTest {
 
   @Before
   public void setup() throws ApiException {
-    when(authenticationProxy.getSessionToken(JIRA_USER)).thenReturn(SESSION_TOKEN);
-
     User returnedUser = new User();
     returnedUser.setEmailAddress(EMAIL_ADDRESS.toLowerCase());
     returnedUser.setDisplayName(USER_DISPLAY_NAME);
