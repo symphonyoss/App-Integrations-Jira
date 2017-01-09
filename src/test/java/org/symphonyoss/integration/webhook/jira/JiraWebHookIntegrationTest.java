@@ -67,6 +67,8 @@ public class JiraWebHookIntegrationTest {
 
   private static final String ISSUE_UPDATED_FILENAME = "jiraCallbackSampleIssueUpdated.json";
 
+  private static final String ISSUE_UPDATED_WITHOUT_HASHTAG = "jiraCallbackSampleIssueUpdatedWithoutHashTagLabel.json";
+
   private static final String COMMENT_ADDED_FILENAME = "jiraCallbackSampleCommentAdded.json";
 
   private static final String COMMENT_ADDED_WITH_MENTION_FILENAME = "jiraCallbackSampleCommentAddedWithMention.json";
@@ -137,15 +139,22 @@ public class JiraWebHookIntegrationTest {
 
   @Test
   public void testIssueUpdated() throws IOException, WebHookParseException {
-    String body = getBody(ISSUE_UPDATED_FILENAME);
+    testIssueUpdated(ISSUE_UPDATED_FILENAME);
+  }
 
+  @Test
+  public void testIssueUpdatedWithoutHashTag() throws IOException, WebHookParseException {
+    testIssueUpdated(ISSUE_UPDATED_WITHOUT_HASHTAG);
+  }
+
+  private void testIssueUpdated(String filename) throws IOException {
+    String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueUpdated.xml");
+    String body = getBody(filename);
     WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+
     String result = jiraWhi.parse(payload);
 
     assertNotNull(result);
-
-    String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueUpdated.xml");
-
     assertEquals(expected, result);
   }
 
