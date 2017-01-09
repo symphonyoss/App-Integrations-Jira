@@ -52,7 +52,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.integration.IntegrationAtlas;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.parser.SafeString;
 import org.symphonyoss.integration.service.UserService;
@@ -79,9 +78,6 @@ public class IssueJiraParserTest {
   private static final String JIRA_USER_DISPLAY_NAME = "Jira Test User";
 
   private static final String JIRA_USER = "jiraWebHookIntegration";
-
-  @Mock
-  private IntegrationAtlas integrationAtlas;
 
   @Mock
   private UserService userService;

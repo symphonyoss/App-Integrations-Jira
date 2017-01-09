@@ -25,7 +25,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.mockito.Mock;
-import org.symphonyoss.integration.IntegrationAtlas;
 import org.symphonyoss.integration.service.UserService;
 
 import java.io.File;
@@ -36,9 +35,6 @@ import java.io.IOException;
  */
 @Ignore("not a test per se")
 public class JiraParserTest {
-
-  @Mock
-  protected IntegrationAtlas integrationAtlas;
 
   @Mock
   protected UserService userService;
