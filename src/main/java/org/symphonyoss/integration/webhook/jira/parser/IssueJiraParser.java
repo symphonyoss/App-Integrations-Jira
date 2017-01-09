@@ -571,7 +571,8 @@ public abstract class IssueJiraParser extends CommonJiraParser {
 
     for (int i = 0; i < labelsNode.size(); i++) {
       String name = labelsNode.get(i).asText();
-      builder.attribute(name, name);
+      String label = name.replaceAll("#", "");
+      builder.attribute(label, label);
     }
 
     return builder.build();
