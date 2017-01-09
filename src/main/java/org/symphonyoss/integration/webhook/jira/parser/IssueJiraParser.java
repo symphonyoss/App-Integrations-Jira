@@ -565,7 +565,6 @@ public abstract class IssueJiraParser extends CommonJiraParser {
     EntityBuilder builder = EntityBuilder.forNestedEntity(JIRA, LABELS_ENTITY_FIELD);
     JsonNode labelsNode = fields.path(LABELS_PATH);
 
-
     if (labelsNode.size() == 0) {
       return null;
     }
@@ -577,7 +576,6 @@ public abstract class IssueJiraParser extends CommonJiraParser {
     }
 
     return builder.build();
-
   }
 
   /**
