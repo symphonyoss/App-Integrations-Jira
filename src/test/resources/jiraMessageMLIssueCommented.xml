@@ -6,8 +6,8 @@
 <attribute name="displayName" type="org.symphonyoss.string" value="Test User"/>
 </entity>
 <entity type="com.symphony.integration.jira.labels" version="1.0">
-<attribute name="#production" type="org.symphonyoss.string" value="#production"/>
-<attribute name="#test" type="org.symphonyoss.string" value="#test"/>
+<attribute name="production" type="org.symphonyoss.string" value="production"/>
+<attribute name="test" type="org.symphonyoss.string" value="test"/>
 </entity>
 <entity type="com.symphony.integration.jira.issue" version="1.0">
 <attribute name="project" type="org.symphonyoss.string" value="Sample 1"/>
