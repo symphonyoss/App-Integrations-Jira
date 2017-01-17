@@ -10,7 +10,7 @@
 </entity>
 </entity>
 <entity type="com.symphony.integration.jira.labels" version="1.0">
-<attribute name="#production" type="org.symphonyoss.string" value="#production"/>
+<attribute name="production" type="org.symphonyoss.string" value="production"/>
 </entity>
 <entity type="com.symphony.integration.jira.issue" version="1.0">
 <attribute name="project" type="org.symphonyoss.string" value="Sample 1"/>
