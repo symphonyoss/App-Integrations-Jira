@@ -622,7 +622,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
       return null;
     }
 
-    return presentationFormat("Labels: %s", labels);
+    return presentationFormat("Labels: %s", (Object[])labels);
   }
 
   /**
