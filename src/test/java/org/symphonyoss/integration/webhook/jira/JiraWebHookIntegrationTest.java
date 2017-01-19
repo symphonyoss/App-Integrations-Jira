@@ -16,7 +16,6 @@
 
 package org.symphonyoss.integration.webhook.jira;
 
-import static java.util.Collections.EMPTY_MAP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -51,6 +50,7 @@ import org.symphonyoss.integration.webhook.jira.parser.NullJiraParser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,7 +127,7 @@ public class JiraWebHookIntegrationTest {
   public void testIssueCreated() throws IOException, WebHookParseException {
     String body = getBody(ISSUE_CREATED_FILENAME);
 
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -150,7 +150,7 @@ public class JiraWebHookIntegrationTest {
   private void testIssueUpdated(String filename) throws IOException {
     String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueUpdated.xml");
     String body = getBody(filename);
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
 
     String result = jiraWhi.parse(payload);
 
@@ -162,7 +162,7 @@ public class JiraWebHookIntegrationTest {
   public void testCommentAdded() throws IOException, WebHookParseException {
     String body = getBody(COMMENT_ADDED_FILENAME);
 
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -183,7 +183,7 @@ public class JiraWebHookIntegrationTest {
     user.setDisplayName("Integration User");
     when(userService.getUserByUserName(anyString(), eq("integrationuser"))).thenReturn(user);
 
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -197,7 +197,7 @@ public class JiraWebHookIntegrationTest {
   public void testCommentUpdated() throws IOException, WebHookParseException {
     String body = getBody(COMMENT_UPDATED_FILENAME);
 
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -218,7 +218,7 @@ public class JiraWebHookIntegrationTest {
     user.setDisplayName("Integration User");
     when(userService.getUserByUserName(anyString(), eq("integrationuser"))).thenReturn(user);
 
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -232,7 +232,7 @@ public class JiraWebHookIntegrationTest {
   public void testCommentDeleted() throws IOException, WebHookParseException {
     String body = getBody(COMMENT_DELETED_FILENAME);
 
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -248,7 +248,7 @@ public class JiraWebHookIntegrationTest {
     Map<String, String> parameters = new HashMap<>();
     parameters.put(USER_KEY_PARAMETER, "test");
 
-    WebHookPayload payload = new WebHookPayload(parameters, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(parameters, Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNull(result);
@@ -260,7 +260,7 @@ public class JiraWebHookIntegrationTest {
     Map<String, String> parameters = new HashMap<>();
     parameters.put(USER_KEY_PARAMETER, "test");
 
-    WebHookPayload payload = new WebHookPayload(parameters, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(parameters, Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNull(result);
@@ -272,7 +272,7 @@ public class JiraWebHookIntegrationTest {
     Map<String, String> parameters = new HashMap<>();
     parameters.put(USER_KEY_PARAMETER, "test");
 
-    WebHookPayload payload = new WebHookPayload(parameters, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(parameters, Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNull(result);
@@ -284,7 +284,7 @@ public class JiraWebHookIntegrationTest {
     Map<String, String> parameters = new HashMap<>();
     parameters.put(USER_KEY_PARAMETER, "test");
 
-    WebHookPayload payload = new WebHookPayload(parameters, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(parameters, Collections.<String, String>emptyMap(), body);
     String result = jiraWhi.parse(payload);
 
     assertNull(result);
@@ -294,14 +294,14 @@ public class JiraWebHookIntegrationTest {
   public void testUnknownEvent() throws IOException, WebHookParseException {
     String body = getBody(SPRINT_CLOSED_FILENAME);
 
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
     assertNull(jiraWhi.parse(payload));
   }
 
   @Test
   public void testNoEventPayload() throws WebHookParseException {
     String body = "{ \"random\": \"json\" }";
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
     assertNull(jiraWhi.parse(payload));
   }
 
@@ -309,7 +309,7 @@ public class JiraWebHookIntegrationTest {
   public void testFailReadingJSON() throws IOException, WebHookParseException {
     String body = "";
 
-    WebHookPayload payload = new WebHookPayload(EMPTY_MAP, EMPTY_MAP, body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
     jiraWhi.parse(payload);
   }
 
