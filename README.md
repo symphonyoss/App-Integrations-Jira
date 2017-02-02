@@ -4,7 +4,7 @@ _Note that this project depends on internal Symphony infrastructure (repository.
 The JIRA Webhook Integration will allow you to receive notifications in Symphony whenever one of your JIRA issues is created or updated.
 
 ## How it works
-If you are a JIRA admin user, you can configure your JIRA WebHook to point it to the URL you generate in the JIRA Webhook Integration configuration pane and then you'll start receiving notifications for the supported events.
+If you are a JIRA admin user, you can configure your JIRA WebHook to point it to the URL you generate in the JIRA Webhook Application available on Symphony Market and then you'll start receiving notifications for the supported events.
 
 ## What formats and events it supports and what it produces
 Every integration will get a message sent in a specific format (depending on what system is it dealing with) and it will usually convert it into an "entity" before it reaches the Symphony platform.
