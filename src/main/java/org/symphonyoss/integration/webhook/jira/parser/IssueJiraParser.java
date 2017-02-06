@@ -52,21 +52,20 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.UNKNO
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_PATH;
 
-import com.symphony.logging.ISymphonyLogger;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.entity.Entity;
 import org.symphonyoss.integration.entity.EntityBuilder;
 import org.symphonyoss.integration.entity.model.User;
-import org.symphonyoss.integration.logging.IntegrationBridgeCloudLoggerFactory;
 import org.symphonyoss.integration.messageml.MessageMLFormatConstants;
 import org.symphonyoss.integration.parser.SafeString;
 import org.symphonyoss.integration.parser.SafeStringUtils;
 import org.symphonyoss.integration.parser.model.HashTag;
+import org.symphonyoss.integration.service.UserService;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -79,31 +78,31 @@ import java.net.URL;
  */
 public abstract class IssueJiraParser extends CommonJiraParser {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(IssueJiraParser.class);
+
   /**
    * Formatted issue info
    */
   public static final String ISSUE_INFO_FORMATTED_TEXT =
       "%s %s %s %s, %s %s";
+
   public static final String ISSUE_INFO_FORMATTED_TEXT_WITHOUT_LINK =
       "%s %s %s %s";
-
   /**
    * Formatted issue summary
    */
   public static final String ISSUE_SUMMARY_FORMATTED_TEXT = "Description: %s";
+
   /**
    * Formatted issue assignee
    */
   public static final String ISSUE_ASSIGNEE_FORMATTED_TEXT = "Assignee: %s";
-
   /**
    * Parameter 1: issue link with href.
    */
   public static final String LINKED_ISSUE_FORMATTED_TEXT = "(%s)";
   public static final String UNASSIGNED = "Unassigned";
   public static final String DEFAULT_ISSUE_KEY = "issue";
-  private static final ISymphonyLogger LOGGER =
-      IntegrationBridgeCloudLoggerFactory.getLogger(IssueJiraParser.class);
 
   @Autowired
   private UserService userService;
