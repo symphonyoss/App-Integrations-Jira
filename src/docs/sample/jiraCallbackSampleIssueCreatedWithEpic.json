@@ -116,7 +116,7 @@
       },
       "components": [],
       "timeoriginalestimate": null,
-      "description": "Only <br />for <b>test</b> line break\n <code>test</code>",
+      "description": "Only for test",
       "customfield_10010": null,
       "customfield_10011": null,
       "customfield_10012": null,
@@ -195,5 +195,19 @@
         "worklogs": []
       }
     }
+  },
+  "changelog":{
+    "id":"10216",
+    "items":[
+      {
+        "field":"Epic Link",
+        "fieldtype":"custom",
+        "from":null,
+        "fromString":null,
+        "to":"10102",
+        "toString":"CP-5"
+      }
+    ]
   }
 }
+
