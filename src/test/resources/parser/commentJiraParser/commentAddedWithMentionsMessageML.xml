@@ -33,7 +33,7 @@
 </entity>
 </entity>
 <entity type="com.symphony.integration.jira.comment" version="1.0">
-<attribute name="comment" type="org.symphonyoss.string" value="Hey, &lt;mention email=&quot;integrationuser@symphony.com&quot;/&gt;, adding a comment to &lt;mention email=&quot;user2@symphony.com&quot;/&gt;"/>
+<attribute name="comment" type="org.symphonyoss.string" value="Hey, [~integrationuser], adding a comment to [~user2]"/>
 <entity name="0" type="com.symphony.integration.jira.user" version="1.0">
 <attribute name="username" type="org.symphonyoss.string" value="user2"/>
 <attribute name="emailAddress" type="org.symphonyoss.string" value="user2@symphony.com"/>
