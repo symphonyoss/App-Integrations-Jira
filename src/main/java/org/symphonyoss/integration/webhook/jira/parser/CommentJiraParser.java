@@ -74,6 +74,7 @@ public class CommentJiraParser extends IssueJiraParser implements JiraParser {
   private static final Map<String, String> actions = new HashMap<>();
 
   private static final Pattern userCommentPattern = Pattern.compile("(\\[\\~)([\\w\\.]+)(])");
+  public static final String MENTION_MARKUP = "[~%s]";
 
   public CommentJiraParser() {
     actions.put(JIRA_ISSUE_COMMENTED, "commented on");
@@ -115,7 +116,7 @@ public class CommentJiraParser extends IssueJiraParser implements JiraParser {
           User user = userToMention.getValue();
 
           safeComment.safeReplace(new SafeString(userToMention.getKey()),
-              ParserUtils.presentationFormat("[~%s]", user.getUsername()));
+              ParserUtils.presentationFormat(MENTION_MARKUP, user.getUsername()));
 
           safeCommentPresentationML.safeReplace(new SafeString(userToMention.getKey()),
               ParserUtils.presentationFormat(MESSAGEML_MENTION_EMAIL_FORMAT, user.getEmailAddress()));
