@@ -112,6 +112,7 @@ public class CommentJiraParserTest extends JiraParserTest {
 
     User returnedUserKey1 = new User();
     returnedUserKey1.setEmailAddress(userKey1 + "@symphony.com");
+    returnedUserKey1.setUserName(userKey1);
     returnedUserKey1.setId(123l);
 
     String userKey2 = "user.Key_2";
