@@ -25,7 +25,7 @@
 <attribute name="displayName" type="org.symphonyoss.string" value="Test User"/>
 </entity>
 <entity type="com.symphony.integration.jira.comment" version="1.0">
-<attribute name="comment" type="org.symphonyoss.string" value="Hey, this is another test comment, but now, &lt;mention email=&quot;integrationuser@symphony.com&quot;/&gt;, with mention"/>
+<attribute name="comment" type="org.symphonyoss.string" value="Hey, this is another test comment, but now, [~integrationuser], with mention"/>
 <entity name="0" type="com.symphony.integration.jira.user" version="1.0">
 <attribute name="username" type="org.symphonyoss.string" value="integrationuser"/>
 <attribute name="emailAddress" type="org.symphonyoss.string" value="integrationuser@symphony.com"/>
