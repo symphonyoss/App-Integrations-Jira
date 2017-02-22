@@ -19,13 +19,12 @@ package org.symphonyoss.integration.webhook.jira.parser;
 import static org.symphonyoss.integration.parser.ParserUtils.presentationFormat;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
 
-import com.symphony.logging.ISymphonyLogger;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.integration.json.JsonUtils;
-import org.symphonyoss.integration.logging.IntegrationBridgeCloudLoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,8 +37,7 @@ import java.util.Map;
  */
 public class DefaultJiraParser extends CommonJiraParser implements JiraParser {
 
-  private static final ISymphonyLogger LOG =
-      IntegrationBridgeCloudLoggerFactory.getLogger(DefaultJiraParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultJiraParser.class);
 
   private static final String DEFAULT_ACTION_FORMATTED_TEXT = "%s %s";
 

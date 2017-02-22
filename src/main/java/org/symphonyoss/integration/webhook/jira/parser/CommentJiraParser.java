@@ -16,13 +16,11 @@
 
 package org.symphonyoss.integration.webhook.jira.parser;
 
-import static org.symphonyoss.integration.messageml.MessageMLFormatConstants
-    .MESSAGEML_MENTION_EMAIL_FORMAT;
+import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_MENTION_EMAIL_FORMAT;
 import static org.symphonyoss.integration.parser.ParserUtils.presentationFormat;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENTED;
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants
-    .JIRA_ISSUE_COMMENT_DELETED;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENT_DELETED;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENT_EDITED;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.AUTHOR_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.AUTHOR_PATH;
@@ -76,6 +74,7 @@ public class CommentJiraParser extends IssueJiraParser implements JiraParser {
   private static final Map<String, String> actions = new HashMap<>();
 
   private static final Pattern userCommentPattern = Pattern.compile("(\\[\\~)([\\w\\.]+)(])");
+  public static final String MENTION_MARKUP = "[~%s]";
 
   public CommentJiraParser() {
     actions.put(JIRA_ISSUE_COMMENTED, "commented on");
@@ -98,9 +97,43 @@ public class CommentJiraParser extends IssueJiraParser implements JiraParser {
   private String getEntityML(JsonNode node, String webHookEvent) {
     EntityBuilder builder = createBasicEntityBuilder(node, webHookEvent);
     EntityBuilder issueBuilder = createBasicIssueEntityBuilder(node);
-
     EntityBuilder commentBuilder = EntityBuilder.forNestedEntity(JIRA, COMMENT_ENTITY_FIELD);
-    SafeString safeComment = getSafeCommentCreatingEntities(node, commentBuilder);
+    String comment = getOptionalField(node, COMMENT_PATH, BODY_PATH, "");
+
+    SafeString safeComment = SafeString.EMPTY_SAFE_STRING;
+    SafeString safeCommentPresentationML = SafeString.EMPTY_SAFE_STRING;
+
+    if(StringUtils.isNotEmpty(comment)){
+      Map<String, User> usersToMention = determineUserMentions(comment);
+      comment = JiraParserUtils.stripJiraFormatting(comment);
+
+      safeComment = new SafeString(comment);
+      safeCommentPresentationML = new SafeString(comment);
+
+      if(usersToMention != null && !usersToMention.isEmpty()){
+        int count = 0;
+        for (Map.Entry<String, User> userToMention : usersToMention.entrySet()) {
+          User user = userToMention.getValue();
+
+          safeComment.safeReplace(new SafeString(userToMention.getKey()),
+              ParserUtils.presentationFormat(MENTION_MARKUP, user.getUsername()));
+
+          safeCommentPresentationML.safeReplace(new SafeString(userToMention.getKey()),
+              ParserUtils.presentationFormat(MESSAGEML_MENTION_EMAIL_FORMAT, user.getEmailAddress()));
+
+          Entity mentionEntity = user.toEntity(JIRA, String.valueOf(count++));
+          commentBuilder.nestedEntity(mentionEntity);
+        }
+
+        safeComment.replaceLineBreaks();
+        safeCommentPresentationML.replaceLineBreaks();
+      }
+    }
+
+    commentBuilder.attribute(COMMENT_ENTITY_FIELD, safeComment);
+    SafeString presentationML = getPresentationML(node, webHookEvent, safeCommentPresentationML);
+
+
     Entity commentEntity = commentBuilder.build();
 
     if (JIRA_ISSUE_COMMENTED.equals(webHookEvent)) {
@@ -109,85 +142,10 @@ public class CommentJiraParser extends IssueJiraParser implements JiraParser {
       issueBuilder.nestedEntity(commentEntity).attribute(AUTHOR_ENTITY_FIELD, getCommentDisplayName(node, UPDATE_AUTHOR_PATH));
     }
 
-    SafeString presentationML = getPresentationML(node, webHookEvent, safeComment);
-
     try {
       return builder.presentationML(presentationML).nestedEntity(issueBuilder.build()).generateXML();
     } catch (EntityXMLGeneratorException e) {
       throw new JiraParserException("Something went wrong while building the message for JIRA Comment event.", e);
-    }
-  }
-
-  /**
-   *
-   * Prepares the comment to be set at the presentationML and the comment entity.
-   *
-   * Checks if in the comment exist any jira mentioned user (pattern: [~username]).
-   *  - if yes, will search this user on Symphony, finding will replace the jira mention
-   *    to a Mention tag in presentationML and for a Mention Entity.
-   *    Sample:
-   *      this: 'this is another comment for [~symphonyUser]'.
-   *      Will be translated to this:
-   *        this is another comment for <mention email="symphonyuser@symphony.com"/>
-   *      and
-   *      {@code
-   *        <entity type="com.symphony.integration.jira.comment" version="1.0">
-   *          <attribute name="comment" type="org.symphonyoss.string"
-   *            value="this is another comment for &lt;mention email=&quot;symphonyuser@symphony.com&quot;/&gt;"/>
-   *          <entity name="0" type="com.symphony.integration.jira.user" version="1.0">
-   *            <attribute name="username" type="org.symphonyoss.string" value="symphonyuser"/>
-   *            <attribute name="emailAddress" type="org.symphonyoss.string" value="symphonyuser@symphony.com"/>
-   *            <attribute name="displayName" type="org.symphonyoss.string" value="Symphony User"/>
-   *            <entity type="com.symphony.mention" version="1.0">
-   *              <attribute name="id" type="org.symphony.oss.number.long" value="123"/>
-   *              <attribute name="name" type="org.symphonyoss.string" value="Symphony User"/>
-   *            </entity>
-   *          </entity>
-   *        </entity>
-   *      }
-   *
-   *
-   * @param node main node where has the comment
-   * @param commentBuilder - Comment entity builder
-   * @return A safeString comment
-   */
-  private SafeString getSafeCommentCreatingEntities(JsonNode node, EntityBuilder commentBuilder) {
-    String comment = getOptionalField(node, COMMENT_PATH, BODY_PATH, "");
-    SafeString safeComment = SafeString.EMPTY_SAFE_STRING;
-
-    if(StringUtils.isNotEmpty(comment)){
-      Map<String, User> usersToMention = determineUserMentions(comment);
-      comment = JiraParserUtils.stripJiraFormatting(comment);
-      safeComment = new SafeString(comment);
-      replaceCommentAndCreateMentionEntity(commentBuilder, safeComment, usersToMention);
-    }
-    commentBuilder.attribute(COMMENT_ENTITY_FIELD, safeComment);
-    return safeComment;
-  }
-
-  /**
-   *
-   * Loops over the list creating the comment and the mention entities.
-   *
-   * @param commentBuilder - Comment entity builder
-   * @param safeComment - SafeString comment
-   * @param usersToMention - list of users to create the mentions
-   */
-  private void replaceCommentAndCreateMentionEntity(EntityBuilder commentBuilder,
-      SafeString safeComment, Map<String, User> usersToMention) {
-
-    if(usersToMention != null && !usersToMention.isEmpty()){
-      int count = 0;
-      for (Map.Entry<String, User> userToMention : usersToMention.entrySet()) {
-        User user = userToMention.getValue();
-
-        safeComment.safeReplace(new SafeString(userToMention.getKey()),
-            ParserUtils.presentationFormat(MESSAGEML_MENTION_EMAIL_FORMAT, user.getEmailAddress()));
-
-        Entity mentionEntity = user.toEntity(JIRA, String.valueOf(count++));
-        commentBuilder.nestedEntity(mentionEntity);
-      }
-      safeComment.replaceLineBreaks();
     }
   }
 

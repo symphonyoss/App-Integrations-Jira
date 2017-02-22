@@ -19,13 +19,11 @@ package org.symphonyoss.integration.webhook.jira;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
 
 import com.symphony.api.pod.model.V1Configuration;
-import com.symphony.logging.ISymphonyLogger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.json.JsonUtils;
-import org.symphonyoss.integration.logging.IntegrationBridgeCloudLoggerFactory;
 import org.symphonyoss.integration.webhook.WebHookIntegration;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
@@ -47,9 +45,6 @@ import javax.annotation.PostConstruct;
  */
 @Component
 public class JiraWebHookIntegration extends WebHookIntegration {
-
-  private static final ISymphonyLogger LOG =
-      IntegrationBridgeCloudLoggerFactory.getLogger(JiraWebHookIntegration.class);
 
   @Autowired
   private NullJiraParser defaultJiraParser;

@@ -20,7 +20,7 @@
 <attribute name="displayName" type="org.symphonyoss.string" value="Paulo  [Administrator]"/>
 </entity>
 <entity type="com.symphony.integration.jira.comment" version="1.0">
-<attribute name="comment" type="org.symphonyoss.string" value="Comment Edited...with this user, &lt;mention email=&quot;integrationuser@symphony.com&quot;/&gt;, mentioned."/>
+<attribute name="comment" type="org.symphonyoss.string" value="Comment Edited...with this user, [~integrationuser], mentioned."/>
 <entity name="0" type="com.symphony.integration.jira.user" version="1.0">
 <attribute name="username" type="org.symphonyoss.string" value="integrationuser"/>
 <attribute name="emailAddress" type="org.symphonyoss.string" value="integrationuser@symphony.com"/>
