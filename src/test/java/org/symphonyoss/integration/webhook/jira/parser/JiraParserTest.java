@@ -19,8 +19,6 @@ package org.symphonyoss.integration.webhook.jira.parser;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-import com.symphony.api.pod.client.ApiException;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -40,7 +38,7 @@ public class JiraParserTest {
   protected UserService userService;
 
   @Before
-  public void setup() throws ApiException {
+  public void setup() {
     when(userService.getUserByEmail(anyString(), anyString())).thenReturn(createEntityUser());
 
   }
