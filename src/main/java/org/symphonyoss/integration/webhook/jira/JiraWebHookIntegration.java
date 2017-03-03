@@ -18,12 +18,11 @@ package org.symphonyoss.integration.webhook.jira;
 
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
 
-import com.symphony.api.pod.model.V1Configuration;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.json.JsonUtils;
+import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.webhook.WebHookIntegration;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
@@ -65,10 +64,10 @@ public class JiraWebHookIntegration extends WebHookIntegration {
   }
 
   @Override
-  public void onConfigChange(V1Configuration conf) {
-    super.onConfigChange(conf);
+  public void onConfigChange(IntegrationSettings settings) {
+    super.onConfigChange(settings);
 
-    String jiraUser = conf.getType();
+    String jiraUser = settings.getType();
     for (JiraParser parser : parsers.values()) {
       parser.setJiraUser(jiraUser);
     }

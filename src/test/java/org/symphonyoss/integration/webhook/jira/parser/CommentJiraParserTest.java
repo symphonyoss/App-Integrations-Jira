@@ -23,8 +23,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-import com.symphony.api.pod.client.ApiException;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Assert;
 import org.junit.Test;
@@ -100,8 +98,7 @@ public class CommentJiraParserTest extends JiraParserTest {
   }
 
   @Test
-  public void testParseCommentAddedWithFullJiraMarkup()
-      throws WebHookParseException, IOException, ApiException {
+  public void testParseCommentAddedWithFullJiraMarkup() throws WebHookParseException, IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     JsonNode node =
         JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_COMPLETE_JIRA_MARKUP_REQUEST));
@@ -143,8 +140,7 @@ public class CommentJiraParserTest extends JiraParserTest {
   }
 
   @Test
-  public void testParseCommentAddedWithoutProjectName()
-      throws WebHookParseException, IOException, ApiException {
+  public void testParseCommentAddedWithoutProjectName() throws WebHookParseException, IOException {
     User user = new User();
     user.setEmailAddress("test@symphony.com");
     doReturn(user).when(userService).getUserByEmail(anyString(), anyString());
