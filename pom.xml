@@ -11,6 +11,11 @@
 
     <artifactId>integration-jira</artifactId>
 
+    <properties>
+        <webapp.directory>jira</webapp.directory>
+        <rpm.name>jira-symphony-integration</rpm.name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.symphonyoss</groupId>
