@@ -46,7 +46,7 @@ import java.util.Map;
 @RunWith(MockitoJUnitRunner.class)
 public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
-  private static final String FILENAME = "jiraCallbackSampleIssueUpdated.json";
+  private static final String FILENAME = "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdated.json";
 
   @InjectMocks
   private JiraParser issueUpdated = new IssueUpdatedJiraParser();

@@ -44,37 +44,37 @@ import java.io.IOException;
 public class CommentJiraParserTest extends JiraParserTest {
 
   private static final String FILENAME_COMPLETE_REQUEST =
-      "jiraCallbackSampleCommentAdded.json";
+      "parser/commentJiraParser/jiraCallbackSampleCommentAdded.json";
 
   private static final String FILENAME_URL_MARKUP =
-      "jiraCallbackSampleMarkUpLinkDescription.json";
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleMarkUpLinkDescription.json";
 
   private static final String FILENAME_COMPLETE_JIRA_MARKUP_REQUEST =
-      "jiraCallbackSampleCommentAddedJiraMarkup.json";
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedJiraMarkup.json";
 
   private static final String FILENAME_INCOMPLETE_REQUEST =
       "jiraCallbackSampleCommentAddedAlt.json";
 
   private static final String FILENAME_NO_LABELS_REQUEST =
-      "jiraCallbackSampleCommentAddedWithoutLabels.json";
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithoutLabels.json";
 
   private static final String FILENAME_NO_ISSUE_TYPE_REQUEST =
-      "jiraCallbackSampleCommentAddedWithoutIssueType.json";
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithoutIssueType.json";
 
   private static final String FILENAME_NO_PROJECT_NAME_REQUEST =
-      "jiraCallbackSampleCommentAddedWithoutProjectName.json";
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithoutProjectName.json";
 
   private static final String FILENAME_NO_COMMENT_REQUEST =
-      "jiraCallbackSampleCommentAddedWithoutComment.json";
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithoutComment.json";
 
   private static final String FILENAME_EMAIL_WITH_SPACE =
-      "jiraCallbackSampleCommentAddedAndEmailWithSpace.json";
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedAndEmailWithSpace.json";
 
   private static final String COMMENT_ADDED_WITH_MENTION_FILENAME =
-      "jiraCallbackSampleCommentAddedWithMention.json";
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithMention.json";
 
   private static final String COMMENT_ADDED_WITH_MENTIONS_FILENAME =
-      "jiraCallbackSampleCommentAddedWithMentions.json";
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithMentions.json";
 
   @InjectMocks
   private CommentJiraParser commentJiraParser = new CommentJiraParser();
