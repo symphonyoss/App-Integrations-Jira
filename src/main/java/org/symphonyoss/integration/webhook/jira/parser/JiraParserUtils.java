@@ -16,6 +16,8 @@
 
 package org.symphonyoss.integration.webhook.jira.parser;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +41,11 @@ public class JiraParserUtils {
    * @return the formatted message, removing markup formatting and special characters, if any.
    */
   public static String stripJiraFormatting(String jiraMessage) {
+
+    if (StringUtils.isBlank(jiraMessage)) {
+      return jiraMessage;
+    }
+
     // remove header, paragraph
     jiraMessage = jiraMessage.replaceAll("h[0-6]. |bq. ", "");
 

@@ -36,7 +36,7 @@ import java.io.IOException;
 public class EmailAddressWithSpaceTest extends JiraParserTest {
 
   private static final String FILENAME =
-      "jiraCallbackSampleEmailAddressWithSpace.json";
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleEmailAddressWithSpace.json";
 
   @InjectMocks
   private CommentJiraParser commentJiraParser = new CommentJiraParser();
