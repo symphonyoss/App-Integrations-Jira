@@ -46,6 +46,12 @@ public class CommentJiraParserTest extends JiraParserTest {
   private static final String FILENAME_COMPLETE_REQUEST =
       "parser/commentJiraParser/jiraCallbackSampleCommentAdded.json";
 
+  private static final String FILENAME_COMMENT_ADDED_RESTRICTED_COMMENT =
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedRestrictedComment.json";
+
+  private static final String FILENAME_COMMENT_UPDATED_RESTRICTED_COMMENT =
+      "parser/commentJiraParser/jiraCallbackSampleCommentUpdatedRestrictedComment.json";
+
   private static final String FILENAME_URL_MARKUP =
       "parser/issueUpdatedJiraParser/jiraCallbackSampleMarkUpLinkDescription.json";
 
@@ -87,6 +93,20 @@ public class CommentJiraParserTest extends JiraParserTest {
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_COMPLETE_REQUEST));
     String expectedMessage = readFile("parser/commentJiraParser/commentAddedMessageML.xml");
     Assert.assertEquals(expectedMessage, this.commentJiraParser.parse(null, node));
+  }
+
+  @Test
+  public void testParseCommentAddedRestrictedComment() throws WebHookParseException, IOException {
+    ClassLoader classLoader = getClass().getClassLoader();
+    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_COMMENT_ADDED_RESTRICTED_COMMENT));
+    Assert.assertEquals(null, this.commentJiraParser.parse(null, node));
+  }
+
+  @Test
+  public void testParseCommentUpdatedRestrictedComment() throws WebHookParseException, IOException {
+    ClassLoader classLoader = getClass().getClassLoader();
+    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_COMMENT_UPDATED_RESTRICTED_COMMENT));
+    Assert.assertEquals(null, this.commentJiraParser.parse(null, node));
   }
 
   @Test
