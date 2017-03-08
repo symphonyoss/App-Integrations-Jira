@@ -96,7 +96,7 @@ public class IssueCreatedJiraParser extends IssueJiraParser implements JiraParse
     SafeString priority = getPriorityFormatted(node);
     SafeString status = getStatusFormatted(node);
 
-    SafeString presentationBody = getPresentationMLBody(assignee, label, epic, priority, status, description.toString());
+    SafeString presentationBody = getPresentationMLBody(assignee, label, epic, priority, status, description);
 
     return presentationFormat(ISSUE_CREATED_FORMATTED_TEXT, issueInfo, presentationBody);
   }

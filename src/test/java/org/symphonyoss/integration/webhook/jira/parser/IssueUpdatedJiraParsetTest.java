@@ -25,8 +25,6 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ASSIG
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.FIELDS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUE_PATH;
 
-import com.symphony.api.pod.client.ApiException;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
@@ -48,7 +46,7 @@ import java.util.Map;
 @RunWith(MockitoJUnitRunner.class)
 public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
-  private static final String FILENAME = "jiraCallbackSampleIssueUpdated.json";
+  private static final String FILENAME = "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdated.json";
 
   @InjectMocks
   private JiraParser issueUpdated = new IssueUpdatedJiraParser();
@@ -94,8 +92,7 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
   }
 
   @Test
-  public void testIssueUpdatedWithoutChangelogStatus()
-      throws IOException, JiraParserException, ApiException {
+  public void testIssueUpdatedWithoutChangelogStatus() throws IOException, JiraParserException {
     User user = new User();
     user.setEmailAddress("test@symphony.com");
     doReturn(user).when(userService).getUserByEmail(anyString(), eq("test@symphony.com"));

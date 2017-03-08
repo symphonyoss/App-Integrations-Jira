@@ -40,8 +40,6 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.STATU
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TOSTRING_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_PATH;
 
-import com.symphony.api.pod.client.ApiException;
-
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -86,7 +84,7 @@ public class IssueJiraParserTest {
   private IssueJiraParser issueJiraParser = new IssueCreatedJiraParser();
 
   @Before
-  public void setup() throws ApiException {
+  public void setup() {
     User returnedUser = new User();
     returnedUser.setEmailAddress(EMAIL_ADDRESS.toLowerCase());
     returnedUser.setDisplayName(USER_DISPLAY_NAME);

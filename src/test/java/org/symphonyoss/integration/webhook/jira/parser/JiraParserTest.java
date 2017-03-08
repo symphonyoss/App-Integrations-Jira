@@ -19,12 +19,12 @@ package org.symphonyoss.integration.webhook.jira.parser;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-import com.symphony.api.pod.client.ApiException;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.mockito.Mock;
+import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.service.UserService;
 
 import java.io.File;
@@ -40,7 +40,7 @@ public class JiraParserTest {
   protected UserService userService;
 
   @Before
-  public void setup() throws ApiException {
+  public void setup() {
     when(userService.getUserByEmail(anyString(), anyString())).thenReturn(createEntityUser());
 
   }
@@ -53,6 +53,11 @@ public class JiraParserTest {
     user.setEmailAddress("test@symphony.com");
     user.setDisplayName("Test User");
     return user;
+  }
+
+  protected JsonNode readJsonFromFile(String filename) throws IOException {
+    ClassLoader classLoader = getClass().getClassLoader();
+    return JsonUtils.readTree(classLoader.getResourceAsStream(filename));
   }
 
   public String readFile(String fileName) throws IOException {

@@ -51,6 +51,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TYPE_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.UNKNOWN_PROJECT;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_PATH;
+import static org.symphonyoss.integration.webhook.jira.parser.JiraParserUtils.stripJiraFormatting;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
@@ -91,7 +92,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
   /**
    * Formatted issue summary
    */
-  public static final String ISSUE_SUMMARY_FORMATTED_TEXT = "Description: %s";
+  public static final String ISSUE_DESCRIPTION_FORMATTED_TEXT = "Description: %s";
 
   /**
    * Formatted issue assignee
@@ -301,7 +302,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
    * @return Description: XXX
    */
   public SafeString getDescriptionFormatted(JsonNode node) {
-    return presentationFormat(ISSUE_SUMMARY_FORMATTED_TEXT, getIssueDescription(node));
+    return presentationFormat(ISSUE_DESCRIPTION_FORMATTED_TEXT, getIssueDescription(node));
   }
 
   /**
@@ -551,7 +552,8 @@ public abstract class IssueJiraParser extends CommonJiraParser {
    */
   private String getIssueDescription(JsonNode node) {
     JsonNode issueNode = node.path(ISSUE_PATH);
-    return issueNode.path(FIELDS_PATH).path(DESCRIPTION_PATH).textValue();
+    String descriptionField = issueNode.path(FIELDS_PATH).path(DESCRIPTION_PATH).textValue();
+    return stripJiraFormatting(descriptionField);
   }
 
   /**
