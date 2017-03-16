@@ -30,6 +30,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.COMME
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.DISPLAY_NAME_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.JIRA;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.UPDATE_AUTHOR_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.VISIBILITY_PATH;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
@@ -90,8 +91,25 @@ public class CommentJiraParser extends IssueJiraParser implements JiraParser {
 
   @Override
   public String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
-    String webHookEvent = node.path(ISSUE_EVENT_TYPE_NAME).asText();
-    return getEntityML(node, webHookEvent);
+    if (isCommentRestricted(node)) {
+      return null;
+    } else {
+      String webHookEvent = node.path(ISSUE_EVENT_TYPE_NAME).asText();
+      return getEntityML(node, webHookEvent);
+    }
+  }
+
+  /**
+   * JIRA comments may be restricted to certain user groups on JIRA. This is indicated by the presence of a "visibility"
+   * attribute on the comment. This method will deem a comment as restricted if the "visibility" attribute is present,
+   * regardless of its content, as it is not possible to evaluate the visibility restriction on JIRA against the rooms
+   * the webhook will post to.
+   *
+   * @param node JIRA payload.
+   * @return Indication on whether the comment is restricted or not.
+   */
+  private boolean isCommentRestricted(JsonNode node) {
+    return node.path(COMMENT_PATH).has(VISIBILITY_PATH);
   }
 
   private String getEntityML(JsonNode node, String webHookEvent) {

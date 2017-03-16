@@ -17,6 +17,9 @@
 package org.symphonyoss.integration.webhook.jira;
 
 /**
+ * This class contains the constants to access data in the JSON payload received from JIRA, as well as constants to
+ * build the entity contained in the webhook message dispatched by the JIRA parser.
+ *
  * Created by rsanchez on 18/05/16.
  */
 public final class JiraParserConstants {
@@ -82,27 +85,20 @@ public final class JiraParserConstants {
 
   public static final String DISPLAY_NAME_PATH = "displayName";
 
+  public static final String VISIBILITY_PATH = "visibility";
+
   public static final String PROJECT_ENTITY_FIELD = "project";
   public static final String KEY_ENTITY_FIELD = "key";
   public static final String SUBJECT_ENTITY_FIELD = "subject";
   public static final String TYPE_ENTITY_FIELD = "type";
   public static final String DESCRIPTION_ENTITY_FIELD = "description";
   public static final String LINK_ENTITY_FIELD = "link";
-  public static final String ASSIGNEE_ENTITY_FIELD = "assignee";
   public static final String PRIORITY_ENTITY_FIELD = "priority";
   public static final String ISSUE_ENTITY_FIELD = "issue";
   public static final String LABELS_ENTITY_FIELD = "labels";
   public static final String EPIC_ENTITY_FIELD = "epic";
   public static final String USER_ENTITY_FIELD = "user";
-  public static final String USERNAME_ENTITY_FIELD = "username";
-  public static final String NAME_ENTITY_FIELD = "name";
-  public static final String EMAIL_ADDRESS_ENTITY_FIELD = "emailAddress";
-  public static final String DISPLAY_NAME_ENTITY_FIELD = "displayName";
   public static final String AUTHOR_ENTITY_FIELD = "author";
   public static final String COMMENT_ENTITY_FIELD = "comment";
-
-  public static final String USER_ID = "id";
-  public static final String MENTION_FIELD = "mention";
-
 
 }

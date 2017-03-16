@@ -63,21 +63,28 @@ import java.util.Map;
 @RunWith(MockitoJUnitRunner.class)
 public class JiraWebHookIntegrationTest {
 
-  private static final String ISSUE_CREATED_FILENAME = "jiraCallbackSampleIssueCreated.json";
+  private static final String ISSUE_CREATED_FILENAME =
+      "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreated.json";
 
-  private static final String ISSUE_UPDATED_FILENAME = "jiraCallbackSampleIssueUpdated.json";
+  private static final String ISSUE_UPDATED_FILENAME =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdated.json";
 
-  private static final String ISSUE_UPDATED_WITHOUT_HASHTAG = "jiraCallbackSampleIssueUpdatedWithoutHashTagLabel.json";
+  private static final String ISSUE_UPDATED_WITHOUT_HASHTAG =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdatedWithoutHashTagLabel.json";
 
-  private static final String COMMENT_ADDED_FILENAME = "jiraCallbackSampleCommentAdded.json";
+  private static final String COMMENT_ADDED_FILENAME = "parser/commentJiraParser/jiraCallbackSampleCommentAdded.json";
 
-  private static final String COMMENT_ADDED_WITH_MENTION_FILENAME = "jiraCallbackSampleCommentAddedWithMention.json";
+  private static final String COMMENT_ADDED_WITH_MENTION_FILENAME =
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithMention.json";
 
-  private static final String COMMENT_UPDATED_FILENAME = "jiraCallbackSampleCommentUpdated.json";
+  private static final String COMMENT_UPDATED_FILENAME =
+      "parser/commentJiraParser/jiraCallbackSampleCommentUpdated.json";
 
-  private static final String COMMENT_UPDATED_WITH_MENTION_FILENAME = "jiraCallbackSampleCommentUpdatedWithMention.json";
+  private static final String COMMENT_UPDATED_WITH_MENTION_FILENAME =
+      "parser/commentJiraParser/jiraCallbackSampleCommentUpdatedWithMention.json";
 
-  private static final String COMMENT_DELETED_FILENAME = "jiraCallbackSampleCommentDeleted.json";
+  private static final String COMMENT_DELETED_FILENAME =
+      "parser/commentJiraParser/jiraCallbackSampleCommentDeleted.json";
 
   private static final String SPRINT_STARTED_FILENAME = "jiraCallbackSampleSprintStarted.json";
 
@@ -132,7 +139,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueCreated.xml");
+    String expected = readFileAppendingMessageMLTag("parser/issueCreatedJiraParser/jiraMessageMLIssueCreated.xml");
 
     assertEquals(expected, result);
   }
@@ -148,7 +155,7 @@ public class JiraWebHookIntegrationTest {
   }
 
   private void testIssueUpdated(String filename) throws IOException {
-    String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueUpdated.xml");
+    String expected = readFileAppendingMessageMLTag("parser/issueUpdatedJiraParser/jiraMessageMLIssueUpdated.xml");
     String body = getBody(filename);
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
 
@@ -167,7 +174,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueCommented.xml");
+    String expected = readFileAppendingMessageMLTag("parser/commentJiraParser/jiraMessageMLIssueCommented.xml");
 
     assertEquals(expected, result);
   }
@@ -188,7 +195,8 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueCommentedWithMention.xml");
+    String expected = readFileAppendingMessageMLTag(
+        "parser/commentJiraParser/jiraMessageMLIssueCommentedWithMention.xml");
 
     assertEquals(expected, result);
   }
@@ -202,7 +210,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueCommentUpdated.xml");
+    String expected = readFileAppendingMessageMLTag("parser/commentJiraParser/jiraMessageMLIssueCommentUpdated.xml");
 
     assertEquals(expected, result);
   }
@@ -223,7 +231,8 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueCommentUpdatedWithMention.xml");
+    String expected = readFileAppendingMessageMLTag(
+        "parser/commentJiraParser/jiraMessageMLIssueCommentUpdatedWithMention.xml");
 
     assertEquals(expected, result);
   }
@@ -237,7 +246,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("jiraMessageMLIssueCommentDeleted.xml");
+    String expected = readFileAppendingMessageMLTag("parser/commentJiraParser/jiraMessageMLIssueCommentDeleted.xml");
 
     assertEquals(expected, result);
   }
