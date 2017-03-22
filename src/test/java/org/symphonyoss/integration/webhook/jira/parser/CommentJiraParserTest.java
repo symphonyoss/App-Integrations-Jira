@@ -81,6 +81,9 @@ public class CommentJiraParserTest extends JiraParserTest {
   private static final String COMMENT_ADDED_WITH_MENTIONS_FILENAME =
       "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithMentions.json";
 
+  private static final String COMMENT_ADDED_WITH_LINEBREAK =
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithLinebreak.json";
+
   @InjectMocks
   private CommentJiraParser commentJiraParser = new CommentJiraParser();
 
@@ -233,5 +236,13 @@ public class CommentJiraParserTest extends JiraParserTest {
     assertEquals(expected, result);
   }
 
+  @Test
+  public void testParseCommentAddedWithLinebreak() throws WebHookParseException, IOException{
+    ClassLoader classLoader = getClass().getClassLoader();
+    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(COMMENT_ADDED_WITH_LINEBREAK));
+
+    String expectedMessage = readFile("parser/commentJiraParser/commentAddedWithLinebreakMessageML.xml");
+    assertEquals(expectedMessage, this.commentJiraParser.parse(null,node));
+  }
 
 }
