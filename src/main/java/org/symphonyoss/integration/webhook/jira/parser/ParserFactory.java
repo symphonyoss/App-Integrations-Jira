@@ -17,16 +17,18 @@
 package org.symphonyoss.integration.webhook.jira.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.List;
-import java.util.Map;
+import org.symphonyoss.integration.model.config.IntegrationSettings;
+import org.symphonyoss.integration.model.message.MessageMLVersion;
 
 /**
- * Interface that defines methods to validate JIRA messages
- * Created by rsanchez on 17/05/16.
+ * Abstract factory responsible to create JIRA parsers.
+ * Created by rsanchez on 21/03/17.
  */
-public interface JiraParser {
+public interface ParserFactory {
 
-  String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException;
+  boolean accept(MessageMLVersion version);
 
+  void onConfigChange(IntegrationSettings settings);
+
+  JiraParser getParser(JsonNode node);
 }

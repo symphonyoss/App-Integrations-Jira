@@ -17,31 +17,32 @@
 package org.symphonyoss.integration.webhook.jira.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.stereotype.Component;
+import org.symphonyoss.integration.model.config.IntegrationSettings;
+import org.symphonyoss.integration.model.message.MessageMLVersion;
 
 /**
- * Created by rsanchez on 25/07/16.
+ * Parser factory for the MessageML v2.
+ * Created by rsanchez on 21/03/17.
  */
-public class CommonJiraParser implements JiraParser {
-
-  protected String jiraUser;
+@Component
+public class V2ParserFactory implements ParserFactory {
 
   @Override
-  public List<String> getEvents() {
-    return Collections.emptyList();
+  public boolean accept(MessageMLVersion version) {
+    return MessageMLVersion.V2.equals(version);
   }
 
   @Override
-  public void setJiraUser(String jiraUser) {
-    this.jiraUser = jiraUser;
+  public void onConfigChange(IntegrationSettings settings) {
+    // Do nothing
   }
 
   @Override
-  public String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
-    return null;
+  public JiraParser getParser(JsonNode node) {
+    // FIXME To be implemented APP-622
+    throw new NotImplementedException("Parser not implemented");
   }
 
 }

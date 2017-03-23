@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

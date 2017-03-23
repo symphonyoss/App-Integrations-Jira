@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ import java.util.List;
  * Created by rsanchez on 28/07/16.
  */
 @Component
-public class NullJiraParser extends CommonJiraParser implements JiraParser {
+public class NullJiraParser extends CommonJiraParser {
 
   @Override
   public List<String> getEvents() {

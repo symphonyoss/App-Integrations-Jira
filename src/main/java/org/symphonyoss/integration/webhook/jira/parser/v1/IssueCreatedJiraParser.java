@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.symphonyoss.integration.parser.ParserUtils.presentationFormat;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_CREATED;
@@ -24,6 +24,8 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.entity.EntityBuilder;
 import org.symphonyoss.integration.exception.EntityXMLGeneratorException;
 import org.symphonyoss.integration.parser.SafeString;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +37,7 @@ import java.util.Map;
  * Created by rsanchez on 18/05/16.
  */
 @Component
-public class IssueCreatedJiraParser extends IssueJiraParser implements JiraParser {
+public class IssueCreatedJiraParser extends IssueJiraParser {
 
   /**
    * Formatted message expected by user

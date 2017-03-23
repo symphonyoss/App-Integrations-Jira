@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.symphonyoss.integration.parser.ParserUtils.presentationFormat;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.PROJECT_CREATED;
@@ -27,6 +27,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.PROJE
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.UNKNOWN_PROJECT;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,7 +37,7 @@ import java.util.Map;
 /**
  * Created by rsanchez on 22/07/16.
  */
-public class ProjectJiraParser extends CommonJiraParser implements JiraParser {
+public class ProjectJiraParser extends CommonJiraParser {
 
   /**
    * Formatted message expected by user

@@ -14,19 +14,36 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
+import org.symphonyoss.integration.webhook.jira.parser.v1.V1JiraParser;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Interface that defines methods to validate JIRA messages
- * Created by rsanchez on 17/05/16.
+ * Created by rsanchez on 25/07/16.
  */
-public interface JiraParser {
+public class CommonJiraParser implements V1JiraParser {
 
-  String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException;
+  protected String jiraUser;
+
+  @Override
+  public List<String> getEvents() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public void setJiraUser(String jiraUser) {
+    this.jiraUser = jiraUser;
+  }
+
+  @Override
+  public String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+    return null;
+  }
 
 }

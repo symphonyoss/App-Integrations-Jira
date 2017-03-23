@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -32,6 +32,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.entity.model.User;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.io.IOException;
 import java.util.Collections;

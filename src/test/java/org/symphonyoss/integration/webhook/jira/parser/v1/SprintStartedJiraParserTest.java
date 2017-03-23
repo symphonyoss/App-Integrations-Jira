@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
 import org.symphonyoss.integration.json.JsonUtils;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.io.IOException;
 import java.util.HashMap;

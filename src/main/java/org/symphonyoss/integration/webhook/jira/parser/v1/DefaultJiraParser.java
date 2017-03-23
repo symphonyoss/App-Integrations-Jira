@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.symphonyoss.integration.parser.ParserUtils.presentationFormat;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.integration.json.JsonUtils;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +36,7 @@ import java.util.Map;
  *
  * Created by mquilzini on 22/07/16.
  */
-public class DefaultJiraParser extends CommonJiraParser implements JiraParser {
+public class DefaultJiraParser extends CommonJiraParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultJiraParser.class);
 

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.symphonyoss.integration.parser.ParserUtils.presentationFormat;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_SPRINT_STARTED;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.USER_KEY_PARAMETER;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.Map;
  * This class is responsible to validate the event 'sprint_started' sent by JIRA Webhook.
  * Created by rsanchez on 17/05/16.
  */
-public class SprintStartedJiraParser extends CommonJiraParser implements JiraParser {
+public class SprintStartedJiraParser extends CommonJiraParser {
 
   /**
    * Formatted message expected by user
