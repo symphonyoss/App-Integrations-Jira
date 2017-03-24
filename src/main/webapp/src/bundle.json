@@ -1,0 +1,13 @@
+{
+  "applications": [
+    {
+      "type": "sandbox",
+      "id": "devWebHookIntegration",
+      "name": "Configurator Saga",
+      "blurb": "Webhook Integration in Development Mode",
+      "publisher": "Symphony",
+      "url": "https://localhost.symphony.com:4000/controller.html?configurationId=578543c2e4b0edcf4f5ff520&botUserId=7627861919706&id=devWebHookIntegration",
+      "domain": ".symphony.com"
+    }
+  ]
+}
