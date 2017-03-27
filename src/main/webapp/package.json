@@ -1,12 +1,13 @@
 {
-  "name": "integration-jira",
+  "name": "symphony-integration-jira",
   "version": "0.11.0-SNAPSHOT",
   "description": "Symphony App Integrations - JIRA",
   "main": "index.js",
   "scripts": {
     "test": "jest",
     "test:watch": "npm test -- --watch",
-    "watch": "webpack-dev-server --progress --colors --hot --inline --https"
+    "watch": "webpack-dev-server --progress --colors --hot --inline --https",
+    "license-check": "node-license-validator --allow-licenses WTFPL Apache Apache-2 BSD-like BSD BSD-2-Clause BSD-3-Clause Apache-2.0 MIT ISC Unlicense MIT/X11 \"MIT / http://rem.mit-license.org\" \"Public Domain\" --allow-packages domelementtype@1.3.0 domhandler@2.3.0 domutils@1.5.1 extsprintf@1.0.2 ripemd160@0.2.0 rx-lite@3.1.2 shellwords@0.1.0 stream-cache@0.0.2 verror@1.3.6"
   },
   "jest": {
     "transform": {
@@ -17,6 +18,7 @@
       "\\.(css|less)$": "identity-obj-proxy"
     }
   },
+  "license": "Apache-2.0",
   "author": "Symphony",
   "devDependencies": {
     "babel-core": "^6.14.0",
@@ -33,10 +35,12 @@
     "eslint-config-airbnb": "^12.0.0",
     "eslint-config-google": "^0.6.0",
     "eslint-loader": "^1.5.0",
-    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-import": "^1.16.0",
     "eslint-plugin-jsx-a11y": "^2.2.2",
     "eslint-plugin-react": "^6.3.0",
     "file-loader": "^0.9.0",
+    "gulp": "^3.9.1",
+    "html-webpack-plugin": "^2.16.0",
     "identity-obj-proxy": "^3.0.0",
     "img-loader": "^1.3.1",
     "jest": "^18.1.0",
@@ -46,7 +50,8 @@
     "style-loader": "^0.13.0",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.14",
-    "webpack-dev-server": "^1.14.1"
+    "webpack-dev-server": "^1.14.1",
+    "webpack-stream": "^3.2.0"
   },
   "dependencies": {
     "babel-polyfill": "^6.23.0",
@@ -57,5 +62,9 @@
     "redux": "^3.6.0",
     "redux-saga": "^0.14.3",
     "symphony-integration-commons": "^1.0.2"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/symphonyoss/App-Integrations-Jira.git"
   }
 }
