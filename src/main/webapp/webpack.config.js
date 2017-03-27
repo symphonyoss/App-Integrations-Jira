@@ -40,7 +40,7 @@ module.exports = {
     extensions: ['', '.js', '.jsx']
   },
   eslint: {
-    configFile: './.eslintrc.js',
+    configFile: './.eslintrc',
     failOnWarning: false,
     failOnError: true,
   },
