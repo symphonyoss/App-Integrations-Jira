@@ -9,13 +9,13 @@ var path = require("path"),
 function callWebPackProd(output) {
     var dist = output + '/static';
     console.log('webpack dist: ', dist);
-    gulp.src(["./commons/js/controller.js", "./commons/js/app.js"])
+    gulp.src(["./src/js/controller.js", "./src/js/app.js"])
     .pipe(
         webpack(
             {
                 entry: {
-                    controller: path.resolve(__dirname, "./commons/js/controller.js"),
-                    app: path.resolve(__dirname, "./commons/js/app.js")
+                    controller: path.resolve(__dirname, "./src/js/controller.js"),
+                    app: path.resolve(__dirname, "./src/js/app.js")
                 },
                 output: {
                     path: dist,
@@ -47,19 +47,19 @@ function callWebPackProd(output) {
                 plugins: [
                     new HtmlWebpackPlugin({
                         filename: "controller.html",
-                        template: "./commons/html/controller.html",
+                        template: "./src/html/controller.html",
                         inject: false
                     }),
                     new HtmlWebpackPlugin({
                         filename: "app.html",
-                        template: "./commons/html/app.html",
+                        template: "./src/html/app.html",
                         inject: false
                     }),
                     new CopyWebpackPlugin([
-                        { from: './commons/img', to: 'img' }
+                        { from: './src/img', to: 'img' }
                     ]),
                     new CopyWebpackPlugin([
-                        { from: './configurator/img', to: 'img' }
+                        { from: './src/img', to: 'img' }
                     ]),
                     new CopyWebpackPlugin([
                         { from: './bundle.json', to: 'bundle' }
