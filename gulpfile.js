@@ -9,13 +9,13 @@ var path = require("path"),
 function callWebPackProd(output) {
     var dist = output + '/static';
     console.log('webpack dist: ', dist);
-    gulp.src(["./src/js/controller.js", "./src/js/app.js"])
+    gulp.src(["./src/main/webapp/js/controller.js", "./src/main/webapp/js/app.js"])
     .pipe(
         webpack(
             {
                 entry: {
-                    controller: path.resolve(__dirname, "./src/js/controller.js"),
-                    app: path.resolve(__dirname, "./src/js/app.js")
+                    controller: path.resolve(__dirname, "./src/main/webapp/js/controller.js"),
+                    app: path.resolve(__dirname, "./src/main/webapp/js/app.js")
                 },
                 output: {
                     path: dist,
@@ -47,22 +47,22 @@ function callWebPackProd(output) {
                 plugins: [
                     new HtmlWebpackPlugin({
                         filename: "controller.html",
-                        template: "./src/html/controller.html",
+                        template: "./src/main/webapp/html/controller.html",
                         inject: false
                     }),
                     new HtmlWebpackPlugin({
                         filename: "app.html",
-                        template: "./src/html/app.html",
+                        template: "./src/main/webapp/html/app.html",
                         inject: false
                     }),
                     new CopyWebpackPlugin([
-                        { from: './src/img', to: 'img' }
+                        { from: './src/main/webapp/img', to: 'img' }
                     ]),
                     new CopyWebpackPlugin([
-                        { from: './src/img', to: 'img' }
+                        { from: './src/main/webapp/img', to: 'img' }
                     ]),
                     new CopyWebpackPlugin([
-                        { from: './bundle.json', to: 'bundle' }
+                        { from: './src/main/webapp/bundle.json', to: 'bundle' }
                     ])
                 ]
             },

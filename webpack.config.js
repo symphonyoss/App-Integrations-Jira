@@ -5,11 +5,11 @@ var path = require("path"),
 module.exports = {
   entry: {
     babelPolyfill: 'babel-polyfill',
-    controller: path.resolve(__dirname, "./src/js/controller.js"),
-    app: path.resolve(__dirname, "./src/js/app.jsx")
+    controller: path.resolve(__dirname, "./src/main/webapp/js/controller.js"),
+    app: path.resolve(__dirname, "./src/main/webapp/js/app.jsx")
   },
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "./target/static"),
     filename: "[name].bundle.js"
   },
   devtool: 'source-map',
@@ -50,20 +50,20 @@ module.exports = {
       __DEV__: true
     }),
     new CopyWebpackPlugin([{
-      from: './src/html/app.html'
+      from: './src/main/webapp/html/app.html'
     }]),
     new CopyWebpackPlugin([{
-      from: './src/html/controller.html'
+      from: './src/main/webapp/html/controller.html'
     }]),
     new CopyWebpackPlugin([{
-      from: './src/bundle.json'
+      from: './src/main/webapp/bundle.json'
     }]),
     new CopyWebpackPlugin([{
-      from: './src/img', to: 'img'
+      from: './src/main/webapp/img', to: 'img'
     }]),
   ],
   devServer: {
-    contentBase: path.resolve(__dirname, 'dist'),
+    contentBase: path.resolve(__dirname, './target/static'),
     port: 4000,
     inline: true,
     headers: {
