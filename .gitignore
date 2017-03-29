@@ -7,3 +7,5 @@ target/
 
 # NPM
 node_modules/
+dist/
+npm-debug.log
