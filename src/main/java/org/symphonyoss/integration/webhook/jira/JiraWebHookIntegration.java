@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.WebHookIntegration;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
@@ -74,7 +75,7 @@ public class JiraWebHookIntegration extends WebHookIntegration {
   }
 
   @Override
-  public String parse(WebHookPayload input) throws WebHookParseException {
+  public Message parse(WebHookPayload input) throws WebHookParseException {
     try {
       JsonNode rootNode = JsonUtils.readTree(input.getBody());
       Map<String, String> parameters = input.getParameters();
