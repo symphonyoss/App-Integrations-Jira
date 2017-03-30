@@ -1,10 +1,11 @@
+/* eslint-disable */
 var webpack = require('webpack');
 var path = require("path"),
   CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
-    babelPolyfill: 'babel-polyfill',
+    // babelPolyfill: 'babel-polyfill',
     controller: path.resolve(__dirname, "./src/main/webapp/js/controller.js"),
     app: path.resolve(__dirname, "./src/main/webapp/js/app.jsx")
   },
@@ -15,14 +16,14 @@ module.exports = {
   devtool: 'source-map',
   module: {
     preLoaders: [
-      { test: /\.jsx?$/, loader: 'eslint', exclude: /node_modules/ }
+      { test: /\.jsx?$/, loader: 'eslint', exclude: [ "node_modules", "dist" ] }
     ],
     loaders: [
       { test: /\.css$/, loader: "style!css" },
       { test: /\.less$/, loader: "style!css!less" },
       {
         test: /\.jsx?$/,
-        exclude: /node_modules/,
+        exclude: [ "node_modules", "dist" ],
         loader: 'babel',
         query: {
           presets: ['react', 'es2015'],
@@ -46,8 +47,8 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development'), // Tells React to build in either dev or prod modes. https://facebook.github.io/react/downloads.html (See bottom)
-      __DEV__: true
+      'process.env.NODE_ENV': JSON.stringify('production'), // Tells React to build in either dev or prod modes. https://facebook.github.io/react/downloads.html (See bottom)
+      __DEV__: false
     }),
     new CopyWebpackPlugin([{
       from: './src/main/webapp/html/app.html'
@@ -61,13 +62,8 @@ module.exports = {
     new CopyWebpackPlugin([{
       from: './src/main/webapp/img', to: 'img'
     }]),
-  ],
-  devServer: {
-    contentBase: path.resolve(__dirname, './target/static'),
-    port: 4000,
-    inline: true,
-    headers: {
-      "Access-Control-Allow-Origin": "*"
-    }
-  }
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.UglifyJsPlugin(),
+    new webpack.optimize.AggressiveMergingPlugin()
+  ]
 };
