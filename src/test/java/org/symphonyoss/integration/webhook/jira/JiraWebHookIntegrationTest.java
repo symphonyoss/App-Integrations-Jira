@@ -26,8 +26,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_END;
-import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_START;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.FileUtils;
@@ -51,7 +49,7 @@ import org.symphonyoss.integration.webhook.jira.parser.ParserFactory;
 import org.symphonyoss.integration.webhook.jira.parser.v1.CommentJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v1.IssueCreatedJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v1.IssueUpdatedJiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.v1.NullJiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.NullJiraParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -147,7 +145,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("parser/issueCreatedJiraParser/jiraMessageMLIssueCreated.xml");
+    String expected = readFile("parser/issueCreatedJiraParser/jiraMessageMLIssueCreated.xml");
 
     assertEquals(expected, result.getMessage());
   }
@@ -165,7 +163,7 @@ public class JiraWebHookIntegrationTest {
   private void testIssueUpdated(String filename) throws IOException {
     doReturn(issueUpdatedJiraParser).when(factory).getParser(any(JsonNode.class));
 
-    String expected = readFileAppendingMessageMLTag("parser/issueUpdatedJiraParser/jiraMessageMLIssueUpdated.xml");
+    String expected = readFile("parser/issueUpdatedJiraParser/jiraMessageMLIssueUpdated.xml");
     String body = getBody(filename);
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
 
@@ -186,7 +184,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("parser/commentJiraParser/jiraMessageMLIssueCommented.xml");
+    String expected = readFile("parser/commentJiraParser/jiraMessageMLIssueCommented.xml");
 
     assertEquals(expected, result.getMessage());
   }
@@ -209,8 +207,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag(
-        "parser/commentJiraParser/jiraMessageMLIssueCommentedWithMention.xml");
+    String expected = readFile("parser/commentJiraParser/jiraMessageMLIssueCommentedWithMention.xml");
 
     assertEquals(expected, result.getMessage());
   }
@@ -226,7 +223,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("parser/commentJiraParser/jiraMessageMLIssueCommentUpdated.xml");
+    String expected = readFile("parser/commentJiraParser/jiraMessageMLIssueCommentUpdated.xml");
 
     assertEquals(expected, result.getMessage());
   }
@@ -249,8 +246,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag(
-        "parser/commentJiraParser/jiraMessageMLIssueCommentUpdatedWithMention.xml");
+    String expected = readFile("parser/commentJiraParser/jiraMessageMLIssueCommentUpdatedWithMention.xml");
 
     assertEquals(expected, result.getMessage());
   }
@@ -266,7 +262,7 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFileAppendingMessageMLTag("parser/commentJiraParser/jiraMessageMLIssueCommentDeleted.xml");
+    String expected = readFile("parser/commentJiraParser/jiraMessageMLIssueCommentDeleted.xml");
 
     assertEquals(expected, result.getMessage());
   }
@@ -299,10 +295,6 @@ public class JiraWebHookIntegrationTest {
     String expected =
         FileUtils.readFileToString(new File(classLoader.getResource(fileName).getPath()));
     return expected = expected.replaceAll("\n", "");
-  }
-
-  private String readFileAppendingMessageMLTag(String fileName) throws IOException {
-    return MESSAGEML_START + readFile(fileName) + MESSAGEML_END;
   }
 
   private void mockUsers(String... emails) {

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.integration.json.JsonUtils;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class DefaultJiraParser extends CommonJiraParser {
   }
 
   @Override
-  public String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+  protected String getMessage(Map<String, String> parameters, JsonNode node) throws JiraParserException {
     String webhookEvent = node.path(WEBHOOK_EVENT).asText();
     if (webhookEvent.isEmpty()) {
       throw new JiraParserException("Json received does not have an identifiable event. Info: " + node.toString());
@@ -82,4 +83,6 @@ public class DefaultJiraParser extends CommonJiraParser {
 
     return presentationFormat(DEFAULT_ACTION_FORMATTED_TEXT, user, action).toString();
   }
+
+
 }

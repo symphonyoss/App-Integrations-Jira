@@ -41,8 +41,6 @@ import org.symphonyoss.integration.model.message.MessageMLVersion;
 import org.symphonyoss.integration.webhook.jira.parser.v1.CommentJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v1.IssueCreatedJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v1.IssueUpdatedJiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.v1.NullJiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.v1.V1JiraParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +55,7 @@ public class V1ParserFactoryTest {
   private static final String MOCK_INTEGRATION_TYPE = "mockType";
 
   @Spy
-  private List<V1JiraParser> beans = new ArrayList<>();
+  private List<JiraParser> beans = new ArrayList<>();
 
   @Spy
   private NullJiraParser defaultJiraParser;
@@ -101,10 +99,10 @@ public class V1ParserFactoryTest {
 
     factory.onConfigChange(settings);
 
-    verify(issueCreatedJiraParser, times(1)).setJiraUser(MOCK_INTEGRATION_TYPE);
-    verify(issueUpdatedJiraParser, times(1)).setJiraUser(MOCK_INTEGRATION_TYPE);
-    verify(commentJiraParser, times(1)).setJiraUser(MOCK_INTEGRATION_TYPE);
-    verify(defaultJiraParser, times(1)).setJiraUser(MOCK_INTEGRATION_TYPE);
+    verify(issueCreatedJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
+    verify(issueUpdatedJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
+    verify(commentJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
+    verify(defaultJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
   }
 
   @Test

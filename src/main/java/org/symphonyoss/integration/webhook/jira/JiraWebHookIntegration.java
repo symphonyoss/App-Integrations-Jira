@@ -16,8 +16,6 @@
 
 package org.symphonyoss.integration.webhook.jira;
 
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -71,12 +69,8 @@ public class JiraWebHookIntegration extends WebHookIntegration {
       JsonNode rootNode = JsonUtils.readTree(input.getBody());
       Map<String, String> parameters = input.getParameters();
 
-      String webHookEvent = rootNode.path(WEBHOOK_EVENT).asText();
-
       JiraParser parser = parserResolver.getFactory().getParser(rootNode);
-      String formattedMessage = parser.parse(parameters, rootNode);
-
-      return super.buildMessageML(formattedMessage, webHookEvent);
+      return parser.parse(parameters, rootNode);
     } catch (IOException e) {
       throw new JiraParserException("Something went wrong while trying to convert your message to the expected format", e);
     }

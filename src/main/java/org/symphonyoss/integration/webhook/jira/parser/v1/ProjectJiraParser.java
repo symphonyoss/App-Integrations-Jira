@@ -66,7 +66,7 @@ public class ProjectJiraParser extends CommonJiraParser {
   }
 
   @Override
-  public String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+  protected String getMessage(Map<String, String> parameters, JsonNode node) throws JiraParserException {
     String webHookEvent = node.path(WEBHOOK_EVENT).asText();
     String action = actions.get(webHookEvent);
 

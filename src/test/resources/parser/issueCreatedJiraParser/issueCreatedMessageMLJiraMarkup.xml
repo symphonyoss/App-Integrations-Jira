@@ -1,3 +1,4 @@
+<messageML>
 <entity type="com.symphony.integration.jira.event.created" version="1.0">
 <presentationML>Test User created Story SAM-25, Issue Test (<a href="https://whiteam1.atlassian.net/browse/SAM-25"/>)<br/>Assignee: <mention email="test2@symphony.com"/><br/>Labels: <hash tag="production"/><br/>Priority: Highest<br/>Status: To Do<br/>Description: this is header 1<br/>header 2<br/>header 3<br/>header 4<br/>header 5<br/>header 6<br/>monospaced text<br/>paragraphed text now<br/>quoted text<br/>strong text<br/>emphasized text<br/>underlined text<br/><br/>Color examples:<br/>colored text<br/>colored text<br/>colored text<br/>deleted text<br/>superscript text<br/>subscript text<br/>citation<br/>http://example.com<br/>mail@example.com<br/>anchor<br/>* bulleted list<br/># numbered list<br/><br/>Emoticons:<br/>:) :( :P :D                   <br/>@Mention someone by typing their name, the output will look like this: user.Key_1 user.Key_2<br/><br/>Table:<br/>  Heading 1  Heading 2  <br/> Col A1 Col A2 <br/><br/><br/>// Some comments here<br/>public String getFoo()<br/>{<br/>    return foo;<br/>}<br/><br/><br/><br/>no further formatting is done here<br/><br/><br/>My title<br/>Some text with a title<br/><br/><br/>(horizontal ruler)<br/>----<br/></presentationML>
 <entity name="user" type="com.symphony.integration.jira.user" version="1.0">
@@ -32,3 +33,4 @@
 </entity>
 </entity>
 </entity>
+</messageML>

@@ -55,9 +55,8 @@ public class IssueCreatedJiraParser extends IssueJiraParser {
   }
 
   @Override
-  public String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+  protected String getMessage(Map<String, String> parameters, JsonNode node) throws JiraParserException {
     String entityML = getEntityML(node);
-
     return entityML;
   }
 

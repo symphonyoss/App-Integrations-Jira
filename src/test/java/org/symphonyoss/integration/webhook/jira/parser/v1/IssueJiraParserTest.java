@@ -92,7 +92,7 @@ public class IssueJiraParserTest {
     returnedUser.setId(123l);
     doReturn(returnedUser).when(userService).getUserByEmail(anyString(), eq(EMAIL_ADDRESS));
 
-    this.issueJiraParser.setJiraUser(JIRA_USER);
+    this.issueJiraParser.setIntegrationUser(JIRA_USER);
   }
 
   private ObjectNode createIssueInfoJsonNode(String userDisplayName, String emailAddress) {

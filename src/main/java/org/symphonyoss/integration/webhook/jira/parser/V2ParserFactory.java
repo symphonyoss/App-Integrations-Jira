@@ -16,18 +16,23 @@
 
 package org.symphonyoss.integration.webhook.jira.parser;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
+import org.symphonyoss.integration.webhook.jira.parser.v2.MetadataParser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parser factory for the MessageML v2.
  * Created by rsanchez on 21/03/17.
  */
 @Component
-public class V2ParserFactory implements ParserFactory {
+public class V2ParserFactory extends BaseParserFactory {
+
+  @Autowired
+  private List<MetadataParser> parsers;
 
   @Override
   public boolean accept(MessageMLVersion version) {
@@ -35,14 +40,7 @@ public class V2ParserFactory implements ParserFactory {
   }
 
   @Override
-  public void onConfigChange(IntegrationSettings settings) {
-    // Do nothing
+  protected List<JiraParser> getBeans() {
+    return new ArrayList<JiraParser>(parsers);
   }
-
-  @Override
-  public JiraParser getParser(JsonNode node) {
-    // FIXME To be implemented APP-622
-    throw new NotImplementedException("Parser not implemented");
-  }
-
 }

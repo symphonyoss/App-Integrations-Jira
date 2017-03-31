@@ -16,13 +16,15 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v1;
 
+import static org.junit.Assert.assertEquals;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
 
 import java.io.IOException;
@@ -48,7 +50,9 @@ public class EmailAddressWithSpaceTest extends JiraParserTest {
     ClassLoader classLoader = getClass().getClassLoader();
     JsonNode node = mapper.readTree(classLoader.getResourceAsStream(FILENAME));
     String expectedMessage = readFile("parser/commentJiraParser/commentAndEmailAddressWithSpace.xml");
-    Assert.assertEquals(expectedMessage, this.commentJiraParser.parse(null, node));
+
+    Message actual = this.commentJiraParser.parse(null, node);
+    assertEquals(expectedMessage, actual.getMessage());
   }
 
 }

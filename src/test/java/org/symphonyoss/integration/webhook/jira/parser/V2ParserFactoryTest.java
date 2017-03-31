@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
 
@@ -27,6 +28,7 @@ import org.symphonyoss.integration.model.message.MessageMLVersion;
  * Unit test for {@link V2ParserFactory}
  * Created by rsanchez on 23/03/17.
  */
+@Ignore
 public class V2ParserFactoryTest {
 
   private V2ParserFactory factory = new V2ParserFactory();

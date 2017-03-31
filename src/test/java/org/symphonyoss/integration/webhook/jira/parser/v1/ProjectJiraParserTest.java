@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
 import org.symphonyoss.integration.json.JsonUtils;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.io.IOException;
@@ -53,10 +54,10 @@ public class ProjectJiraParserTest {
     parameters.put(USER_KEY_PARAMETER, "test");
 
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(CREATE_PROJECT_FILENAME));
-    String result = projectJiraParser.parse(parameters, node);
+    Message result = projectJiraParser.parse(parameters, node);
 
     assertNotNull(result);
-    assertEquals("test created Project <b>Project One</b>", result);
+    assertEquals("<messageML>test created Project <b>Project One</b></messageML>", result.getMessage());
   }
 
   @Test
@@ -67,10 +68,10 @@ public class ProjectJiraParserTest {
     parameters.put(USER_KEY_PARAMETER, "test");
 
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(UPDATE_PROJECT_FILENAME));
-    String result = projectJiraParser.parse(parameters, node);
+    Message result = projectJiraParser.parse(parameters, node);
 
     assertNotNull(result);
-    assertEquals("test updated Project <b>Project One</b>", result);
+    assertEquals("<messageML>test updated Project <b>Project One</b></messageML>", result.getMessage());
   }
 
   @Test
@@ -81,10 +82,10 @@ public class ProjectJiraParserTest {
     parameters.put(USER_KEY_PARAMETER, "test");
 
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(DELETE_PROJECT_FILENAME));
-    String result = projectJiraParser.parse(parameters, node);
+    Message result = projectJiraParser.parse(parameters, node);
 
     assertNotNull(result);
-    assertEquals("test deleted Project <b>Project One</b>", result);
+    assertEquals("<messageML>test deleted Project <b>Project One</b></messageML>", result.getMessage());
   }
 
   @Test
@@ -94,10 +95,10 @@ public class ProjectJiraParserTest {
     Map<String, String> parameters = new HashMap<>();
 
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(CREATE_PROJECT_FILENAME));
-    String result = projectJiraParser.parse(parameters, node);
+    Message result = projectJiraParser.parse(parameters, node);
 
     assertNotNull(result);
-    assertEquals("Project <b>Project One</b> created", result);
+    assertEquals("<messageML>Project <b>Project One</b> created</messageML>", result.getMessage());
 
   }
 
@@ -111,10 +112,10 @@ public class ProjectJiraParserTest {
     ObjectNode projectNode = (ObjectNode) node.path(PROJECT_PATH);
     projectNode.remove(NAME_PATH);
 
-    String result = projectJiraParser.parse(parameters, node);
+    Message result = projectJiraParser.parse(parameters, node);
 
     assertNotNull(result);
-    assertEquals("Project <b>Unknown Project</b> created", result);
+    assertEquals("<messageML>Project <b>Unknown Project</b> created</messageML>", result.getMessage());
   }
 
 }

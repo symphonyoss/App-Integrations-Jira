@@ -16,9 +16,14 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v1;
 
+import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_END;
+import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_START;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.StringUtils;
+import org.symphonyoss.integration.model.message.Message;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
-import org.symphonyoss.integration.webhook.jira.parser.v1.V1JiraParser;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +32,7 @@ import java.util.Map;
 /**
  * Created by rsanchez on 25/07/16.
  */
-public class CommonJiraParser implements V1JiraParser {
+public class CommonJiraParser implements JiraParser {
 
   protected String jiraUser;
 
@@ -37,12 +42,28 @@ public class CommonJiraParser implements V1JiraParser {
   }
 
   @Override
-  public void setJiraUser(String jiraUser) {
+  public void setIntegrationUser(String jiraUser) {
     this.jiraUser = jiraUser;
   }
 
   @Override
-  public String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+  public Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+    String formattedMessage = getMessage(parameters, node);
+
+    if (StringUtils.isNotEmpty(formattedMessage)) {
+      String messageML = MESSAGEML_START + formattedMessage + MESSAGEML_END;
+
+      Message message = new Message();
+      message.setFormat(Message.FormatEnum.MESSAGEML);
+      message.setMessage(messageML);
+
+      return message;
+    }
+
+    return null;
+  }
+
+  protected String getMessage(Map<String, String> parameters, JsonNode node) throws JiraParserException {
     return null;
   }
 

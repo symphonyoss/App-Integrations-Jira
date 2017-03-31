@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
 import org.symphonyoss.integration.json.JsonUtils;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
@@ -50,10 +51,10 @@ public class SprintStartedJiraParserTest {
     parameters.put(USER_KEY_PARAMETER, "test");
 
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME));
-    String result = sprintStarted.parse(parameters, node);
+    Message result = sprintStarted.parse(parameters, node);
 
     assertNotNull(result);
-    assertEquals("test <b>started Sample Sprint 5</b>", result);
+    assertEquals("<messageML>test <b>started Sample Sprint 5</b></messageML>", result.getMessage());
   }
 
   @Test
@@ -63,10 +64,10 @@ public class SprintStartedJiraParserTest {
     Map<String, String> parameters = new HashMap<>();
 
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME));
-    String result = sprintStarted.parse(parameters, node);
+    Message result = sprintStarted.parse(parameters, node);
 
     assertNotNull(result);
-    assertEquals(" <b>started Sample Sprint 5</b>", result);
+    assertEquals("<messageML> <b>started Sample Sprint 5</b></messageML>", result.getMessage());
   }
 
   @Test
@@ -75,10 +76,10 @@ public class SprintStartedJiraParserTest {
     parameters.put(USER_KEY_PARAMETER, "test");
 
     JsonNode rootNode = new ObjectNode(JsonNodeFactory.instance);
-    String result = sprintStarted.parse(parameters, rootNode);
+    Message result = sprintStarted.parse(parameters, rootNode);
 
     assertNotNull(result);
-    assertEquals("test <b>started a sprint</b>", result);
+    assertEquals("<messageML>test <b>started a sprint</b></messageML>", result.getMessage());
   }
 
   @Test
@@ -89,10 +90,10 @@ public class SprintStartedJiraParserTest {
     ObjectNode rootNode = new ObjectNode(JsonNodeFactory.instance);
     rootNode.putObject(SprintStartedJiraParser.SPRINT_STARTED_SPRINT_PATH);
 
-    String result = sprintStarted.parse(parameters, rootNode);
+    Message result = sprintStarted.parse(parameters, rootNode);
 
     assertNotNull(result);
-    assertEquals("test <b>started a sprint</b>", result);
+    assertEquals("<messageML>test <b>started a sprint</b></messageML>", result.getMessage());
   }
 
   @Test
@@ -104,9 +105,9 @@ public class SprintStartedJiraParserTest {
     ObjectNode sprintNode = rootNode.putObject(SprintStartedJiraParser.SPRINT_STARTED_SPRINT_PATH);
     sprintNode.put(SprintStartedJiraParser.SPRINT_STARTED_NAME_PATH, "");
 
-    String result = sprintStarted.parse(parameters, rootNode);
+    Message result = sprintStarted.parse(parameters, rootNode);
 
     assertNotNull(result);
-    assertEquals("test <b>started a sprint</b>", result);
+    assertEquals("<messageML>test <b>started a sprint</b></messageML>", result.getMessage());
   }
 }

@@ -54,7 +54,7 @@ public class SprintStartedJiraParser extends CommonJiraParser {
   }
 
   @Override
-  public String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+  protected String getMessage(Map<String, String> parameters, JsonNode node) throws JiraParserException {
     String userId =
         parameters.containsKey(USER_KEY_PARAMETER) ? parameters.get(USER_KEY_PARAMETER) : "";
     String sprintName =
