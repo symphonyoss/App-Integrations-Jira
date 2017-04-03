@@ -73,6 +73,9 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
   private static final String FILE_EXPECTED_ISSUE_CREATED_WITH_EPIC =
       "parser/issueCreatedJiraParser/v2/issueCreatedWithEpicEntityJSON.json";
 
+  private static final String FILE_EXPECTED_ISSUE_CREATED_TEMPLATE_MESSAGEML =
+      "templates/templateIssueCreated.xml";
+
   @Mock
   private UserService userService;
 
@@ -83,6 +86,53 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
   private MetadataParser parser = new IssueCreatedMetadataParser();
 
   private ApplicationContextUtils utils;
+
+  private String expectedTemplateFile = "<messageML>\n"
+      + "    <entity id=\"jiraIssueCreated\">\n"
+      + "        <card class=\"barStyle\">\n"
+      + "            <header>\n"
+      + "                <img src=\"${entity['jiraIssueCreated'].issue.priority.iconUrl}\" "
+      + "class=\"icon\" />\n"
+      + "                <a href=\"${entity['jiraIssueCreated'].issue.url}\">${entity"
+      + "['jiraIssueCreated'].issue.key}</a>\n"
+      + "                <span>${entity['jiraIssueCreated'].issue.subject} - </span>\n"
+      + "                <mention email=\"${entity['jiraIssueCreated'].user.emailAddress}\" />\n"
+      + "                <span class=\"action\">Created</span>\n"
+      + "            </header>\n"
+      + "            <body>\n"
+      + "                <div class=\"entity\" data-entity-id=\"jiraIssueCreated\">\n"
+      + "                    <div class=\"labelBackground badge\">\n"
+      + "                        <p>\n"
+      + "                            <span class=\"label\">Description:</span>\n"
+      + "                            <span>${entity['jiraIssueCreated'].issue.description}</span>\n"
+      + "                        </p>\n"
+      + "                        <p>\n"
+      + "                            <span class=\"label\">Assignee:</span>\n"
+      + "                            <mention email=\"${entity['jiraIssueCreated'].issue.assignee"
+      + ".emailAddress}\" />\n"
+      + "                        </p>\n"
+      + "                    </div>\n"
+      + "                    <div class=\"labelBackground badge\">\n"
+      + "                        <p>\n"
+      + "                            <span class=\"label\">Type:</span>\n"
+      + "                            <img src=\"${entity['jiraIssueCreated'].issue.issueType}\" "
+      + "class=\"icon\" />\n"
+      + "                            <span class=\"label\">Priority:</span>\n"
+      + "                            <img src=\"${entity['jiraIssueCreated'].issue.priority"
+      + ".iconUrl}\" class=\"icon\" />\n"
+      + "                            <span>${entity['jiraIssueCreated'].issue.priority"
+      + ".name}</span>\n"
+      + "                            <span class=\"label\">Labels:</span>\n"
+      + "                            <#list entity['jiraIssueCreated'].issue.labels as label>\n"
+      + "                                <a class=\"hashTag\">#${label.text}</a>\n"
+      + "                            </#list>\n"
+      + "                        </p>\n"
+      + "                    </div>\n"
+      + "                </div>\n"
+      + "            </body>\n"
+      + "        </card>\n"
+      + "    </entity>\n"
+      + "</messageML>\n";
 
   @Before
   public void init() {
@@ -107,6 +157,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
     String expected = JsonUtils.writeValueAsString(expectedNode);
 
     assertEquals(expected, result.getData());
+    assertEquals(expectedTemplateFile, result.getMessage());
   }
 
   @Test
@@ -122,6 +173,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
     String expected = JsonUtils.writeValueAsString(expectedNode);
 
     assertEquals(expected, result.getData());
+    assertEquals(expectedTemplateFile, result.getMessage());
   }
 
   private void mockUserInfo() {
@@ -147,5 +199,6 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
     String expected = JsonUtils.writeValueAsString(expectedNode);
 
     assertEquals(expected, result.getData());
+    assertEquals(expectedTemplateFile, result.getMessage());
   }
 }
