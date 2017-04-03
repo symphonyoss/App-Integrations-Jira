@@ -36,6 +36,7 @@ import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.utils.ApplicationContextUtils;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -45,7 +46,7 @@ import java.util.Collections;
  * Created by rsanchez on 29/03/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class IssueCreatedMetadataParserTest {
+public class IssueCreatedMetadataParserTest extends JiraParserTest {
 
   private static final String MOCK_INTEGRATION_USER = "mockUser";
 
@@ -88,7 +89,11 @@ public class IssueCreatedMetadataParserTest {
     doReturn(userService).when(context).getBean(UserService.class);
 
     utils = new ApplicationContextUtils(context);
+
+    parser.init();
     parser.setIntegrationUser(MOCK_INTEGRATION_USER);
+
+
   }
 
   @Test
@@ -127,11 +132,6 @@ public class IssueCreatedMetadataParserTest {
     user.setEmailAddress(MOCK_EMAIL_ADDRESS);
 
     doReturn(user).when(userService).getUserByEmail(eq(MOCK_INTEGRATION_USER), anyString());
-  }
-
-  private JsonNode readJsonFromFile(String filename) throws IOException {
-    ClassLoader classLoader = getClass().getClassLoader();
-    return JsonUtils.readTree(classLoader.getResourceAsStream(filename));
   }
 
   @Test

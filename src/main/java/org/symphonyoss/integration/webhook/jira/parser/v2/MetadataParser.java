@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -69,7 +70,7 @@ public abstract class MetadataParser implements JiraParser {
 
   /**
    * Initializes the JAXB context and unmarshaller object.
-   * @throws JAXBException
+   * @throws IllegalStateException Failure to initialize JAXB context
    */
   public MetadataParser() {
     try {
@@ -78,7 +79,10 @@ public abstract class MetadataParser implements JiraParser {
     } catch (JAXBException e) {
       throw new IllegalStateException("Fail to initialize JAXB context", e);
     }
+  }
 
+  @PostConstruct
+  public void init() {
     readMetadataFile();
     readTemplateFile();
   }
@@ -91,7 +95,12 @@ public abstract class MetadataParser implements JiraParser {
       String fileLocation = BASE_METADATA_PATH + getMetadataFile();
 
       InputStream resource = getClass().getClassLoader().getResourceAsStream(fileLocation);
-      this.metadata = (Metadata) unmarshaller.unmarshal(resource);
+
+      if (resource == null) {
+        LOGGER.error("Cannot read the metadata file {}. File not found.", fileLocation);
+      } else {
+        this.metadata = (Metadata) unmarshaller.unmarshal(resource);
+      }
     } catch (JAXBException e) {
       LOGGER.error("Cannot read the metadata file " + getMetadataFile(), e);
     }
@@ -103,9 +112,14 @@ public abstract class MetadataParser implements JiraParser {
   private void readTemplateFile() {
     String fileLocation = BASE_TEMPLATE_PATH + getTemplateFile();
 
-    try(InputStream resource = getClass().getClassLoader().getResourceAsStream(fileLocation);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(resource))) {
+    InputStream resource = getClass().getClassLoader().getResourceAsStream(fileLocation);
 
+    if (resource == null) {
+      LOGGER.error("Cannot read the template file {}. File not found.", fileLocation);
+      return;
+    }
+
+    try(BufferedReader reader = new BufferedReader(new InputStreamReader(resource))) {
       String line;
       StringBuilder responseData = new StringBuilder();
 
@@ -137,8 +151,6 @@ public abstract class MetadataParser implements JiraParser {
       V3Message message = new V3Message();
       message.setMessage(messageMLTemplate);
       message.setData(entityJSON);
-
-      LOGGER.info("Message to be posted: " + message);
 
       return message;
     }

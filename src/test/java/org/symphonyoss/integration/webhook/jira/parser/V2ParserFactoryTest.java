@@ -16,22 +16,59 @@
 
 package org.symphonyoss.integration.webhook.jira.parser;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENTED;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_CREATED;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
 
-import org.apache.commons.lang3.NotImplementedException;
-import org.junit.Ignore;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Spy;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
+import org.symphonyoss.integration.webhook.jira.parser.v2.IssueCreatedMetadataParser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Unit test for {@link V2ParserFactory}
  * Created by rsanchez on 23/03/17.
  */
-@Ignore
+@RunWith(MockitoJUnitRunner.class)
 public class V2ParserFactoryTest {
 
-  private V2ParserFactory factory = new V2ParserFactory();
+  private static final String MOCK_INTEGRATION_TYPE = "mockType";
+
+  @Spy
+  private List<JiraParser> beans = new ArrayList<>();
+
+  @Spy
+  private IssueCreatedMetadataParser issueCreatedJiraParser;
+
+  @Spy
+  private NullJiraParser defaultJiraParser;
+
+  @InjectMocks
+  private V2ParserFactory factory;
+
+  @Before
+  public void init() {
+    beans.add(issueCreatedJiraParser);
+    beans.add(defaultJiraParser);
+
+    factory.init();
+  }
 
   @Test
   public void testNotAcceptable() {
@@ -43,9 +80,30 @@ public class V2ParserFactoryTest {
     assertTrue(factory.accept(MessageMLVersion.V2));
   }
 
-  @Test(expected = NotImplementedException.class)
-  public void testGetParser() {
-    factory.getParser(null);
+  @Test
+  public void testOnConfigChange() {
+    IntegrationSettings settings = new IntegrationSettings();
+    settings.setType(MOCK_INTEGRATION_TYPE);
+
+    factory.onConfigChange(settings);
+
+    verify(issueCreatedJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
+    verify(defaultJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
   }
 
+  @Test
+  public void testGetDefaultParser() {
+    ObjectNode node = JsonNodeFactory.instance.objectNode();
+    node.put(ISSUE_EVENT_TYPE_NAME, JIRA_ISSUE_COMMENTED);
+
+    assertEquals(defaultJiraParser, factory.getParser(node));
+  }
+
+  @Test
+  public void testGetParser() {
+    ObjectNode node = JsonNodeFactory.instance.objectNode();
+    node.put(WEBHOOK_EVENT, JIRA_ISSUE_CREATED);
+
+    assertEquals(issueCreatedJiraParser, factory.getParser(node));
+  }
 }

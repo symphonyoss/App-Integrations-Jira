@@ -26,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
 import java.io.IOException;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser.v1;
+package org.symphonyoss.integration.webhook.jira.parser;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;

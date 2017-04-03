@@ -33,6 +33,7 @@ import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
 import java.io.IOException;
 

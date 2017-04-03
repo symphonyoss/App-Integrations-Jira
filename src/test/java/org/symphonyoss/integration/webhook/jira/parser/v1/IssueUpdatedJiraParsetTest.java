@@ -36,6 +36,7 @@ import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
 import java.io.IOException;
 import java.util.HashMap;
