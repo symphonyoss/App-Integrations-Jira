@@ -16,7 +16,10 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v2.model;
 
+import static org.symphonyoss.integration.parser.ParserUtils.MESSAGEML_LINEBREAK;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils;
 
@@ -43,7 +46,9 @@ public class HtmlTextField extends MetadataField {
   public void process(EntityObject root, JsonNode node) {
     JsonNode resultNode = getResultNode(node, path);
     String value = resultNode.asText(StringUtils.EMPTY);
-    root.addContent(getKey(), JiraParserUtils.stripJiraFormatting(value));
+    String formattedValue =
+        JiraParserUtils.stripJiraFormatting(value).replaceAll("\n", MESSAGEML_LINEBREAK);
+    root.addContent(getKey(), StringEscapeUtils.escapeXml10(formattedValue));
   }
 
   @Override
