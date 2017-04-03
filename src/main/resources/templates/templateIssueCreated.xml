@@ -1,8 +1,8 @@
 <messageML>
-    <entity id="jiraIssueCreated">
+    <div class="entity">
         <card class="barStyle">
             <header>
-                <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" class="icon" />
+                <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" />
                 <a href="${entity['jiraIssueCreated'].issue.url}">${entity['jiraIssueCreated'].issue.key}</a>
                 <span>${entity['jiraIssueCreated'].issue.subject} - </span>
                 <mention email="${entity['jiraIssueCreated'].user.emailAddress}" />
@@ -23,9 +23,9 @@
                     <div class="labelBackground badge">
                         <p>
                             <span class="label">Type:</span>
-                            <img src="${entity['jiraIssueCreated'].issue.issueType}" class="icon" />
+                            <img src="${entity['jiraIssueCreated'].issue.issueType}" />
                             <span class="label">Priority:</span>
-                            <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" class="icon" />
+                            <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" />
                             <span>${entity['jiraIssueCreated'].issue.priority.name}</span>
                             <span class="label">Labels:</span>
                             <#list entity['jiraIssueCreated'].issue.labels as label>
@@ -36,5 +36,5 @@
                 </div>
             </body>
         </card>
-    </entity>
+    </div>
 </messageML>
