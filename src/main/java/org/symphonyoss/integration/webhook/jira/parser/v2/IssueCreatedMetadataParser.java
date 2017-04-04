@@ -38,7 +38,7 @@ public class IssueCreatedMetadataParser extends MetadataParser {
 
   private static final String JIRA_ISSUE_CREATED_NAME = "jiraIssueCreated";
 
-  private static final String EVENT_TYPE = "com.symphony.integration.jira.event.created";
+  private static final String EVENT_TYPE = "com.symphony.integration.jira.event.v2.created";
 
   @Override
   protected String getTemplateFile() {

@@ -55,7 +55,7 @@ public class MetadataParserTest extends JiraParserTest {
 
   private static final String EVENT_NAME = "jiraIssueCreated";
 
-  private static final String EVENT_TYPE = "com.symphony.integration.jira.event.created";
+  private static final String EVENT_TYPE = "com.symphony.integration.jira.event.v2.created";
 
   private static final String FILE_ISSUE_CREATED =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreated.json";
