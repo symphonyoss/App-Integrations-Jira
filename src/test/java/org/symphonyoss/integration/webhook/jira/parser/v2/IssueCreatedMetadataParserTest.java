@@ -88,11 +88,10 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
   private ApplicationContextUtils utils;
 
   private String expectedTemplateFile = "<messageML>\n"
-      + "    <entity id=\"jiraIssueCreated\">\n"
+      + "    <div class=\"entity\">\n"
       + "        <card class=\"barStyle\">\n"
       + "            <header>\n"
-      + "                <img src=\"${entity['jiraIssueCreated'].issue.priority.iconUrl}\" "
-      + "class=\"icon\" />\n"
+      + "                <img src=\"${entity['jiraIssueCreated'].issue.priority.iconUrl}\" />\n"
       + "                <a href=\"${entity['jiraIssueCreated'].issue.url}\">${entity"
       + "['jiraIssueCreated'].issue.key}</a>\n"
       + "                <span>${entity['jiraIssueCreated'].issue.subject} - </span>\n"
@@ -116,10 +115,10 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
       + "                        <p>\n"
       + "                            <span class=\"label\">Type:</span>\n"
       + "                            <img src=\"${entity['jiraIssueCreated'].issue.issueType}\" "
-      + "class=\"icon\" />\n"
+      + "/>\n"
       + "                            <span class=\"label\">Priority:</span>\n"
       + "                            <img src=\"${entity['jiraIssueCreated'].issue.priority"
-      + ".iconUrl}\" class=\"icon\" />\n"
+      + ".iconUrl}\" />\n"
       + "                            <span>${entity['jiraIssueCreated'].issue.priority"
       + ".name}</span>\n"
       + "                            <span class=\"label\">Labels:</span>\n"
@@ -131,7 +130,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
       + "                </div>\n"
       + "            </body>\n"
       + "        </card>\n"
-      + "    </entity>\n"
+      + "    </div>\n"
       + "</messageML>\n";
 
   @Before
