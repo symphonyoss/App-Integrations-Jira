@@ -16,6 +16,10 @@
 
 package org.symphonyoss.integration.webhook.jira.parser;
 
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
@@ -32,7 +36,10 @@ import java.util.List;
 public class V2ParserFactory extends BaseParserFactory {
 
   @Autowired
-  private List<MetadataParser> parsers;
+  private List<MetadataParser> beans;
+
+  @Autowired
+  private V1ParserFactory fallbackFactory;
 
   @Override
   public boolean accept(MessageMLVersion version) {
@@ -41,6 +48,25 @@ public class V2ParserFactory extends BaseParserFactory {
 
   @Override
   protected List<JiraParser> getBeans() {
-    return new ArrayList<JiraParser>(parsers);
+    return new ArrayList<JiraParser>(beans);
+  }
+
+  @Override
+  public JiraParser getParser(JsonNode node) {
+    String webHookEvent = node.path(WEBHOOK_EVENT).asText();
+    String eventTypeName = node.path(ISSUE_EVENT_TYPE_NAME).asText();
+
+    JiraParser result = parsers.get(eventTypeName);
+
+    if (result == null) {
+      result = parsers.get(webHookEvent);
+    }
+
+    if (result == null) {
+      // Fallback use V1 Factory
+      return fallbackFactory.getParser(node);
+    }
+
+    return result;
   }
 }

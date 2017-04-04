@@ -19,6 +19,8 @@ package org.symphonyoss.integration.webhook.jira.parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
@@ -26,16 +28,19 @@ import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_I
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_CREATED;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
+import org.symphonyoss.integration.webhook.jira.parser.v1.CommentJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v2.IssueCreatedMetadataParser;
 
 import java.util.ArrayList;
@@ -59,6 +64,12 @@ public class V2ParserFactoryTest {
   @Spy
   private NullJiraParser defaultJiraParser;
 
+  @Spy
+  private CommentJiraParser commentJiraParser;
+
+  @Mock
+  private V1ParserFactory fallbackFactory;
+
   @InjectMocks
   private V2ParserFactory factory;
 
@@ -68,6 +79,8 @@ public class V2ParserFactoryTest {
     beans.add(defaultJiraParser);
 
     factory.init();
+
+    doReturn(defaultJiraParser).when(fallbackFactory).getParser(any(JsonNode.class));
   }
 
   @Test
@@ -92,9 +105,18 @@ public class V2ParserFactoryTest {
   }
 
   @Test
-  public void testGetDefaultParser() {
+  public void testGetV1Parser() {
     ObjectNode node = JsonNodeFactory.instance.objectNode();
     node.put(ISSUE_EVENT_TYPE_NAME, JIRA_ISSUE_COMMENTED);
+
+    doReturn(commentJiraParser).when(fallbackFactory).getParser(node);
+
+    assertEquals(commentJiraParser, factory.getParser(node));
+  }
+
+  @Test
+  public void testGetDefaultParser() {
+    ObjectNode node = JsonNodeFactory.instance.objectNode();
 
     assertEquals(defaultJiraParser, factory.getParser(node));
   }

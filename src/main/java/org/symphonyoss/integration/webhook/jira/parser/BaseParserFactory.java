@@ -39,7 +39,7 @@ public abstract class BaseParserFactory implements ParserFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseParserFactory.class);
 
-  private Map<String, JiraParser> parsers = new HashMap<>();
+  protected Map<String, JiraParser> parsers = new HashMap<>();
 
   @Autowired
   private NullJiraParser defaultJiraParser;
