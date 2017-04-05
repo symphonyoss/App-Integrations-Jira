@@ -16,26 +16,23 @@
 
 package org.symphonyoss.integration.webhook.jira;
 
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.WebHookIntegration;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
-import org.symphonyoss.integration.webhook.jira.parser.NullJiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserResolver;
+import org.symphonyoss.integration.webhook.jira.parser.ParserFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Implementation of a WebHook to integrate with JIRA, rendering it's messages.
@@ -46,70 +43,37 @@ import javax.annotation.PostConstruct;
 public class JiraWebHookIntegration extends WebHookIntegration {
 
   @Autowired
-  private NullJiraParser defaultJiraParser;
-
-  private Map<String, JiraParser> parsers = new HashMap<>();
+  private JiraParserResolver parserResolver;
 
   @Autowired
-  private List<JiraParser> jiraBeans;
+  private List<ParserFactory> factories;
 
-  @PostConstruct
-  public void init() {
-    for (JiraParser parser : jiraBeans) {
-      List<String> events = parser.getEvents();
-      for (String eventType : events) {
-        this.parsers.put(eventType, parser);
-      }
-    }
+  @Override
+  public void onCreate(String integrationUser) {
+    super.onCreate(integrationUser);
+    parserResolver.healthCheckAgentService();
   }
 
   @Override
   public void onConfigChange(IntegrationSettings settings) {
     super.onConfigChange(settings);
 
-    String jiraUser = settings.getType();
-    for (JiraParser parser : parsers.values()) {
-      parser.setJiraUser(jiraUser);
+    for (ParserFactory factory : factories) {
+      factory.onConfigChange(settings);
     }
   }
 
   @Override
-  public String parse(WebHookPayload input) throws WebHookParseException {
+  public Message parse(WebHookPayload input) throws WebHookParseException {
     try {
       JsonNode rootNode = JsonUtils.readTree(input.getBody());
       Map<String, String> parameters = input.getParameters();
 
-      String webHookEvent = rootNode.path(WEBHOOK_EVENT).asText();
-      String eventTypeName = rootNode.path("issue_event_type_name").asText();
-
-      JiraParser parser = getParser(webHookEvent, eventTypeName);
-      String formattedMessage = parser.parse(parameters, rootNode);
-
-      return super.buildMessageML(formattedMessage, webHookEvent);
+      JiraParser parser = parserResolver.getFactory().getParser(rootNode);
+      return parser.parse(parameters, rootNode);
     } catch (IOException e) {
       throw new JiraParserException("Something went wrong while trying to convert your message to the expected format", e);
     }
-  }
-
-  /**
-   * Get the JIRA Parser based on the event.
-   *
-   * @param webHookEvent
-   * @param eventTypeName
-   * @return
-   */
-  private JiraParser getParser(String webHookEvent, String eventTypeName) {
-    JiraParser result = parsers.get(eventTypeName);
-
-    if (result == null) {
-      result = parsers.get(webHookEvent);
-    }
-
-    if (result == null) {
-      return defaultJiraParser;
-    }
-
-    return result;
   }
 
 }

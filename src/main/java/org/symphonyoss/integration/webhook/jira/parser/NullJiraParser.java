@@ -16,21 +16,36 @@
 
 package org.symphonyoss.integration.webhook.jira.parser;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
+import org.symphonyoss.integration.model.message.Message;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Parser to skip incoming requests from JIRA
  * Created by rsanchez on 28/07/16.
  */
 @Component
-public class NullJiraParser extends CommonJiraParser implements JiraParser {
+public class NullJiraParser implements JiraParser {
 
   @Override
   public List<String> getEvents() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public void setIntegrationUser(String integrationUser) {
+    // Do nothing
+  }
+
+  @Override
+  public Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+    return null;
   }
 
 }

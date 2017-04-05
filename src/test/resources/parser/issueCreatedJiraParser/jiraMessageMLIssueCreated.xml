@@ -1,3 +1,4 @@
+<messageML>
 <entity type="com.symphony.integration.jira.event.created" version="1.0">
 <presentationML>Test User created Story SAM-25, Issue Test (<a href="https://whiteam1.atlassian.net/browse/SAM-25"/>)<br/>Assignee: Test2 User<br/>Labels: <hash tag="production"/><br/>Priority: Highest<br/>Status: To Do<br/>Description: Only &lt;br /&gt;for &lt;b&gt;test&lt;/b&gt; line break<br/> &lt;code&gt;test&lt;/code&gt;</presentationML>
 <entity name="user" type="com.symphony.integration.jira.user" version="1.0">
@@ -24,3 +25,4 @@
 </entity>
 </entity>
 </entity>
+</messageML>

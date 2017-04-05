@@ -17,6 +17,7 @@
 package org.symphonyoss.integration.webhook.jira.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.symphonyoss.integration.model.message.Message;
 
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,8 @@ public interface JiraParser {
 
   List<String> getEvents();
 
-  void setJiraUser(String jiraUser);
+  void setIntegrationUser(String integrationUser);
 
-  String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException;
+  Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException;
 
 }

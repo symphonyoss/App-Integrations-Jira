@@ -1,3 +1,4 @@
+<messageML>
 <entity type="com.symphony.integration.jira.event.issue_comment_deleted" version="1.0">
 <presentationML>Milton Gonçalves Quilzini deleted a comment on Story ADM5-2, Test Story (<a href="https://ppires.atlassian.net/browse/ADM5-2"/>)</presentationML>
 <entity name="user" type="com.symphony.integration.jira.user" version="1.0">
@@ -20,3 +21,4 @@
 </entity>
 </entity>
 </entity>
+</messageML>
