@@ -30,9 +30,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
-import org.symphonyoss.integration.agent.api.model.V3Message;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.json.JsonUtils;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.utils.ApplicationContextUtils;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
@@ -148,7 +148,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
   @Test
   public void testIssueCreatedWithoutUserId() throws IOException, JiraParserException {
     JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
-    V3Message result = (V3Message) parser.parse(Collections.<String, String>emptyMap(), node);
+    Message result = parser.parse(Collections.<String, String>emptyMap(), node);
 
     assertNotNull(result);
 
@@ -164,7 +164,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
     mockUserInfo();
 
     JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
-    V3Message result = (V3Message) parser.parse(Collections.<String, String>emptyMap(), node);
+    Message result = parser.parse(Collections.<String, String>emptyMap(), node);
 
     assertNotNull(result);
 
@@ -190,7 +190,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
     mockUserInfo();
 
     JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED_WITH_EPIC);
-    V3Message result = (V3Message) parser.parse(Collections.<String, String>emptyMap(), node);
+    Message result = parser.parse(Collections.<String, String>emptyMap(), node);
 
     assertNotNull(result);
 

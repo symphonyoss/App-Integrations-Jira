@@ -22,6 +22,7 @@ import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MES
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.integration.model.message.Message;
+import org.symphonyoss.integration.model.message.MessageMLVersion;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
@@ -56,6 +57,7 @@ public class CommonJiraParser implements JiraParser {
       Message message = new Message();
       message.setFormat(Message.FormatEnum.MESSAGEML);
       message.setMessage(messageML);
+      message.setVersion(MessageMLVersion.V1);
 
       return message;
     }

@@ -21,9 +21,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.symphonyoss.integration.agent.api.model.V3Message;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.message.Message;
+import org.symphonyoss.integration.model.message.MessageMLVersion;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.v2.model.EntityObject;
@@ -148,9 +148,10 @@ public abstract class MetadataParser implements JiraParser {
     String entityJSON = getEntityJSON(node);
 
     if (StringUtils.isNotEmpty(entityJSON)) {
-      V3Message message = new V3Message();
+      Message message = new Message();
       message.setMessage(messageMLTemplate);
       message.setData(entityJSON);
+      message.setVersion(MessageMLVersion.V2);
 
       return message;
     }

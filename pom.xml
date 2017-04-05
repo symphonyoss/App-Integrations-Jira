@@ -32,11 +32,6 @@
             <artifactId>integration-webhook</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.symphonyoss.symphony.integrations</groupId>
-            <artifactId>integration-agent-api-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <repositories>

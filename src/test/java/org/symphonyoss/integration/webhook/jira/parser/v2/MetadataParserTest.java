@@ -19,23 +19,13 @@ package org.symphonyoss.integration.webhook.jira.parser.v2;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.ApplicationContext;
-import org.symphonyoss.integration.agent.api.model.V3Message;
-import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.json.JsonUtils;
-import org.symphonyoss.integration.service.UserService;
-import org.symphonyoss.integration.utils.ApplicationContextUtils;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
@@ -92,7 +82,7 @@ public class MetadataParserTest extends JiraParserTest {
     parser.init();
 
     JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
-    V3Message result = (V3Message) parser.parse(Collections.<String, String>emptyMap(), node);
+    Message result = parser.parse(Collections.<String, String>emptyMap(), node);
 
     assertNotNull(result);
 
