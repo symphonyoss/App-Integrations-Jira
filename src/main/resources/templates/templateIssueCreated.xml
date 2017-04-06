@@ -8,7 +8,7 @@
                 <#if (entity['jiraIssueCreated'].user.emailAddress)??>
                     <mention email="${entity['jiraIssueCreated'].user.emailAddress}" />
                 <#else>
-                    <span>${entity['jiraIssueCreated'].user.emailAddress}</span>
+                    <span>${entity['jiraIssueCreated'].user.displayName}</span>
                 </#if>
                 <span class="action">Created</span>
             </header>

@@ -98,7 +98,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
       + "                <#if (entity['jiraIssueCreated'].user.emailAddress)??>\n"
       + "                    <mention email=\"${entity['jiraIssueCreated'].user.emailAddress}\" />\n"
       + "                <#else>\n"
-      + "                    <span>${entity['jiraIssueCreated'].user.emailAddress}</span>\n"
+      + "                    <span>${entity['jiraIssueCreated'].user.displayName}</span>\n"
       + "                </#if>\n"
       + "                <span class=\"action\">Created</span>\n"
       + "            </header>\n"
