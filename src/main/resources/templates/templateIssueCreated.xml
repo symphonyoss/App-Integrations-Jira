@@ -5,7 +5,11 @@
                 <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" />
                 <a href="${entity['jiraIssueCreated'].issue.url}">${entity['jiraIssueCreated'].issue.key}</a>
                 <span>${entity['jiraIssueCreated'].issue.subject} - </span>
-                <mention email="${entity['jiraIssueCreated'].user.emailAddress}" />
+                <#if (entity['jiraIssueCreated'].user.emailAddress)??>
+                    <mention email="${entity['jiraIssueCreated'].user.emailAddress}" />
+                <#else>
+                    <span>${entity['jiraIssueCreated'].user.emailAddress}</span>
+                </#if>
                 <span class="action">Created</span>
             </header>
             <body>
@@ -17,7 +21,11 @@
                         </p>
                         <p>
                             <span class="label">Assignee:</span>
-                            <mention email="${entity['jiraIssueCreated'].issue.assignee.emailAddress}" />
+                            <#if (entity['jiraIssueCreated'].issue.assignee.emailAddress)??>
+                                <mention email="${entity['jiraIssueCreated'].issue.assignee.emailAddress}" />
+                            <#else>
+                                <span>${entity['jiraIssueCreated'].issue.assignee.displayName}</span>
+                            </#if>
                         </p>
                     </div>
                     <div class="labelBackground badge">
