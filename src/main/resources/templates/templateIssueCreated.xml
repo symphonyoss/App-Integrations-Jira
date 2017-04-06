@@ -15,21 +15,17 @@
             <body>
                 <div class="entity" data-entity-id="jiraIssueCreated">
                     <div class="labelBackground badge">
-                        <p>
                             <span class="label">Description:</span>
                             <span>${entity['jiraIssueCreated'].issue.description}</span>
-                        </p>
-                        <p>
+                            <br/>
                             <span class="label">Assignee:</span>
                             <#if (entity['jiraIssueCreated'].issue.assignee.emailAddress)??>
                                 <mention email="${entity['jiraIssueCreated'].issue.assignee.emailAddress}" />
                             <#else>
                                 <span>${entity['jiraIssueCreated'].issue.assignee.displayName}</span>
                             </#if>
-                        </p>
                     </div>
                     <div class="labelBackground badge">
-                        <p>
                             <span class="label">Type:</span>
                             <img src="${entity['jiraIssueCreated'].issue.issueType}" />
                             <span class="label">Priority:</span>
@@ -39,7 +35,6 @@
                             <#list entity['jiraIssueCreated'].issue.labels as label>
                                 <a class="hashTag">#${label.text}</a>
                             </#list>
-                        </p>
                     </div>
                 </div>
             </body>
