@@ -17,69 +17,26 @@
 package org.symphonyoss.integration.webhook.jira.parser;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.event.HealthCheckEventData;
-import org.symphonyoss.integration.event.MessageMLVersionUpdatedEventData;
-import org.symphonyoss.integration.model.message.MessageMLVersion;
+import org.symphonyoss.integration.webhook.parser.WebHookParserFactory;
+import org.symphonyoss.integration.webhook.parser.WebHookParserResolver;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 /**
  * Resolves the parser factory based on MessageML version.
  * Created by rsanchez on 22/03/17.
  */
 @Component
-public class JiraParserResolver {
-
-  private static final String AGENT_SERVICE_NAME = "Agent";
+public class JiraParserResolver extends WebHookParserResolver {
 
   @Autowired
-  private ApplicationEventPublisher publisher;
+  private List<JiraParserFactory> factories;
 
-  @Autowired
-  private List<ParserFactory> factories;
-
-  private ParserFactory factory;
-
-  /**
-   * Initialize the default parser factory.
-   */
-  @PostConstruct
-  public void init() {
-    setupParserFactory(MessageMLVersion.V1);
-  }
-
-  /**
-   * Setup the parser factory based on messageML version.
-   */
-  private void setupParserFactory(MessageMLVersion version) {
-    for (ParserFactory factory : factories) {
-      if (factory.accept(version)) {
-        this.factory = factory;
-        break;
-      }
-    }
-  }
-
-  /**
-   * Handle events related to update MessageML version. If the new version of MessageML is V2 I can
-   * stop the scheduler to check the version, otherwise I need to reschedule the monitoring process.
-   * @param event MessageML version update event
-   */
-  @EventListener
-  public void handleMessageMLVersionUpdatedEvent(MessageMLVersionUpdatedEventData event) {
-    setupParserFactory(event.getVersion());
-  }
-
-  public ParserFactory getFactory() {
-    return factory;
+  @Override
+  protected List<WebHookParserFactory> getFactories() {
+    return new ArrayList<WebHookParserFactory>(factories);
   }
 
 }

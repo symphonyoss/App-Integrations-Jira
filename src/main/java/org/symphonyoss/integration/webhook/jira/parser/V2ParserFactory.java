@@ -33,7 +33,7 @@ import java.util.List;
  * Created by rsanchez on 21/03/17.
  */
 @Component
-public class V2ParserFactory extends BaseParserFactory {
+public class V2ParserFactory extends JiraParserFactory {
 
   @Autowired
   private List<MetadataParser> beans;

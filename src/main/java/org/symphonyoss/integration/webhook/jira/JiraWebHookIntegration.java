@@ -16,23 +16,18 @@
 
 package org.symphonyoss.integration.webhook.jira;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.WebHookIntegration;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserFactory;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserResolver;
-import org.symphonyoss.integration.webhook.jira.parser.ParserFactory;
+import org.symphonyoss.integration.webhook.parser.WebHookParser;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of a WebHook to integrate with JIRA, rendering it's messages.
@@ -46,28 +41,21 @@ public class JiraWebHookIntegration extends WebHookIntegration {
   private JiraParserResolver parserResolver;
 
   @Autowired
-  private List<ParserFactory> factories;
+  private List<JiraParserFactory> factories;
 
   @Override
   public void onConfigChange(IntegrationSettings settings) {
     super.onConfigChange(settings);
 
-    for (ParserFactory factory : factories) {
+    for (JiraParserFactory factory : factories) {
       factory.onConfigChange(settings);
     }
   }
 
   @Override
   public Message parse(WebHookPayload input) throws WebHookParseException {
-    try {
-      JsonNode rootNode = JsonUtils.readTree(input.getBody());
-      Map<String, String> parameters = input.getParameters();
-
-      JiraParser parser = parserResolver.getFactory().getParser(rootNode);
-      return parser.parse(parameters, rootNode);
-    } catch (IOException e) {
-      throw new JiraParserException("Something went wrong while trying to convert your message to the expected format", e);
-    }
+    WebHookParser parser = parserResolver.getFactory().getParser(input);
+    return parser.parse(input);
   }
 
 }

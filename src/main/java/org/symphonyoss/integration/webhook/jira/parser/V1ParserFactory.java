@@ -29,10 +29,10 @@ import java.util.List;
  * Created by rsanchez on 21/03/17.
  */
 @Component
-public class V1ParserFactory extends BaseParserFactory {
+public class V1ParserFactory extends JiraParserFactory {
 
   @Autowired
-  private List<CommonJiraParser> parsers;
+  private List<CommonJiraParser> beans;
 
   @Override
   public boolean accept(MessageMLVersion version) {
@@ -41,7 +41,7 @@ public class V1ParserFactory extends BaseParserFactory {
 
   @Override
   protected List<JiraParser> getBeans() {
-    return new ArrayList<JiraParser>(parsers);
+    return new ArrayList<JiraParser>(beans);
   }
 
 }

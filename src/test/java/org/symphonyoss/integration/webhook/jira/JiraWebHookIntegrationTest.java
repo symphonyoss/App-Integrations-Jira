@@ -43,9 +43,9 @@ import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserFactory;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserResolver;
-import org.symphonyoss.integration.webhook.jira.parser.ParserFactory;
+import org.symphonyoss.integration.webhook.jira.parser.JiraWebHookParserAdapter;
 import org.symphonyoss.integration.webhook.jira.parser.v1.CommentJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v1.IssueCreatedJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v1.IssueUpdatedJiraParser;
@@ -89,10 +89,10 @@ public class JiraWebHookIntegrationTest {
       "parser/commentJiraParser/jiraCallbackSampleCommentDeleted.json";
 
   @Spy
-  private List<ParserFactory> factories = new ArrayList<>();
+  private List<JiraParserFactory> factories = new ArrayList<>();
 
   @Mock
-  private ParserFactory factory;
+  private JiraParserFactory factory;
 
   @Mock
   private JiraParserResolver parserResolver;
@@ -136,11 +136,13 @@ public class JiraWebHookIntegrationTest {
 
   @Test
   public void testIssueCreated() throws IOException, WebHookParseException {
-    doReturn(issueCreatedJiraParser).when(factory).getParser(any(JsonNode.class));
-
     String body = getBody(ISSUE_CREATED_FILENAME);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(issueCreatedJiraParser);
+    doReturn(parser).when(factory).getParser(payload);
+
     Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -161,11 +163,14 @@ public class JiraWebHookIntegrationTest {
   }
 
   private void testIssueUpdated(String filename) throws IOException {
-    doReturn(issueUpdatedJiraParser).when(factory).getParser(any(JsonNode.class));
-
     String expected = readFile("parser/issueUpdatedJiraParser/jiraMessageMLIssueUpdated.xml");
     String body = getBody(filename);
-    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(),
+        Collections.<String, String>emptyMap(), body);
+
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(issueUpdatedJiraParser);
+    doReturn(parser).when(factory).getParser(any(WebHookPayload.class));
 
     Message result = jiraWhi.parse(payload);
 
@@ -175,11 +180,14 @@ public class JiraWebHookIntegrationTest {
 
   @Test
   public void testCommentAdded() throws IOException, WebHookParseException {
-    doReturn(commentJiraParser).when(factory).getParser(any(JsonNode.class));
-
     String body = getBody(COMMENT_ADDED_FILENAME);
 
-    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(),
+        Collections.<String, String>emptyMap(), body);
+
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(commentJiraParser);
+    doReturn(parser).when(factory).getParser(payload);
+
     Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -191,8 +199,6 @@ public class JiraWebHookIntegrationTest {
 
   @Test
   public void testCommentAddedWithMention() throws IOException, WebHookParseException {
-    doReturn(commentJiraParser).when(factory).getParser(any(JsonNode.class));
-
     String body = getBody(COMMENT_ADDED_WITH_MENTION_FILENAME);
 
     User user = new User();
@@ -203,6 +209,10 @@ public class JiraWebHookIntegrationTest {
     when(userService.getUserByUserName(anyString(), eq("integrationuser"))).thenReturn(user);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(commentJiraParser);
+    doReturn(parser).when(factory).getParser(payload);
+
     Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -214,11 +224,13 @@ public class JiraWebHookIntegrationTest {
 
   @Test
   public void testCommentUpdated() throws IOException, WebHookParseException {
-    doReturn(commentJiraParser).when(factory).getParser(any(JsonNode.class));
-
     String body = getBody(COMMENT_UPDATED_FILENAME);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(commentJiraParser);
+    doReturn(parser).when(factory).getParser(payload);
+
     Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -230,8 +242,6 @@ public class JiraWebHookIntegrationTest {
 
   @Test
   public void testCommentUpdatedWithMention() throws IOException, WebHookParseException {
-    doReturn(commentJiraParser).when(factory).getParser(any(JsonNode.class));
-
     String body = getBody(COMMENT_UPDATED_WITH_MENTION_FILENAME);
 
     User user = new User();
@@ -242,6 +252,10 @@ public class JiraWebHookIntegrationTest {
     when(userService.getUserByUserName(anyString(), eq("integrationuser"))).thenReturn(user);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(commentJiraParser);
+    doReturn(parser).when(factory).getParser(payload);
+
     Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -253,11 +267,13 @@ public class JiraWebHookIntegrationTest {
 
   @Test
   public void testCommentDeleted() throws IOException, WebHookParseException {
-    doReturn(commentJiraParser).when(factory).getParser(any(JsonNode.class));
-
     String body = getBody(COMMENT_DELETED_FILENAME);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(commentJiraParser);
+    doReturn(parser).when(factory).getParser(payload);
+
     Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
@@ -269,19 +285,13 @@ public class JiraWebHookIntegrationTest {
 
   @Test
   public void testNoEventPayload() throws WebHookParseException {
-    doReturn(defaultJiraParser).when(factory).getParser(any(JsonNode.class));
-
     String body = "{ \"random\": \"json\" }";
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(defaultJiraParser);
+    doReturn(parser).when(factory).getParser(payload);
+
     assertNull(jiraWhi.parse(payload));
-  }
-
-  @Test(expected = JiraParserException.class)
-  public void testFailReadingJSON() throws IOException, WebHookParseException {
-    String body = "";
-
-    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
-    jiraWhi.parse(payload);
   }
 
   private String getBody(String filename) throws IOException {

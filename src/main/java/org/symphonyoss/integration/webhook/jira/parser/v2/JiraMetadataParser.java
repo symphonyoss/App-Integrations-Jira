@@ -39,6 +39,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LABEL
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LINK_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.NAME_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.SELF_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.STATUS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TEXT_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TOSTRING_PATH;
 
@@ -78,9 +79,25 @@ public abstract class JiraMetadataParser extends MetadataParser {
   protected void preProcessInputData(JsonNode input) {
     processIssueLink(input);
     processDescription(input);
+    processStatus(input);
     processUser(input);
     processAssignee(input);
     processEpicLink(input);
+  }
+
+  /**
+   * Process issue status.
+   *
+   * @param input JSON input data
+   */
+  private void processStatus(JsonNode input) {
+    ObjectNode statusNode = (ObjectNode) input.path(ISSUE_PATH).path(FIELDS_PATH).path(STATUS_PATH);
+
+    String issueStatus = statusNode.path(NAME_PATH).asText(EMPTY);
+
+    if (StringUtils.isNotEmpty(issueStatus)) {
+      statusNode.put(NAME_PATH, issueStatus.toUpperCase());
+    }
   }
 
   /**

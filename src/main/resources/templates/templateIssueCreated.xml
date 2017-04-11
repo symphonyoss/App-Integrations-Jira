@@ -2,7 +2,7 @@
     <div class="entity">
         <card class="barStyle">
             <header>
-                <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" />
+                <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" class="icon" />
                 <a href="${entity['jiraIssueCreated'].issue.url}">${entity['jiraIssueCreated'].issue.key}</a>
                 <span>${entity['jiraIssueCreated'].issue.subject} - </span>
                 <#if (entity['jiraIssueCreated'].user.id)??>
@@ -14,27 +14,40 @@
             </header>
             <body>
                 <div class="entity" data-entity-id="jiraIssueCreated">
-                    <div class="labelBackground badge">
-                            <span class="label">Description:</span>
-                            <span>${entity['jiraIssueCreated'].issue.description}</span>
-                            <br/>
-                            <span class="label">Assignee:</span>
-                            <#if (entity['jiraIssueCreated'].issue.assignee.id)??>
-                                <mention email="${entity['jiraIssueCreated'].issue.assignee.emailAddress}" />
-                            <#else>
-                                <span>${entity['jiraIssueCreated'].issue.assignee.displayName}</span>
-                            </#if>
+                    <br/>
+                    <div>
+                        <span class="label">Description:</span>
+                        <span>${entity['jiraIssueCreated'].issue.description}</span>
                     </div>
+                    <br/>
+                    <div>
+                        <span class="label">Assignee:</span>
+                        <#if (entity['jiraIssueCreated'].issue.assignee.id)??>
+                            <mention email="${entity['jiraIssueCreated'].issue.assignee.emailAddress}" />
+                        <#else>
+                            <span>${entity['jiraIssueCreated'].issue.assignee.displayName}</span>
+                        </#if>
+                    </div>
+                    <hr/>
                     <div class="labelBackground badge">
                             <span class="label">Type:</span>
-                            <img src="${entity['jiraIssueCreated'].issue.issueType}" />
+                            <img src="${entity['jiraIssueCreated'].issue.issueType.iconUrl}" class="icon" />
+                            <span>${entity['jiraIssueCreated'].issue.issueType.name}</span>
                             <span class="label">Priority:</span>
-                            <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" />
+                            <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" class="icon" />
                             <span>${entity['jiraIssueCreated'].issue.priority.name}</span>
-                            <span class="label">Labels:</span>
-                            <#list entity['jiraIssueCreated'].issue.labels as label>
-                                <a class="hashTag">#${label.text}</a>
-                            </#list>
+                            <#if (entity['jiraIssueCreated'].issue.epic)??>
+                                <span class="label">Epic:</span>
+                                <a href="${entity['jiraIssueCreated'].issue.epic.link}">${entity['jiraIssueCreated'].issue.epic.name}</a>
+                            </#if>
+                            <span class="label">Status:</span>
+                            <span class="infoBackground badge">${entity['jiraIssueCreated'].issue.status}</span>
+                            <#if (entity['jiraIssueCreated'].issue.labels)??>
+                                <span class="label">Labels:</span>
+                                <#list entity['jiraIssueCreated'].issue.labels as label>
+                                    <a class="hashTag">#${label.text}</a>
+                                </#list>
+                            </#if>
                     </div>
                 </div>
             </body>

@@ -17,7 +17,7 @@
       "url": "https://whiteam1.atlassian.net/browse/SAM-25",
       "subject": "Issue Test",
       "description": "Only &lt;br /&gt;for &lt;b&gt;test&lt;/b&gt; line break&lt;br/&gt; &lt;code&gt;test&lt;/code&gt;",
-      "status": "To Do",
+      "status": "TO DO",
       "issueType": {
         "type":"com.symphony.integration.jira.issueType",
         "version":"1.0",

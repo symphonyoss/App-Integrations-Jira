@@ -23,8 +23,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
+import org.symphonyoss.integration.webhook.WebHookPayload;
+import org.symphonyoss.integration.webhook.parser.WebHookParser;
+import org.symphonyoss.integration.webhook.parser.WebHookParserFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +40,9 @@ import javax.annotation.PostConstruct;
  * Common methods to retrieve the parser according to received event.
  * Created by rsanchez on 31/03/17.
  */
-public abstract class BaseParserFactory implements ParserFactory {
+public abstract class JiraParserFactory implements WebHookParserFactory {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(BaseParserFactory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(JiraParserFactory.class);
 
   protected Map<String, JiraParser> parsers = new HashMap<>();
 
@@ -64,6 +69,16 @@ public abstract class BaseParserFactory implements ParserFactory {
   }
 
   @Override
+  public WebHookParser getParser(WebHookPayload payload) {
+    try {
+      JsonNode rootNode = JsonUtils.readTree(payload.getBody());
+      JiraParser parser = getParser(rootNode);
+      return new JiraWebHookParserAdapter(parser);
+    } catch (IOException e) {
+      throw new JiraParserException("Cannot retrieve the payload event", e);
+    }
+  }
+
   public JiraParser getParser(JsonNode node) {
     String webHookEvent = node.path(WEBHOOK_EVENT).asText();
     String eventTypeName = node.path(ISSUE_EVENT_TYPE_NAME).asText();

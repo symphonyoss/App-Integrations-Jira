@@ -39,7 +39,7 @@ import java.util.List;
 public class JiraParserResolverTest {
 
   @Spy
-  private List<ParserFactory> factories = new ArrayList<>();
+  private List<JiraParserFactory> factories = new ArrayList<>();
 
   @Spy
   private V1ParserFactory v1Factory;
