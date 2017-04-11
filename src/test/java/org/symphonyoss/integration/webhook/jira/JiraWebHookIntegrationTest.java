@@ -35,6 +35,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.json.JsonUtils;
@@ -135,13 +136,13 @@ public class JiraWebHookIntegrationTest {
     String body = getBody(ISSUE_CREATED_FILENAME);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
 
     String expected = readFileAppendingMessageMLTag("parser/issueCreatedJiraParser/jiraMessageMLIssueCreated.xml");
 
-    assertEquals(expected, result);
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -159,10 +160,10 @@ public class JiraWebHookIntegrationTest {
     String body = getBody(filename);
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
 
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
-    assertEquals(expected, result);
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -170,13 +171,13 @@ public class JiraWebHookIntegrationTest {
     String body = getBody(COMMENT_ADDED_FILENAME);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
 
     String expected = readFileAppendingMessageMLTag("parser/commentJiraParser/jiraMessageMLIssueCommented.xml");
 
-    assertEquals(expected, result);
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -191,14 +192,14 @@ public class JiraWebHookIntegrationTest {
     when(userService.getUserByUserName(anyString(), eq("integrationuser"))).thenReturn(user);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
 
     String expected = readFileAppendingMessageMLTag(
         "parser/commentJiraParser/jiraMessageMLIssueCommentedWithMention.xml");
 
-    assertEquals(expected, result);
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -206,13 +207,13 @@ public class JiraWebHookIntegrationTest {
     String body = getBody(COMMENT_UPDATED_FILENAME);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
 
     String expected = readFileAppendingMessageMLTag("parser/commentJiraParser/jiraMessageMLIssueCommentUpdated.xml");
 
-    assertEquals(expected, result);
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -227,14 +228,14 @@ public class JiraWebHookIntegrationTest {
     when(userService.getUserByUserName(anyString(), eq("integrationuser"))).thenReturn(user);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
 
     String expected = readFileAppendingMessageMLTag(
         "parser/commentJiraParser/jiraMessageMLIssueCommentUpdatedWithMention.xml");
 
-    assertEquals(expected, result);
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -242,13 +243,13 @@ public class JiraWebHookIntegrationTest {
     String body = getBody(COMMENT_DELETED_FILENAME);
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
 
     String expected = readFileAppendingMessageMLTag("parser/commentJiraParser/jiraMessageMLIssueCommentDeleted.xml");
 
-    assertEquals(expected, result);
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -258,7 +259,7 @@ public class JiraWebHookIntegrationTest {
     parameters.put(USER_KEY_PARAMETER, "test");
 
     WebHookPayload payload = new WebHookPayload(parameters, Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNull(result);
   }
@@ -270,7 +271,7 @@ public class JiraWebHookIntegrationTest {
     parameters.put(USER_KEY_PARAMETER, "test");
 
     WebHookPayload payload = new WebHookPayload(parameters, Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNull(result);
   }
@@ -282,7 +283,7 @@ public class JiraWebHookIntegrationTest {
     parameters.put(USER_KEY_PARAMETER, "test");
 
     WebHookPayload payload = new WebHookPayload(parameters, Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNull(result);
   }
@@ -294,7 +295,7 @@ public class JiraWebHookIntegrationTest {
     parameters.put(USER_KEY_PARAMETER, "test");
 
     WebHookPayload payload = new WebHookPayload(parameters, Collections.<String, String>emptyMap(), body);
-    String result = jiraWhi.parse(payload);
+    Message result = jiraWhi.parse(payload);
 
     assertNull(result);
   }
