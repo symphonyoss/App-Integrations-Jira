@@ -49,12 +49,6 @@ public class JiraWebHookIntegration extends WebHookIntegration {
   private List<ParserFactory> factories;
 
   @Override
-  public void onCreate(String integrationUser) {
-    super.onCreate(integrationUser);
-    parserResolver.healthCheckAgentService();
-  }
-
-  @Override
   public void onConfigChange(IntegrationSettings settings) {
     super.onConfigChange(settings);
 

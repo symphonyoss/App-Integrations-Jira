@@ -16,17 +16,12 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.integration.json.JsonUtils;
-import org.symphonyoss.integration.model.message.Message;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
 import java.io.IOException;
@@ -43,19 +38,12 @@ public class MetadataParserTest extends JiraParserTest {
 
   private static final String INVALID_METADATA_FILE = "invalidMetadata.xml";
 
-  private static final String EVENT_NAME = "jiraIssueCreated";
-
-  private static final String EVENT_TYPE = "com.symphony.integration.jira.event.v2.created";
-
   private static final String FILE_ISSUE_CREATED =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreated.json";
 
   private static final String FILE_ISSUE_CREATED_MESSAGEML = "templateIssueCreated.xml";
 
   private static final String FILE_ISSUE_CREATED_METADATA = "metadataIssueCreated.xml";
-
-  private static final String FILE_EXPECTED_ISSUE_CREATED_WITHOUT_USER =
-      "parser/issueCreatedJiraParser/v2/issueCreatedWithoutUserIdEntityJSON.json";
 
   @Test
   public void testInvalidTemplateFile() throws IOException {
@@ -75,20 +63,4 @@ public class MetadataParserTest extends JiraParserTest {
     assertNull(parser.parse(Collections.<String, String>emptyMap(), node));
   }
 
-  @Test
-  public void testIssueCreatedWithoutUserId() throws IOException, JiraParserException {
-    MetadataParser parser = new MockMetadataParser(FILE_ISSUE_CREATED_MESSAGEML,
-        FILE_ISSUE_CREATED_METADATA, EVENT_TYPE, EVENT_NAME);
-    parser.init();
-
-    JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
-    Message result = parser.parse(Collections.<String, String>emptyMap(), node);
-
-    assertNotNull(result);
-
-    JsonNode expectedNode = readJsonFromFile(FILE_EXPECTED_ISSUE_CREATED_WITHOUT_USER);
-    String expected = JsonUtils.writeValueAsString(expectedNode);
-
-    assertEquals(expected, result.getData());
-  }
 }

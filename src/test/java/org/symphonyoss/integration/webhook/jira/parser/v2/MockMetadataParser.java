@@ -16,6 +16,9 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v2;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import org.symphonyoss.integration.webhook.jira.parser.v2.model.EntityObject;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,21 +34,19 @@ public class MockMetadataParser extends MetadataParser {
 
   private String metadataFile;
 
-  private String eventType;
-
-  private String eventName;
-
   public MockMetadataParser(String templateFile, String metadataFile) {
     this.templateFile = templateFile;
     this.metadataFile = metadataFile;
   }
 
-  public MockMetadataParser(String templateFile, String metadataFile, String eventType,
-      String eventName) {
-    this.templateFile = templateFile;
-    this.metadataFile = metadataFile;
-    this.eventType = eventType;
-    this.eventName = eventName;
+  @Override
+  protected void preProcessInputData(JsonNode input) {
+    // Do nothing
+  }
+
+  @Override
+  protected void postProcessOutputData(EntityObject output, JsonNode input) {
+    // Do nothing
   }
 
   @Override
@@ -56,16 +57,6 @@ public class MockMetadataParser extends MetadataParser {
   @Override
   protected String getMetadataFile() {
     return metadataFile;
-  }
-
-  @Override
-  protected String getEventName() {
-    return eventName;
-  }
-
-  @Override
-  protected String getEventType() {
-    return eventType;
   }
 
   @Override

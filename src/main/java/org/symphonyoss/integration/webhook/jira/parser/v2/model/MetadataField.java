@@ -17,21 +17,20 @@
 package org.symphonyoss.integration.webhook.jira.parser.v2.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * Abstract class to be implemented by all different types of field like txt, html, user, etc.
+ * Field that represents a pure text without any markup.
  * Created by rsanchez on 30/03/17.
  */
-public abstract class MetadataField {
+public class MetadataField {
 
   private String key;
 
-  private String integrationUser;
-
-  private FilterCondition filter;
+  private String value;
 
   @XmlAttribute
   public String getKey() {
@@ -42,46 +41,41 @@ public abstract class MetadataField {
     this.key = key;
   }
 
-  public String getIntegrationUser() {
-    return integrationUser;
+  @XmlAttribute
+  public String getValue() {
+    return value;
   }
 
-  public void setIntegrationUser(String integrationUser) {
-    this.integrationUser = integrationUser;
+  public void setValue(String value) {
+    this.value = value;
   }
 
-  @XmlElement(name = "filter")
-  public FilterCondition getFilter() {
-    return filter;
+  public void process(EntityObject root, JsonNode node) {
+    JsonNode resultNode = getResultNode(node, value);
+    String value = resultNode.asText(StringUtils.EMPTY);
+
+    if (StringUtils.isNotEmpty(value)) {
+      root.addContent(getKey(), value);
+    }
   }
 
-  public void setFilter(FilterCondition filter) {
-    this.filter = filter;
-  }
-
-  public abstract void process(EntityObject root, JsonNode node);
-
-  protected JsonNode getResultNode(JsonNode node, String jsonKey) {
+  private JsonNode getResultNode(JsonNode node, String jsonKey) {
     String[] nodeKeys = jsonKey.split("\\.");
 
     JsonNode resultNode = node;
 
     for (String key : nodeKeys) {
       resultNode = resultNode.path(key);
-
-      if ((filter != null) && (filter.getArrayPath().equals(key)) && (resultNode.isArray())) {
-        String field = filter.getField();
-        String expected = filter.getEquals();
-
-        for (JsonNode item : resultNode) {
-          if (expected.equals(item.get(field).asText())) {
-            resultNode = item;
-            break;
-          }
-        }
-      }
     }
 
     return resultNode;
+  }
+
+  @Override
+  public String toString() {
+    return "MetadataField{" +
+        "key='" + key + '\'' +
+        ", value='" + value + '\'' +
+        '}';
   }
 }

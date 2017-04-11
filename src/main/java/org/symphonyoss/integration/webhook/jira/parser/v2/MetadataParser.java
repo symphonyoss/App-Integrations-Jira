@@ -58,9 +58,7 @@ public abstract class MetadataParser implements JiraParser {
 
   private static final String BASE_TEMPLATE_PATH = "templates/";
 
-  private static final String DEFAULT_VERSION = "1.0";
-
-  private String integrationUser;
+  protected String integrationUser;
 
   private Unmarshaller unmarshaller;
 
@@ -170,14 +168,16 @@ public abstract class MetadataParser implements JiraParser {
       return null;
     }
 
-    EntityObject root = new EntityObject(getEventType(), getVersion());
+    EntityObject root = new EntityObject(metadata.getType(), getVersion());
     List<MetadataObject> objects = metadata.getObjects();
 
+    preProcessInputData(node);
     processMetadataObjects(root, node, objects);
+    postProcessOutputData(root, node);
 
     try {
       Map<String, Object> result = new LinkedHashMap<>();
-      result.put(getEventName(), root);
+      result.put(metadata.getName(), root);
 
       return JsonUtils.writeValueAsString(result);
     } catch (JsonProcessingException e) {
@@ -185,6 +185,12 @@ public abstract class MetadataParser implements JiraParser {
       return null;
     }
   }
+
+  /**
+   * Perform a pre-processing on the input data
+   * @param input JSON input data
+   */
+  protected abstract void preProcessInputData(JsonNode input);
 
   /**
    * Process metadata objects to generate Entity JSON. This method is called recursively for
@@ -200,7 +206,6 @@ public abstract class MetadataParser implements JiraParser {
 
       if (object.getFields() != null) {
         for (MetadataField field : object.getFields()) {
-          field.setIntegrationUser(integrationUser);
           field.process(entity, node);
         }
       }
@@ -216,6 +221,13 @@ public abstract class MetadataParser implements JiraParser {
   }
 
   /**
+   * Perform a post-processing on the output data.
+   * @param output Output data
+   * @param input JSON input data
+   */
+  protected abstract void postProcessOutputData(EntityObject output, JsonNode input);
+
+  /**
    * Get the template file inside the classpath
    * @return Template filename
    */
@@ -228,24 +240,12 @@ public abstract class MetadataParser implements JiraParser {
   protected abstract String getMetadataFile();
 
   /**
-   * Get the event name
-   * @return Event name
-   */
-  protected abstract String getEventName();
-
-  /**
-   * Get the event type
-   * @return Event type
-   */
-  protected abstract String getEventType();
-
-  /**
    * Get the event version. This version should use the notation 'Major.minor'.
    * Default version is '1.0'
    * @return Entity JSON version
    */
   protected String getVersion() {
-    return DEFAULT_VERSION;
+    return metadata.getVersion();
   }
 
 }

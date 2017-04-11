@@ -5,7 +5,7 @@
                 <img src="${entity['jiraIssueCreated'].issue.priority.iconUrl}" />
                 <a href="${entity['jiraIssueCreated'].issue.url}">${entity['jiraIssueCreated'].issue.key}</a>
                 <span>${entity['jiraIssueCreated'].issue.subject} - </span>
-                <#if (entity['jiraIssueCreated'].user.emailAddress)??>
+                <#if (entity['jiraIssueCreated'].user.id)??>
                     <mention email="${entity['jiraIssueCreated'].user.emailAddress}" />
                 <#else>
                     <span>${entity['jiraIssueCreated'].user.displayName}</span>
@@ -19,7 +19,7 @@
                             <span>${entity['jiraIssueCreated'].issue.description}</span>
                             <br/>
                             <span class="label">Assignee:</span>
-                            <#if (entity['jiraIssueCreated'].issue.assignee.emailAddress)??>
+                            <#if (entity['jiraIssueCreated'].issue.assignee.id)??>
                                 <mention email="${entity['jiraIssueCreated'].issue.assignee.emailAddress}" />
                             <#else>
                                 <span>${entity['jiraIssueCreated'].issue.assignee.displayName}</span>

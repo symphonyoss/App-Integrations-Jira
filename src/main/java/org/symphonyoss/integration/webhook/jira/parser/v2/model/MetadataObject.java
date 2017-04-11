@@ -65,15 +65,7 @@ public class MetadataObject {
     this.version = version;
   }
 
-  @XmlElements(
-      {
-          @XmlElement(type = TextField.class, name = "text"),
-          @XmlElement(type = HtmlTextField.class, name = "html"),
-          @XmlElement(type = UserField.class, name = "user"),
-          @XmlElement(type = TextArrayField.class, name = "textarray"),
-          @XmlElement(type = UrlField.class, name = "url")
-      }
-  )
+  @XmlElement(name = "field")
   public List<MetadataField> getFields() {
     return fields;
   }

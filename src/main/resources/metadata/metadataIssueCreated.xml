@@ -1,44 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<metadata>
+<metadata name="jiraIssueCreated" type="com.symphony.integration.jira.event.v2.created" version="1.0">
 
     <object id="user" type="com.symphony.integration.user" version="1.0">
-        <user email="user.emailAddress" displayName="user.displayName" />
+        <field key="id" value="user.id" />
+        <field key="emailAddress" value="user.emailAddress" />
+        <field key="username" value="user.username" />
+        <field key="displayName" value="user.displayName" />
     </object>
 
     <object id="issue" type="com.symphony.integration.jira.issue" version="1.0">
-        <text key="key" path="issue.key" />
-        <url key="url" path="issue.self">
-            <text value="browse" />
-            <text path="issue.key" />
-        </url>
-        <text key="subject" path="issue.fields.summary" />
-        <html key="description" path="issue.fields.description" />
-        <text key="issueType" path="issue.fields.issuetype.name" />
+        <field key="key" value="issue.key" />
+        <field key="url" value="issue.link" />
+        <field key="subject" value="issue.fields.summary" />
+        <field key="description" value="issue.fields.description" />
+        <field key="status" value="issue.fields.status.name" />
+
+        <object id="issueType" type="com.symphony.integration.jira.issueType" version="1.0">
+            <field key="name" value="issue.fields.issuetype.name" />
+            <field key="iconUrl" value="issue.fields.issuetype.iconUrl" />
+        </object>
 
         <object id="priority" type="com.symphony.integration.jira.priority" version="1.0">
-            <text key="iconUrl" path="issue.fields.priority.iconUrl" />
-            <text key="name" path="issue.fields.priority.name" />
+            <field key="iconUrl" value="issue.fields.priority.iconUrl" />
+            <field key="name" value="issue.fields.priority.name" />
         </object>
 
         <object id="assignee" type="com.symphony.integration.user" version="1.0">
-            <user email="issue.fields.assignee.emailAddress" displayName="issue.fields.assignee.displayName" />
+            <field key="id" value="issue.fields.assignee.id" />
+            <field key="emailAddress" value="issue.fields.assignee.emailAddress" />
+            <field key="username" value="issue.fields.assignee.username" />
+            <field key="displayName" value="issue.fields.assignee.displayName" />
         </object>
 
         <object id="epic" type="com.symphony.integration.jira.epic" version="1.0">
-            <text key="name" path="changelog.items.toString" optional="true">
-                <filter arrayPath="items" field="field" equals="Epic Link" />
-            </text>
-
-            <url key="link" path="issue.self">
-                <text key="name" path="changelog.items.field.toString">
-                    <filter arrayPath="items" field="field" equals="Epic Link" />
-                </text>
-            </url>
+            <field key="name" value="issue.epic.name" />
+            <field key="link" value="issue.epic.link" />
         </object>
-
-        <textarray key="labels" path="issue.fields.labels" type="com.symphony.integration.jira.label" version="1.0" >
-            <text key="text" replace="#" />
-        </textarray>
     </object>
 
 </metadata>

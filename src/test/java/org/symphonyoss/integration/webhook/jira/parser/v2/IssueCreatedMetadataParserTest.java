@@ -26,15 +26,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.ApplicationContext;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.service.UserService;
-import org.symphonyoss.integration.utils.ApplicationContextUtils;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
@@ -79,13 +76,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
   @Mock
   private UserService userService;
 
-  @Mock
-  private ApplicationContext context;
-
-  @InjectMocks
-  private MetadataParser parser = new IssueCreatedMetadataParser();
-
-  private ApplicationContextUtils utils;
+  private MetadataParser parser;
 
   private String expectedTemplateFile = "<messageML>\n"
       + "    <div class=\"entity\">\n"
@@ -95,7 +86,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
       + "                <a href=\"${entity['jiraIssueCreated'].issue.url}\">${entity"
       + "['jiraIssueCreated'].issue.key}</a>\n"
       + "                <span>${entity['jiraIssueCreated'].issue.subject} - </span>\n"
-      + "                <#if (entity['jiraIssueCreated'].user.emailAddress)??>\n"
+      + "                <#if (entity['jiraIssueCreated'].user.id)??>\n"
       + "                    <mention email=\"${entity['jiraIssueCreated'].user.emailAddress}\" />\n"
       + "                <#else>\n"
       + "                    <span>${entity['jiraIssueCreated'].user.displayName}</span>\n"
@@ -109,7 +100,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
       + "                            <span>${entity['jiraIssueCreated'].issue.description}</span>\n"
       + "                            <br/>\n"
       + "                            <span class=\"label\">Assignee:</span>\n"
-      + "                            <#if (entity['jiraIssueCreated'].issue.assignee.emailAddress)??>\n"
+      + "                            <#if (entity['jiraIssueCreated'].issue.assignee.id)??>\n"
       + "                                <mention email=\"${entity['jiraIssueCreated'].issue.assignee.emailAddress}\""
       + " />\n"
       + "                            <#else>\n"
@@ -138,14 +129,10 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
 
   @Before
   public void init() {
-    doReturn(userService).when(context).getBean(UserService.class);
-
-    utils = new ApplicationContextUtils(context);
+    parser = new IssueCreatedMetadataParser(userService);
 
     parser.init();
     parser.setIntegrationUser(MOCK_INTEGRATION_USER);
-
-
   }
 
   @Test

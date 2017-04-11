@@ -44,6 +44,7 @@ import org.symphonyoss.integration.webhook.jira.parser.v1.CommentJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v2.IssueCreatedMetadataParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -58,7 +59,7 @@ public class V2ParserFactoryTest {
   @Spy
   private List<JiraParser> beans = new ArrayList<>();
 
-  @Spy
+  @Mock
   private IssueCreatedMetadataParser issueCreatedJiraParser;
 
   @Spy
@@ -75,6 +76,8 @@ public class V2ParserFactoryTest {
 
   @Before
   public void init() {
+    doReturn(Arrays.asList(JIRA_ISSUE_CREATED)).when(issueCreatedJiraParser).getEvents();
+
     beans.add(issueCreatedJiraParser);
     beans.add(defaultJiraParser);
 

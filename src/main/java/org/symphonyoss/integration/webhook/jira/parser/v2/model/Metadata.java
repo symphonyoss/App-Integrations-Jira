@@ -18,6 +18,7 @@ package org.symphonyoss.integration.webhook.jira.parser.v2.model;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -30,7 +31,40 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Metadata {
 
+  private String name;
+
+  private String type;
+
+  private String version;
+
   private List<MetadataObject> objects;
+
+  @XmlAttribute
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @XmlAttribute
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  @XmlAttribute
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
 
   @XmlElement(name = "object")
   public List<MetadataObject> getObjects() {
@@ -44,7 +78,10 @@ public class Metadata {
   @Override
   public String toString() {
     return "Metadata{" +
-        "objects=" + objects +
+        "name='" + name + '\'' +
+        ", type='" + type + '\'' +
+        ", version='" + version + '\'' +
+        ", objects=" + objects +
         '}';
   }
 }

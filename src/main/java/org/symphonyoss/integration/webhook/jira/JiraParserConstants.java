@@ -81,6 +81,8 @@ public final class JiraParserConstants {
 
   public static final String DESCRIPTION_PATH = "description";
 
+  public static final String EPIC_PATH = "epic";
+
   public static final String EPIC_LINK_PATH = "Epic Link";
 
   public static final String DISPLAY_NAME_PATH = "displayName";
@@ -88,17 +90,31 @@ public final class JiraParserConstants {
   public static final String VISIBILITY_PATH = "visibility";
 
   public static final String PROJECT_ENTITY_FIELD = "project";
+
   public static final String KEY_ENTITY_FIELD = "key";
+
   public static final String SUBJECT_ENTITY_FIELD = "subject";
+
   public static final String TYPE_ENTITY_FIELD = "type";
+
   public static final String DESCRIPTION_ENTITY_FIELD = "description";
+
   public static final String LINK_ENTITY_FIELD = "link";
+
   public static final String PRIORITY_ENTITY_FIELD = "priority";
+
   public static final String ISSUE_ENTITY_FIELD = "issue";
+
   public static final String LABELS_ENTITY_FIELD = "labels";
+
   public static final String EPIC_ENTITY_FIELD = "epic";
+
   public static final String USER_ENTITY_FIELD = "user";
+
   public static final String AUTHOR_ENTITY_FIELD = "author";
+
   public static final String COMMENT_ENTITY_FIELD = "comment";
+
+  public static final String TEXT_ENTITY_FIELD = "text";
 
 }

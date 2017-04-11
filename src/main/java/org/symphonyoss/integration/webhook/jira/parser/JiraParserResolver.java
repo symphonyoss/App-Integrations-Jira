@@ -20,14 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.event.HealthCheckServiceEvent;
-import org.symphonyoss.integration.event.MessageMLVersionUpdatedEvent;
+import org.symphonyoss.integration.event.HealthCheckEventData;
+import org.symphonyoss.integration.event.MessageMLVersionUpdatedEventData;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
 
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -48,8 +47,6 @@ public class JiraParserResolver {
   private List<ParserFactory> factories;
 
   private ParserFactory factory;
-
-  private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
   /**
    * Initialize the default parser factory.
@@ -72,29 +69,13 @@ public class JiraParserResolver {
   }
 
   /**
-   * Schedule to dispatch health-check service event to monitor the Agent version.
-   */
-  public void healthCheckAgentService() {
-    HealthCheckServiceEvent event = new HealthCheckServiceEvent(AGENT_SERVICE_NAME);
-    publisher.publishEvent(event);
-  }
-
-  /**
    * Handle events related to update MessageML version. If the new version of MessageML is V2 I can
    * stop the scheduler to check the version, otherwise I need to reschedule the monitoring process.
    * @param event MessageML version update event
    */
   @EventListener
-  public void handleMessageMLVersionUpdatedEvent(MessageMLVersionUpdatedEvent event) {
+  public void handleMessageMLVersionUpdatedEvent(MessageMLVersionUpdatedEventData event) {
     setupParserFactory(event.getVersion());
-  }
-
-  /**
-   * Stop the monitoring process.
-   */
-  @PreDestroy
-  public void stopScheduler() {
-    scheduler.shutdown();
   }
 
   public ParserFactory getFactory() {
