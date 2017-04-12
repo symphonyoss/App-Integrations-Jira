@@ -71,6 +71,8 @@ public final class JiraParserConstants {
 
   public static final String STATUS_PATH = "status";
 
+  public static final String TO_PATH = "to";
+
   public static final String TOSTRING_PATH = "toString";
 
   public static final String FROMSTRING_PATH = "fromString";
