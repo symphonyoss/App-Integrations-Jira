@@ -42,6 +42,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.SELF_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.STATUS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TEXT_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TOSTRING_PATH;
+import static org.symphonyoss.integration.webhook.jira.parser.v1.IssueJiraParser.UNASSIGNED;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -91,12 +92,12 @@ public abstract class JiraMetadataParser extends MetadataParser {
    * @param input JSON input data
    */
   private void processStatus(JsonNode input) {
-    ObjectNode statusNode = (ObjectNode) input.path(ISSUE_PATH).path(FIELDS_PATH).path(STATUS_PATH);
+    JsonNode statusNode = input.path(ISSUE_PATH).path(FIELDS_PATH).path(STATUS_PATH);
 
     String issueStatus = statusNode.path(NAME_PATH).asText(EMPTY);
 
     if (StringUtils.isNotEmpty(issueStatus)) {
-      statusNode.put(NAME_PATH, issueStatus.toUpperCase());
+      ((ObjectNode) statusNode).put(NAME_PATH, issueStatus.toUpperCase());
     }
   }
 
@@ -184,11 +185,15 @@ public abstract class JiraMetadataParser extends MetadataParser {
    */
   private void processAssignee(JsonNode input) {
     // Get user assignee
-    ObjectNode assigneeNode = (ObjectNode) input.path(ISSUE_PATH).path(FIELDS_PATH).path(ASSIGNEE_PATH);
-    String assignee = assigneeNode.path(DISPLAY_NAME_PATH).asText();
+    ObjectNode fieldsNode = (ObjectNode) input.path(ISSUE_PATH).path(FIELDS_PATH);
+    String assignee = fieldsNode.path(ASSIGNEE_PATH).path(DISPLAY_NAME_PATH).asText();
 
     if (!StringUtils.isEmpty(assignee)) {
+      ObjectNode assigneeNode = (ObjectNode) fieldsNode.path(ASSIGNEE_PATH);
       augmentUserInformation(assigneeNode);
+    } else {
+      ObjectNode assigneeNode = fieldsNode.putObject(ASSIGNEE_PATH);
+      assigneeNode.put(DISPLAY_NAME_PATH, UNASSIGNED);
     }
   }
 
