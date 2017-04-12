@@ -16,15 +16,6 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v1;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ASSIGNEE_PATH;
-import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.FIELDS_PATH;
-import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUE_PATH;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
@@ -42,6 +33,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.*;
+
 /**
  * Test class to validate {@link IssueCreatedJiraParser}
  *
@@ -51,6 +49,7 @@ import java.util.Map;
 public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
   private static final String FILENAME = "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdated.json";
+  private static final String EPIC_FILENAME = "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueEpicUpdated.json";
 
   @InjectMocks
   private JiraParser issueUpdated = new IssueUpdatedJiraParser();
@@ -117,6 +116,22 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     Message result = issueUpdated.parse(parameters, root);
 
     String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedWithoutChangeLogMessageML.xml");
+
+    assertEquals(expected, result.getMessage());
+  }
+
+  @Test
+  public void testIssueUpdatedEpicToNull() throws IOException, JiraParserException {
+    ClassLoader classLoader = getClass().getClassLoader();
+    Map<String, String> parameters = new HashMap<>();
+
+    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(EPIC_FILENAME));
+
+    Message result = issueUpdated.parse(parameters, node);
+
+    assertNotNull(result);
+
+    String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedEpicNullMessageML.xml");
 
     assertEquals(expected, result.getMessage());
   }

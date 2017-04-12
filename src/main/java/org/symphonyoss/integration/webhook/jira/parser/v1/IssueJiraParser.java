@@ -509,7 +509,10 @@ public abstract class IssueJiraParser extends CommonJiraParser {
       JsonNode item = items.get(i);
       String field = item.get(FIELD_PATH).asText();
       if (EPIC_LINK_PATH.equals(field)) {
-        return item.get(TOSTRING_PATH).asText();
+        JsonNode toStringAttribute = item.get(TOSTRING_PATH);
+        if (!toStringAttribute.isNull()) {
+          return toStringAttribute.asText();
+        }
       }
     }
 
