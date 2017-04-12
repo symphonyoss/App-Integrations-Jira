@@ -17,7 +17,6 @@
 package org.symphonyoss.integration.webhook.jira.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,17 +120,6 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     Map<String, String> parameters = new HashMap<>();
 
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(EPIC_FILENAME));
-    ArrayNode items = (ArrayNode)node.path(CHANGELOG_PATH).path(ITEMS_PATH);
-    for (int i = 0; i < items.size(); i++) {
-      ObjectNode item = (ObjectNode) items.get(i);
-      String field = item.get(FIELD_PATH).asText();
-      if (EPIC_LINK_PATH.equals(field)) {
-        item.remove(TO_PATH);
-        item.putNull(TO_PATH);
-        item.remove(TOSTRING_PATH);
-        item.putNull(TOSTRING_PATH);
-      }
-    }
 
     String result = issueUpdated.parse(parameters, node);
 

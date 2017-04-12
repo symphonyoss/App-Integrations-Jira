@@ -111,7 +111,8 @@ public class IssueUpdatedJiraParser extends IssueJiraParser implements JiraParse
     for (int i = 0; i < items.size(); i++) {
       JsonNode item = items.get(i);
 
-      String toStringAttribute = item.get(TOSTRING_PATH).isNull() ? "" : item.get(TOSTRING_PATH).asText();
+      String toStringAttribute = item.get(TOSTRING_PATH).isNull() ? StringUtils.EMPTY
+                : item.get(TOSTRING_PATH).asText();
 
       changesBuilder.nestedEntity(EntityBuilder.forNestedEntity(JIRA, "change")
           .attribute("fieldName", item.get(FIELD_PATH).asText())
