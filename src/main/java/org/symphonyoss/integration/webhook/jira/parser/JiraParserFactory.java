@@ -90,7 +90,7 @@ public abstract class JiraParserFactory implements WebHookParserFactory {
     }
 
     if (result == null) {
-      LOGGER.info("Unhandled event {}", webHookEvent);
+      LOGGER.debug("Unhandled event {}", webHookEvent);
       return defaultJiraParser;
     }
 
