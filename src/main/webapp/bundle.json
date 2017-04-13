@@ -6,8 +6,8 @@
       "name": "Jira",
       "blurb": "Jira Webhook Integration in Development Mode",
       "publisher": "Symphony",
-      "url": "https://localhost.symphony.com/apps/jira/controller.html?configurationId=578543c2e4b0edcf4f5ff520&botUserId=7627861919706&id=devJiraWebHookIntegration&context=apps/jira",
-      "icon": "https://localhost.symphony.com/apps/jira/img/appstore-logo.png",
+      "url": "https://localhost.symphony.com:4000/controller.html?configurationId=57aba0f2e4b08c95e76c3ffd&botUserId=7627861919706&id=devJiraWebHookIntegration",
+      "icon": "https://localhost.symphony.com:4000/img/appstore-logo.png",
       "domain": ".symphony.com"
     }
   ]
