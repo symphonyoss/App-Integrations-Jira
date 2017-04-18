@@ -76,7 +76,7 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
   @Mock
   private UserService userService;
 
-  private MetadataParser parser;
+  private JiraMetadataParser parser;
 
   private String expectedTemplateFile = "<messageML>\n"
       + "    <div class=\"entity\">\n"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v2;
 
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
@@ -23,7 +23,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
-import org.symphonyoss.integration.webhook.jira.parser.v2.MetadataParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserFactory;
+import org.symphonyoss.integration.webhook.jira.parser.v1.V1ParserFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +38,7 @@ import java.util.List;
 public class V2ParserFactory extends JiraParserFactory {
 
   @Autowired
-  private List<MetadataParser> beans;
+  private List<JiraMetadataParser> beans;
 
   @Autowired
   private V1ParserFactory fallbackFactory;

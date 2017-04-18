@@ -27,6 +27,8 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.event.MessageMLVersionUpdatedEventData;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
+import org.symphonyoss.integration.webhook.jira.parser.v1.V1ParserFactory;
+import org.symphonyoss.integration.webhook.jira.parser.v2.V2ParserFactory;
 
 import java.util.ArrayList;
 import java.util.List;

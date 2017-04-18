@@ -25,7 +25,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
 import java.io.IOException;
-import java.util.Collections;
 
 /**
  * Unit test class for {@link MetadataParser}
@@ -51,7 +50,7 @@ public class MetadataParserTest extends JiraParserTest {
     parser.init();
 
     JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
-    assertNull(parser.parse(Collections.<String, String>emptyMap(), node));
+    assertNull(parser.parse(node));
   }
 
   @Test
@@ -60,7 +59,7 @@ public class MetadataParserTest extends JiraParserTest {
     parser.init();
 
     JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
-    assertNull(parser.parse(Collections.<String, String>emptyMap(), node));
+    assertNull(parser.parse(node));
   }
 
 }

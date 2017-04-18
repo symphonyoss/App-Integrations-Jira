@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v2;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -40,8 +40,10 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.NullJiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.v1.V1ParserFactory;
 import org.symphonyoss.integration.webhook.jira.parser.v1.CommentJiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.v2.IssueCreatedMetadataParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;

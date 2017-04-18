@@ -19,16 +19,11 @@ package org.symphonyoss.integration.webhook.jira.parser.v2;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.symphonyoss.integration.webhook.jira.parser.v2.model.EntityObject;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Mock class to simulate the behaviour for {@link MetadataParser} class.
  * Created by rsanchez on 03/04/17.
  */
 public class MockMetadataParser extends MetadataParser {
-
-  private static final String MOCK_EVENT = "mockEvent";
 
   private String templateFile;
 
@@ -59,8 +54,4 @@ public class MockMetadataParser extends MetadataParser {
     return metadataFile;
   }
 
-  @Override
-  public List<String> getEvents() {
-    return Arrays.asList(MOCK_EVENT);
-  }
 }

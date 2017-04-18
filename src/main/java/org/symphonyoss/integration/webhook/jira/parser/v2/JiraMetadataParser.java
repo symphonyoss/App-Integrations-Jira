@@ -50,7 +50,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.symphonyoss.integration.entity.model.User;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.service.UserService;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils;
 import org.symphonyoss.integration.webhook.jira.parser.v2.model.EntityObject;
 
@@ -58,6 +61,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Abstract JIRA parser responsible to augment the JIRA input data querying the user API and
@@ -65,15 +69,27 @@ import java.util.List;
  *
  * Created by rsanchez on 10/04/17.
  */
-public abstract class JiraMetadataParser extends MetadataParser {
+public abstract class JiraMetadataParser extends MetadataParser implements JiraParser {
 
   private static final String LABELS_TYPE = "com.symphony.integration.jira.label";
 
   private UserService userService;
 
+  private String integrationUser;
+
   @Autowired
   public JiraMetadataParser(UserService userService) {
     this.userService = userService;
+  }
+
+  @Override
+  public void setIntegrationUser(String integrationUser) {
+    this.integrationUser = integrationUser;
+  }
+
+  @Override
+  public Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+    return parse(node);
   }
 
   @Override

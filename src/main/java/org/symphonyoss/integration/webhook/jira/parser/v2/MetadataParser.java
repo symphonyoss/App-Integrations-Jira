@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.v2.model.EntityObject;
 import org.symphonyoss.integration.webhook.jira.parser.v2.model.Metadata;
 import org.symphonyoss.integration.webhook.jira.parser.v2.model.MetadataField;
@@ -50,15 +48,13 @@ import javax.xml.bind.Unmarshaller;
  *
  * Created by rsanchez on 29/03/17.
  */
-public abstract class MetadataParser implements JiraParser {
+public abstract class MetadataParser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetadataParser.class);
 
   private static final String BASE_METADATA_PATH = "metadata/";
 
   private static final String BASE_TEMPLATE_PATH = "templates/";
-
-  protected String integrationUser;
 
   private Unmarshaller unmarshaller;
 
@@ -132,13 +128,7 @@ public abstract class MetadataParser implements JiraParser {
     }
   }
 
-  @Override
-  public void setIntegrationUser(String integrationUser) {
-    this.integrationUser = integrationUser;
-  }
-
-  @Override
-  public Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+  public Message parse(JsonNode node) {
     if (StringUtils.isEmpty(messageMLTemplate)) {
       return null;
     }
@@ -161,9 +151,8 @@ public abstract class MetadataParser implements JiraParser {
    * Retrieves the Entity JSON based on metadata objects.
    * @param node JSON input data
    * @return Entity JSON
-   * @throws JiraParserException Failure to process JSON input data
    */
-  private String getEntityJSON(JsonNode node) throws JiraParserException {
+  private String getEntityJSON(JsonNode node) {
     if (metadata == null) {
       return null;
     }
