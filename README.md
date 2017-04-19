@@ -1,4 +1,4 @@
-[![Symphony Software Foundation - Incubating](https://cdn.rawgit.com/symphonyoss/contrib-toolbox/master/images/ssf-badge-incubating.svg)](https://symphonyoss.atlassian.net/wiki/display/FM/Incubating) [![Build Status](https://travis-ci.org/symphonyoss/App-Integrations-Jira.svg?branch=dev)](https://travis-ci.org/symphonyoss/App-Integrations-Jira)
+[![Symphony Software Foundation - Incubating](https://cdn.rawgit.com/symphonyoss/contrib-toolbox/master/images/ssf-badge-incubating.svg)](https://symphonyoss.atlassian.net/wiki/display/FM/Incubating) [![Build Status](https://travis-ci.org/symphonyoss/App-Integrations-Jira.svg?branch=dev)](https://travis-ci.org/symphonyoss/App-Integrations-Jira) [![Dependencies](https://www.versioneye.com/user/projects/58d049f56893fd004792c870/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/58d049f56893fd004792c870)
 
 # JIRA Webhook Integration
 The JIRA Webhook Integration will allow you to receive notifications in Symphony whenever an issue-related event occurs inside of JIRA.
