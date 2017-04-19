@@ -55,7 +55,8 @@ import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils;
-import org.symphonyoss.integration.webhook.jira.parser.v2.model.EntityObject;
+import org.symphonyoss.integration.webhook.parser.metadata.EntityObject;
+import org.symphonyoss.integration.webhook.parser.metadata.MetadataParser;
 
 import java.net.MalformedURLException;
 import java.net.URL;
