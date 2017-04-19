@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Resolves the parser factory based on MessageML version.
+ * Resolves the parser factory should be used based on MessageML version supported by Agent.
+ *
  * Created by rsanchez on 22/03/17.
  */
 @Component
@@ -34,6 +35,10 @@ public class JiraParserResolver extends WebHookParserResolver {
   @Autowired
   private List<JiraParserFactory> factories;
 
+  /**
+   * Retrieve all parser factories of JIRA integration for all MessageML versions.
+   * @return Parser factories
+   */
   @Override
   protected List<WebHookParserFactory> getFactories() {
     return new ArrayList<WebHookParserFactory>(factories);

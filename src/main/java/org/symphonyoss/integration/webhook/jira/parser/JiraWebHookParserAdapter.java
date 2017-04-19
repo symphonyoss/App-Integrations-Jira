@@ -12,7 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Adapt the interface {@link WebHookParser} to {@link JiraParser}
+ * Adapt the interface {@link WebHookParser} to {@link JiraParser}.
+ *
+ * {@link WebHookParser} is the common interface implemented by all the parsers that support MessageML v2.
+ * {@link JiraParser} is the interface implemented by all the JIRA parsers.
+ *
  * Created by rsanchez on 11/04/17.
  */
 public class JiraWebHookParserAdapter implements WebHookParser {

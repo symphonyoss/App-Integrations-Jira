@@ -32,6 +32,11 @@ import java.util.List;
 /**
  * Implementation of a WebHook to integrate with JIRA, rendering it's messages.
  *
+ * This integration class should support MessageML v1 and MessageML v2 according to the Agent Version.
+ *
+ * There is a component {@link JiraParserResolver} responsible to identify the correct factory should
+ * be used to build the parsers according to the MessageML supported.
+ *
  * Created by Milton Quilzini on 04/05/16.
  */
 @Component
@@ -43,6 +48,10 @@ public class JiraWebHookIntegration extends WebHookIntegration {
   @Autowired
   private List<JiraParserFactory> factories;
 
+  /**
+   * Callback to update the integration settings in the parser classes.
+   * @param settings Integration settings
+   */
   @Override
   public void onConfigChange(IntegrationSettings settings) {
     super.onConfigChange(settings);
@@ -52,6 +61,12 @@ public class JiraWebHookIntegration extends WebHookIntegration {
     }
   }
 
+  /**
+   * Parse message received from JIRA according to the event type and MessageML version supported.
+   * @param input Message received from JIRA
+   * @return Message to be posted
+   * @throws WebHookParseException Failure to parse the incoming payload
+   */
   @Override
   public Message parse(WebHookPayload input) throws WebHookParseException {
     WebHookParser parser = parserResolver.getFactory().getParser(input);

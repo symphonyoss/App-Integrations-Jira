@@ -32,6 +32,7 @@ import java.util.List;
 
 /**
  * Parser factory for the MessageML v2.
+ *
  * Created by rsanchez on 21/03/17.
  */
 @Component
@@ -55,14 +56,7 @@ public class V2ParserFactory extends JiraParserFactory {
 
   @Override
   public JiraParser getParser(JsonNode node) {
-    String webHookEvent = node.path(WEBHOOK_EVENT).asText();
-    String eventTypeName = node.path(ISSUE_EVENT_TYPE_NAME).asText();
-
-    JiraParser result = parsers.get(eventTypeName);
-
-    if (result == null) {
-      result = parsers.get(webHookEvent);
-    }
+    JiraParser result = super.getParser(node);
 
     if (result == null) {
       // Fallback use V1 Factory

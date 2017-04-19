@@ -49,6 +49,9 @@ public abstract class JiraParserFactory implements WebHookParserFactory {
   @Autowired
   private NullJiraParser defaultJiraParser;
 
+  /**
+   * Map the event type to the parser.
+   */
   @PostConstruct
   public void init() {
     for (JiraParser parser : getBeans()) {
@@ -59,6 +62,11 @@ public abstract class JiraParserFactory implements WebHookParserFactory {
     }
   }
 
+  /**
+   * Update the integration username on each parser class. This process is required to know which user
+   * must be used to query the Symphony API's.
+   * @param settings Integration settings
+   */
   @Override
   public void onConfigChange(IntegrationSettings settings) {
     String jiraUser = settings.getType();
@@ -73,12 +81,25 @@ public abstract class JiraParserFactory implements WebHookParserFactory {
     try {
       JsonNode rootNode = JsonUtils.readTree(payload.getBody());
       JiraParser parser = getParser(rootNode);
+
+      if (parser == null) {
+        parser = defaultJiraParser;
+      }
+
       return new JiraWebHookParserAdapter(parser);
     } catch (IOException e) {
       throw new JiraParserException("Cannot retrieve the payload event", e);
     }
   }
 
+  /**
+   * Get the parser class based on the event received from JIRA.
+   *
+   * The fields used to do perform this selection are 'webhookEvent' and 'issue_event_type_name'.
+   *
+   * @param node JIRA event
+   * @return Parser class to handle the event
+   */
   public JiraParser getParser(JsonNode node) {
     String webHookEvent = node.path(WEBHOOK_EVENT).asText();
     String eventTypeName = node.path(ISSUE_EVENT_TYPE_NAME).asText();
@@ -91,12 +112,15 @@ public abstract class JiraParserFactory implements WebHookParserFactory {
 
     if (result == null) {
       LOGGER.debug("Unhandled event {}", webHookEvent);
-      return defaultJiraParser;
     }
 
     return result;
   }
 
+  /**
+   * Get a list of parsers supported by the factory.
+   * @return list of parsers supported by the factory.
+   */
   protected abstract List<JiraParser> getBeans();
 
 }

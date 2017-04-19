@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Abstract class that contains the commons methods required by all the MessageML v1 parsers.
+ *
  * Created by rsanchez on 25/07/16.
  */
 public class CommonJiraParser implements JiraParser {

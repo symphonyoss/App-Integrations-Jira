@@ -28,10 +28,25 @@ import java.util.Map;
  */
 public interface JiraParser {
 
+  /**
+   * Retrieve a list of events supported by the parser class.
+   * @return Events supported by the parser class
+   */
   List<String> getEvents();
 
+  /**
+   * Update the integration username.
+   * @param integrationUser Integration username
+   */
   void setIntegrationUser(String integrationUser);
 
+  /**
+   * Process event received from JIRA.
+   * @param parameters HTTP parameters
+   * @param node JSON payload
+   * @return Message to be posted
+   * @throws JiraParserException Failure to parse the event
+   */
   Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException;
 
 }

@@ -104,9 +104,9 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   }
 
   /**
-   * Process issue status.
+   * This method change the issue status to uppercase.
    *
-   * @param input JSON input data
+   * @param input JSON input payload
    */
   private void processStatus(JsonNode input) {
     JsonNode statusNode = input.path(ISSUE_PATH).path(FIELDS_PATH).path(STATUS_PATH);
@@ -119,7 +119,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   }
 
   /**
-   * Process issue link.
+   * Retrieves the issue link from JIRA payload and creates a new field named 'link'.
    *
    * @param input JSON input data
    */
@@ -135,7 +135,8 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   }
 
   /**
-   * Return the URL from jira's json
+   * Return the URL from JIRA payload
+   *
    * @param selfPath Issue URL
    * @param key Issue Key
    * @return Browse issue URL or null if the selfPath is and invalid URL
@@ -187,8 +188,8 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   }
 
   /**
-   * Process user information.
-   * @param input JSON input data
+   * Augment user information.
+   * @param input JSON input payload
    */
   private void processUser(JsonNode input) {
     // Get user that performs the action
@@ -197,8 +198,8 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   }
 
   /**
-   * Process user assignee information.
-   * @param input JSON input data
+   * Augment user assignee information.
+   * @param input JSON input payload
    */
   private void processAssignee(JsonNode input) {
     // Get user assignee
@@ -215,7 +216,8 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   }
 
   /**
-   * Queries the user API to get more information about the user.
+   * Queries the user API using email address to get more information about the user.
+   *
    * @param userNode JSON node that contains user information provided by JIRA.
    */
   private void augmentUserInformation(ObjectNode userNode) {
@@ -232,8 +234,12 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   }
 
   /**
-   * Process optional field 'Epic'
-   * @param input JSON input data
+   * Process custom field 'Epic'.
+   *
+   * If the JSON input payload have epic custom field this method should include the epic name and
+   * epic link to be displayed by the renderer.
+   *
+   * @param input JSON input payload
    */
   private void processEpicLink(JsonNode input) {
     String epic = getEpicName(input);
@@ -254,8 +260,9 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   }
 
   /**
-   * Returns epic name
-   * @param input JSON input data
+   * Returns epic name from a custom field.
+   *
+   * @param input JSON input payload
    * @return Epic name or empty string
    */
   private String getEpicName(JsonNode input) {
@@ -282,6 +289,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
 
   /**
    * Augment the output entity JSON with the JIRA labels.
+   *
    * @param output Output Entity JSON
    * @param input JSON input data
    */

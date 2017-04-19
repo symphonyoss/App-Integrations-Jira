@@ -18,6 +18,7 @@ package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -133,9 +134,9 @@ public class V1ParserFactoryTest {
   }
 
   @Test
-  public void testDefaultJiraParser() {
+  public void testNullJiraParser() {
     JsonNode node = JsonNodeFactory.instance.objectNode();
-    assertEquals(defaultJiraParser, factory.getParser(node));
+    assertNull(factory.getParser(node));
   }
 
 }
