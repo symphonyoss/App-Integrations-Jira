@@ -1,4 +1,3 @@
-<messageML>
 <entity type="com.symphony.integration.jira.event.issue_commented" version="1.0">
 <presentationML>Test User commented on Story SAM-25, Issue Test (<a href="https://whiteam1.atlassian.net/browse/SAM-25"/>)<br/>Comment: Hey, <mention email="integrationuser@symphony.com"/>, adding a comment to <mention email="user2@symphony.com"/></presentationML>
 <entity name="user" type="com.symphony.integration.jira.user" version="1.0">
@@ -56,4 +55,3 @@
 </entity>
 </entity>
 </entity>
-</messageML>
