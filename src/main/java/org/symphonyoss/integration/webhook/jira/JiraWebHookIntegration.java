@@ -16,8 +16,6 @@
 
 package org.symphonyoss.integration.webhook.jira;
 
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,12 +29,15 @@ import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.NullJiraParser;
 
+import javax.annotation.PostConstruct;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
 
 /**
  * Implementation of a WebHook to integrate with JIRA, rendering it's messages.
@@ -113,5 +114,14 @@ public class JiraWebHookIntegration extends WebHookIntegration {
     return result;
   }
 
+  /**
+   * @see WebHookIntegration#getSupportedContentTypes()
+   */
+  @Override
+  public List<MediaType> getSupportedContentTypes() {
+    List<MediaType> supportedContentTypes = new ArrayList<>();
+    supportedContentTypes.add(MediaType.WILDCARD_TYPE);
+    return supportedContentTypes;
+  }
 }
 
