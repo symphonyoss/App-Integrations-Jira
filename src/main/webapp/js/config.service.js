@@ -1,5 +1,5 @@
 export default ({
-  appTitle: 'Configure JIRA',
+  appTitle: 'JIRA',
   appName: 'JIRA',
   appSubTitle: 'JIRA Webhook Integration',
   appIMShortHand: 'JIRA', // will display "One on One with JIRA"
