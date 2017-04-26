@@ -14,38 +14,37 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.model.message.Message;
+import org.symphonyoss.integration.model.message.MessageMLVersion;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserFactory;
+import org.symphonyoss.integration.webhook.jira.parser.v1.CommonJiraParser;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Parser to skip incoming requests from JIRA
- * Created by rsanchez on 28/07/16.
+ * Parser factory for the MessageML v1.
+ *
+ * Created by rsanchez on 21/03/17.
  */
 @Component
-public class NullJiraParser implements JiraParser {
+public class V1ParserFactory extends JiraParserFactory {
+
+  @Autowired
+  private List<CommonJiraParser> beans;
 
   @Override
-  public List<String> getEvents() {
-    return Collections.emptyList();
+  public boolean accept(MessageMLVersion version) {
+    return MessageMLVersion.V1.equals(version);
   }
 
   @Override
-  public void setIntegrationUser(String integrationUser) {
-    // Do nothing
-  }
-
-  @Override
-  public Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
-    return null;
+  protected List<JiraParser> getBeans() {
+    return new ArrayList<JiraParser>(beans);
   }
 
 }

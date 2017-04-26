@@ -195,5 +195,18 @@
         "worklogs": []
       }
     }
+  },
+  "changelog": {
+    "id": "10029",
+    "items": [
+      {
+        "field": "status",
+        "fieldtype": "jira",
+        "from": "10000",
+        "fromString": "To Do",
+        "to": "10001",
+        "toString": "Done"
+      }
+    ]
   }
 }

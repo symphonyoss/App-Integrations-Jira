@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -24,6 +24,10 @@ import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.json.JsonUtils;
+import org.symphonyoss.integration.model.message.Message;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -64,12 +68,13 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     doReturn(returnedUser).when(userService).getUserByEmail(anyString(), eq("test2@symphony.com"));
 
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME));
-    String result = issueUpdated.parse(parameters, node);
+    Message result = issueUpdated.parse(parameters, node);
 
     assertNotNull(result);
 
     String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedMessageML.xml");
-    assertEquals(expected, result);
+
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -82,12 +87,13 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     fieldsNode.remove(ASSIGNEE_PATH);
     fieldsNode.putNull(ASSIGNEE_PATH);
 
-    String result = issueUpdated.parse(parameters, node);
+    Message result = issueUpdated.parse(parameters, node);
 
     assertNotNull(result);
 
     String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedUnassigneeMessageML.xml");
-    assertEquals(expected, result);
+
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -107,11 +113,11 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     ObjectNode root = (ObjectNode) node;
     root.remove("changelog");
 
-    String result = issueUpdated.parse(parameters, root);
+    Message result = issueUpdated.parse(parameters, root);
 
     String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedWithoutChangeLogMessageML.xml");
 
-    assertEquals(expected, result);
+    assertEquals(expected, result.getMessage());
   }
 
   @Test
@@ -121,11 +127,12 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(EPIC_FILENAME));
 
-    String result = issueUpdated.parse(parameters, node);
+    Message result = issueUpdated.parse(parameters, node);
 
     assertNotNull(result);
 
     String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedEpicNullMessageML.xml");
-    assertEquals(expected, result);
+
+    assertEquals(expected, result.getMessage());
   }
 }

@@ -16,31 +16,29 @@
 
 package org.symphonyoss.integration.webhook.jira;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.WebHookIntegration;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
-import org.symphonyoss.integration.webhook.jira.parser.NullJiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserFactory;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserResolver;
+import org.symphonyoss.integration.webhook.parser.WebHookParser;
 
-import javax.annotation.PostConstruct;
-import javax.ws.rs.core.MediaType;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Implementation of a WebHook to integrate with JIRA, rendering it's messages.
+ *
+ * This integration class should support MessageML v1 and MessageML v2 according to the Agent Version.
+ *
+ * There is a component {@link JiraParserResolver} responsible to identify the correct factory should
+ * be used to build the parsers according to the MessageML supported.
  *
  * Created by Milton Quilzini on 04/05/16.
  */
@@ -48,70 +46,34 @@ import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOO
 public class JiraWebHookIntegration extends WebHookIntegration {
 
   @Autowired
-  private NullJiraParser defaultJiraParser;
-
-  private Map<String, JiraParser> parsers = new HashMap<>();
+  private JiraParserResolver parserResolver;
 
   @Autowired
-  private List<JiraParser> jiraBeans;
+  private List<JiraParserFactory> factories;
 
-  @PostConstruct
-  public void init() {
-    for (JiraParser parser : jiraBeans) {
-      List<String> events = parser.getEvents();
-      for (String eventType : events) {
-        this.parsers.put(eventType, parser);
-      }
-    }
-  }
-
+  /**
+   * Callback to update the integration settings in the parser classes.
+   * @param settings Integration settings
+   */
   @Override
   public void onConfigChange(IntegrationSettings settings) {
     super.onConfigChange(settings);
 
-    String jiraUser = settings.getType();
-    for (JiraParser parser : parsers.values()) {
-      parser.setJiraUser(jiraUser);
-    }
-  }
-
-  @Override
-  public Message parse(WebHookPayload input) throws WebHookParseException {
-    try {
-      JsonNode rootNode = JsonUtils.readTree(input.getBody());
-      Map<String, String> parameters = input.getParameters();
-
-      String webHookEvent = rootNode.path(WEBHOOK_EVENT).asText();
-      String eventTypeName = rootNode.path("issue_event_type_name").asText();
-
-      JiraParser parser = getParser(webHookEvent, eventTypeName);
-      String formattedMessage = parser.parse(parameters, rootNode);
-
-      return super.buildMessageML(formattedMessage, webHookEvent);
-    } catch (IOException e) {
-      throw new JiraParserException("Something went wrong while trying to convert your message to the expected format", e);
+    for (JiraParserFactory factory : factories) {
+      factory.onConfigChange(settings);
     }
   }
 
   /**
-   * Get the JIRA Parser based on the event.
-   *
-   * @param webHookEvent
-   * @param eventTypeName
-   * @return
+   * Parse message received from JIRA according to the event type and MessageML version supported.
+   * @param input Message received from JIRA
+   * @return Message to be posted
+   * @throws WebHookParseException Failure to parse the incoming payload
    */
-  private JiraParser getParser(String webHookEvent, String eventTypeName) {
-    JiraParser result = parsers.get(eventTypeName);
-
-    if (result == null) {
-      result = parsers.get(webHookEvent);
-    }
-
-    if (result == null) {
-      return defaultJiraParser;
-    }
-
-    return result;
+  @Override
+  public Message parse(WebHookPayload input) throws WebHookParseException {
+    WebHookParser parser = parserResolver.getFactory().getParser(input);
+    return parser.parse(input);
   }
 
   /**

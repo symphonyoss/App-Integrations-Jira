@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
@@ -53,6 +53,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.parser.SafeString;
 import org.symphonyoss.integration.service.UserService;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 /**
  * Test class to validate {@link IssueJiraParser}
@@ -91,7 +92,7 @@ public class IssueJiraParserTest {
     returnedUser.setId(123l);
     doReturn(returnedUser).when(userService).getUserByEmail(anyString(), eq(EMAIL_ADDRESS));
 
-    this.issueJiraParser.setJiraUser(JIRA_USER);
+    this.issueJiraParser.setIntegrationUser(JIRA_USER);
   }
 
   private ObjectNode createIssueInfoJsonNode(String userDisplayName, String emailAddress) {

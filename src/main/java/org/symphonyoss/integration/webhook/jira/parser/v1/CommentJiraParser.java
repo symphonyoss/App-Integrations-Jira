@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_MENTION_EMAIL_FORMAT;
 import static org.symphonyoss.integration.parser.ParserUtils.presentationFormat;
@@ -39,9 +39,12 @@ import org.symphonyoss.integration.entity.Entity;
 import org.symphonyoss.integration.entity.EntityBuilder;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.exception.EntityXMLGeneratorException;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.parser.ParserUtils;
 import org.symphonyoss.integration.parser.SafeString;
 import org.symphonyoss.integration.parser.SafeStringUtils;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,7 +61,7 @@ import java.util.regex.Pattern;
  * Created by mquilzini on 17/05/16.
  */
 @Component
-public class CommentJiraParser extends IssueJiraParser implements JiraParser {
+public class CommentJiraParser extends IssueJiraParser {
 
   /**
    * Formatted message expected by user
@@ -90,7 +93,7 @@ public class CommentJiraParser extends IssueJiraParser implements JiraParser {
   }
 
   @Override
-  public String parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+  protected String getMessage(Map<String, String> parameters, JsonNode node) throws JiraParserException {
     if (isCommentRestricted(node)) {
       return null;
     } else {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.symphonyoss.integration.parser.ParserUtils.presentationFormat;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ASSIGNEE_PATH;
@@ -51,7 +51,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TYPE_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.UNKNOWN_PROJECT;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_PATH;
-import static org.symphonyoss.integration.webhook.jira.parser.JiraParserUtils.stripJiraFormatting;
+import static org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils.stripJiraFormatting;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
@@ -67,6 +67,7 @@ import org.symphonyoss.integration.parser.SafeString;
 import org.symphonyoss.integration.parser.SafeStringUtils;
 import org.symphonyoss.integration.parser.model.HashTag;
 import org.symphonyoss.integration.service.UserService;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.net.MalformedURLException;
 import java.net.URI;

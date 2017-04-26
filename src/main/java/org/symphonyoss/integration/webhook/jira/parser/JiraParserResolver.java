@@ -16,36 +16,32 @@
 
 package org.symphonyoss.integration.webhook.jira.parser;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.model.message.Message;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
+import org.symphonyoss.integration.webhook.parser.WebHookParserFactory;
+import org.symphonyoss.integration.webhook.parser.WebHookParserResolver;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Parser to skip incoming requests from JIRA
- * Created by rsanchez on 28/07/16.
+ * Resolves the parser factory should be used based on MessageML version supported by Agent.
+ *
+ * Created by rsanchez on 22/03/17.
  */
 @Component
-public class NullJiraParser implements JiraParser {
+public class JiraParserResolver extends WebHookParserResolver {
 
-  @Override
-  public List<String> getEvents() {
-    return Collections.emptyList();
-  }
+  @Autowired
+  private List<JiraParserFactory> factories;
 
+  /**
+   * Retrieve all parser factories of JIRA integration for all MessageML versions.
+   * @return Parser factories
+   */
   @Override
-  public void setIntegrationUser(String integrationUser) {
-    // Do nothing
-  }
-
-  @Override
-  public Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
-    return null;
+  protected List<WebHookParserFactory> getFactories() {
+    return new ArrayList<WebHookParserFactory>(factories);
   }
 
 }

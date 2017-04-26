@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
+
+import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_END;
+import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_START;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.integration.model.message.Message;
+import org.symphonyoss.integration.model.message.MessageMLVersion;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
@@ -27,11 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Parser to skip incoming requests from JIRA
- * Created by rsanchez on 28/07/16.
+ * Abstract class that contains the commons methods required by all the MessageML v1 parsers.
+ *
+ * Created by rsanchez on 25/07/16.
  */
-@Component
-public class NullJiraParser implements JiraParser {
+public class CommonJiraParser implements JiraParser {
+
+  protected String jiraUser;
 
   @Override
   public List<String> getEvents() {
@@ -39,12 +45,29 @@ public class NullJiraParser implements JiraParser {
   }
 
   @Override
-  public void setIntegrationUser(String integrationUser) {
-    // Do nothing
+  public void setIntegrationUser(String jiraUser) {
+    this.jiraUser = jiraUser;
   }
 
   @Override
   public Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+    String formattedMessage = getMessage(parameters, node);
+
+    if (StringUtils.isNotEmpty(formattedMessage)) {
+      String messageML = MESSAGEML_START + formattedMessage + MESSAGEML_END;
+
+      Message message = new Message();
+      message.setFormat(Message.FormatEnum.MESSAGEML);
+      message.setMessage(messageML);
+      message.setVersion(MessageMLVersion.V1);
+
+      return message;
+    }
+
+    return null;
+  }
+
+  protected String getMessage(Map<String, String> parameters, JsonNode node) throws JiraParserException {
     return null;
   }
 
