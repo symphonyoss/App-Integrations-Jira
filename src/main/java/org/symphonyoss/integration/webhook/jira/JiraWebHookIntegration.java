@@ -27,7 +27,10 @@ import org.symphonyoss.integration.webhook.jira.parser.JiraParserFactory;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserResolver;
 import org.symphonyoss.integration.webhook.parser.WebHookParser;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.ws.rs.core.MediaType;
 
 /**
  * Implementation of a WebHook to integrate with JIRA, rendering it's messages.
@@ -73,5 +76,14 @@ public class JiraWebHookIntegration extends WebHookIntegration {
     return parser.parse(input);
   }
 
+  /**
+   * @see WebHookIntegration#getSupportedContentTypes()
+   */
+  @Override
+  public List<MediaType> getSupportedContentTypes() {
+    List<MediaType> supportedContentTypes = new ArrayList<>();
+    supportedContentTypes.add(MediaType.WILDCARD_TYPE);
+    return supportedContentTypes;
+  }
 }
 
