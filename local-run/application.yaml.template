@@ -1,0 +1,6 @@
+applications:
+  <<APP_ID>>:
+    state: PROVISIONED
+    keystore:
+      file: <<CERT_FILE>>
+      password: <<CERT_PWD>>
