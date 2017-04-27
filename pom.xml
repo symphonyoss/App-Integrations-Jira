@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>integration-jira</artifactId>
-
+    <version>0.11.1</version>
     <properties>
         <webapp.directory>jira</webapp.directory>
         <rpm.name>jira-symphony-integration</rpm.name>
