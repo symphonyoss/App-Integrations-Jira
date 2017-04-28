@@ -16,9 +16,6 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v2;
 
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

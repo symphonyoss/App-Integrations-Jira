@@ -45,6 +45,8 @@ public final class JiraParserConstants {
 
   public static final String USER_PATH = "user";
 
+  public static final String USERNAME_PATH = "username";
+
   public static final String SUMMARY_PATH = "summary";
 
   public static final String EMAIL_ADDRESS_PATH = "emailAddress";
@@ -54,6 +56,8 @@ public final class JiraParserConstants {
   public static final String LABELS_PATH = "labels";
 
   public static final String KEY_PATH = "key";
+
+  public static final String ID_PATH = "id";
 
   public static final String SELF_PATH = "self";
 
@@ -102,6 +106,8 @@ public final class JiraParserConstants {
   public static final String DESCRIPTION_ENTITY_FIELD = "description";
 
   public static final String LINK_ENTITY_FIELD = "link";
+
+  public static final String ACTION_ENTITY_FIELD = "action";
 
   public static final String PRIORITY_ENTITY_FIELD = "priority";
 

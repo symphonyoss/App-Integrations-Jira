@@ -123,7 +123,6 @@ public abstract class IssueJiraParser extends CommonJiraParser {
     String issueKey = getIssueKey(node);
     SafeString linkedIssue = getLinkedIssueFieldFormatted(node, ISSUE_PATH, SELF_PATH, issueKey);
     String issueType = getIssueTypeName(fields);
-    String project = getIssueProjectName(fields);
     String subject = getIssueSummary(node);
 
     String userSymphonyDisplayName = getSymphonyUserDisplayName(emailAddress);
@@ -238,7 +237,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
    * @return the user e-mail if it exists, null otherwise.
    */
   protected User getUserByUserName(String userKey) {
-    if ((userKey == null) || (userKey.isEmpty())) {
+    if (StringUtils.isEmpty(userKey)) {
       return null;
     }
 

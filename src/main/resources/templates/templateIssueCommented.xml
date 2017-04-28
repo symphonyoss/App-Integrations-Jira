@@ -1,0 +1,28 @@
+<messageML>
+    <div class="entity">
+        <card class="barStyle">
+            <header>
+                <img src="${entity['jiraIssueCommented'].issue.priority.iconUrl}" class="icon" />
+                <a href="${entity['jiraIssueCommented'].issue.url}">${entity['jiraIssueCommented'].issue.key}</a>
+                <span>${entity['jiraIssueCommented'].issue.subject} - </span>
+                <#if (entity['jiraIssueCommented'].user.id)??>
+                    <mention email="${entity['jiraIssueCommented'].user.emailAddress}" />
+                <#else>
+                    <span>${entity['jiraIssueCommented'].user.displayName}</span>
+                </#if>
+                <a href="${entity['jiraIssueCommented'].comment.url}">
+                    <span class="action">${entity['jiraIssueCommented'].comment.action}</span>
+                </a>
+            </header>
+            <body>
+                <div class="entity" data-entity-id="jiraIssueCommented">
+                    <br/>
+                    <div>
+                        <span class="label">Comment:</span>
+                        <span>${entity['jiraIssueCommented'].comment.body}</span>
+                    </div>
+                </div>
+            </body>
+        </card>
+    </div>
+</messageML>

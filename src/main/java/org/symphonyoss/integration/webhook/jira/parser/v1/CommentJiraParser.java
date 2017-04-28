@@ -16,11 +16,13 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v1;
 
-import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_MENTION_EMAIL_FORMAT;
+import static org.symphonyoss.integration.messageml.MessageMLFormatConstants
+    .MESSAGEML_MENTION_EMAIL_FORMAT;
 import static org.symphonyoss.integration.parser.ParserUtils.presentationFormat;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENTED;
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENT_DELETED;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants
+    .JIRA_ISSUE_COMMENT_DELETED;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENT_EDITED;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.AUTHOR_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.AUTHOR_PATH;
@@ -39,11 +41,9 @@ import org.symphonyoss.integration.entity.Entity;
 import org.symphonyoss.integration.entity.EntityBuilder;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.exception.EntityXMLGeneratorException;
-import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.parser.ParserUtils;
 import org.symphonyoss.integration.parser.SafeString;
 import org.symphonyoss.integration.parser.SafeStringUtils;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.util.Arrays;
@@ -77,7 +77,7 @@ public class CommentJiraParser extends IssueJiraParser {
    */
   private static final Map<String, String> actions = new HashMap<>();
 
-  private static final Pattern userCommentPattern = Pattern.compile("(\\[\\~)([\\w\\.]+)(])");
+  private static final Pattern userCommentPattern = Pattern.compile("(\\[~)([\\w.]+)(])");
   public static final String MENTION_MARKUP = "[~%s]";
 
   public CommentJiraParser() {

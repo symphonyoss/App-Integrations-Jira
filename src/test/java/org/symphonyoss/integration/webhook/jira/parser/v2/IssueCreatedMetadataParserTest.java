@@ -16,44 +16,20 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.integration.entity.model.User;
-import org.symphonyoss.integration.json.JsonUtils;
-import org.symphonyoss.integration.model.message.Message;
-import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 
 import java.io.IOException;
-import java.util.Collections;
 
 /**
  * Unit test class for {@link IssueCreatedMetadataParser}
  * Created by rsanchez on 29/03/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class IssueCreatedMetadataParserTest extends JiraParserTest {
-
-  private static final String MOCK_INTEGRATION_USER = "mockUser";
-
-  private static final String MOCK_DISPLAY_NAME = "Mock user";
-
-  private static final String MOCK_USERNAME = "username";
-
-  private static final String MOCK_EMAIL_ADDRESS = "test@symphony.com";
-
-  private static final Long MOCK_USER_ID = 123456L;
+public class IssueCreatedMetadataParserTest extends JiraParserV2Test<IssueCreatedMetadataParser> {
 
   private static final String FILE_ISSUE_CREATED =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreated.json";
@@ -69,14 +45,6 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
 
   private static final String FILE_EXPECTED_ISSUE_CREATED_WITH_EPIC =
       "parser/issueCreatedJiraParser/v2/issueCreatedWithEpicEntityJSON.json";
-
-  private static final String FILE_EXPECTED_ISSUE_CREATED_TEMPLATE_MESSAGEML =
-      "templates/templateIssueCreated.xml";
-
-  @Mock
-  private UserService userService;
-
-  private JiraMetadataParser parser;
 
   private String expectedTemplateFile = "<messageML>\n"
       + "    <div class=\"entity\">\n"
@@ -147,67 +115,30 @@ public class IssueCreatedMetadataParserTest extends JiraParserTest {
       + "    </div>\n"
       + "</messageML>\n";
 
-  @Before
-  public void init() {
-    parser = new IssueCreatedMetadataParser(userService);
+  @Override
+  protected String getExpectedTemplate() {
+    return expectedTemplateFile;
+  }
 
-    parser.init();
-    parser.setIntegrationUser(MOCK_INTEGRATION_USER);
+  @Override
+  protected Class<IssueCreatedMetadataParser> getParserClass() {
+    return IssueCreatedMetadataParser.class;
   }
 
   @Test
   public void testIssueCreatedWithoutUserId() throws IOException, JiraParserException {
-    JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
-    Message result = parser.parse(Collections.<String, String>emptyMap(), node);
-
-    assertNotNull(result);
-
-    JsonNode expectedNode = readJsonFromFile(FILE_EXPECTED_ISSUE_CREATED_WITHOUT_USER);
-    String expected = JsonUtils.writeValueAsString(expectedNode);
-
-    assertEquals(expected, result.getData());
-    assertEquals(expectedTemplateFile, result.getMessage());
+    testParser(FILE_ISSUE_CREATED, FILE_EXPECTED_ISSUE_CREATED_WITHOUT_USER);
   }
 
   @Test
   public void testIssueCreated() throws IOException, JiraParserException {
     mockUserInfo();
-
-    JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
-    Message result = parser.parse(Collections.<String, String>emptyMap(), node);
-
-    assertNotNull(result);
-
-    JsonNode expectedNode = readJsonFromFile(FILE_EXPECTED_ISSUE_CREATED);
-    String expected = JsonUtils.writeValueAsString(expectedNode);
-
-    assertEquals(expected, result.getData());
-    assertEquals(expectedTemplateFile, result.getMessage());
-  }
-
-  private void mockUserInfo() {
-    User user = new User();
-    user.setId(MOCK_USER_ID);
-    user.setDisplayName(MOCK_DISPLAY_NAME);
-    user.setUserName(MOCK_USERNAME);
-    user.setEmailAddress(MOCK_EMAIL_ADDRESS);
-
-    doReturn(user).when(userService).getUserByEmail(eq(MOCK_INTEGRATION_USER), anyString());
+    testParser(FILE_ISSUE_CREATED, FILE_EXPECTED_ISSUE_CREATED);
   }
 
   @Test
   public void testIssueCreatedWithEpic() throws IOException, JiraParserException {
     mockUserInfo();
-
-    JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED_WITH_EPIC);
-    Message result = parser.parse(Collections.<String, String>emptyMap(), node);
-
-    assertNotNull(result);
-
-    JsonNode expectedNode = readJsonFromFile(FILE_EXPECTED_ISSUE_CREATED_WITH_EPIC);
-    String expected = JsonUtils.writeValueAsString(expectedNode);
-
-    assertEquals(expected, result.getData());
-    assertEquals(expectedTemplateFile, result.getMessage());
+    testParser(FILE_ISSUE_CREATED_WITH_EPIC, FILE_EXPECTED_ISSUE_CREATED_WITH_EPIC);
   }
 }

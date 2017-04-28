@@ -53,6 +53,7 @@ import org.symphonyoss.integration.webhook.jira.parser.NullJiraParser;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -303,7 +304,7 @@ public class JiraWebHookIntegrationTest {
   private String readFile(String fileName) throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     String expected =
-        FileUtils.readFileToString(new File(classLoader.getResource(fileName).getPath()));
+        FileUtils.readFileToString(new File(classLoader.getResource(fileName).getPath()), Charset.defaultCharset());
     return expected = expected.replaceAll("\n", "");
   }
 

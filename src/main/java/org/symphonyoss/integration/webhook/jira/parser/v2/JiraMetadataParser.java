@@ -17,16 +17,13 @@
 package org.symphonyoss.integration.webhook.jira.parser.v2;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.symphonyoss.integration.entity.model.EntityConstants.DISPLAY_NAME_ENTITY_FIELD;
-import static org.symphonyoss.integration.entity.model.EntityConstants.EMAIL_ADDRESS_ENTITY_FIELD;
-import static org.symphonyoss.integration.entity.model.EntityConstants.USERNAME_ENTITY_FIELD;
-import static org.symphonyoss.integration.entity.model.EntityConstants.USER_ENTITY_FIELD;
 import static org.symphonyoss.integration.entity.model.EntityConstants.USER_ID;
 import static org.symphonyoss.integration.parser.ParserUtils.MESSAGEML_LINEBREAK;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ASSIGNEE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.CHANGELOG_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.DESCRIPTION_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.DISPLAY_NAME_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.EMAIL_ADDRESS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.EPIC_LINK_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.EPIC_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.FIELDS_PATH;
@@ -42,18 +39,23 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.SELF_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.STATUS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TEXT_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TOSTRING_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USERNAME_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_PATH;
 import static org.symphonyoss.integration.webhook.jira.parser.v1.IssueJiraParser.UNASSIGNED;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
+import org.symphonyoss.integration.webhook.jira.parser.v1.IssueJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils;
 import org.symphonyoss.integration.webhook.parser.metadata.EntityObject;
 import org.symphonyoss.integration.webhook.parser.metadata.MetadataParser;
@@ -71,6 +73,8 @@ import java.util.Map;
  * Created by rsanchez on 10/04/17.
  */
 public abstract class JiraMetadataParser extends MetadataParser implements JiraParser {
+
+  private static final Logger logger = LoggerFactory.getLogger(JiraMetadataParser.class);
 
   private static final String LABELS_TYPE = "com.symphony.integration.jira.label";
 
@@ -105,7 +109,6 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
 
   /**
    * This method change the issue status to uppercase.
-   *
    * @param input JSON input payload
    */
   private void processStatus(JsonNode input) {
@@ -120,28 +123,35 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
 
   /**
    * Retrieves the issue link from JIRA payload and creates a new field named 'link'.
-   *
    * @param input JSON input data
    */
   private void processIssueLink(JsonNode input) {
     ObjectNode issueNode = (ObjectNode) input.path(ISSUE_PATH);
 
-    String selfPath = issueNode.path(SELF_PATH).asText();
-    String issueKey = issueNode.path(KEY_PATH).asText();
-
-    String linkedIssueField = getLinkedIssueField(selfPath, issueKey);
+    String linkedIssueField = getLinkedIssueField(issueNode);
 
     issueNode.put(LINK_ENTITY_FIELD, linkedIssueField);
   }
 
   /**
    * Return the URL from JIRA payload
-   *
+   * @param issueNode the issue node of a JIRA payload
+   * @return
+   */
+  protected String getLinkedIssueField(JsonNode issueNode) {
+    String selfPath = issueNode.path(SELF_PATH).asText();
+    String issueKey = issueNode.path(KEY_PATH).asText();
+
+    return getLinkedIssueField(selfPath, issueKey);
+  }
+
+  /**
+   * Return the URL from JIRA payload
    * @param selfPath Issue URL
    * @param key Issue Key
    * @return Browse issue URL or null if the selfPath is and invalid URL
    */
-  private String getLinkedIssueField(String selfPath, String key) {
+  protected String getLinkedIssueField(String selfPath, String key) {
     if (StringUtils.isEmpty(selfPath) || StringUtils.isEmpty(key)) {
       return EMPTY;
     }
@@ -173,7 +183,6 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   /**
    * Process issue description removing the JIRA formatting and replacing line break to <br/>
    * tags. It also escapes special characters.
-   *
    * @param input JSON input data
    */
   private void processDescription(JsonNode input) {
@@ -193,7 +202,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    */
   private void processUser(JsonNode input) {
     // Get user that performs the action
-    ObjectNode userNode = (ObjectNode) input.path(USER_ENTITY_FIELD);
+    ObjectNode userNode = (ObjectNode) input.path(USER_PATH);
     augmentUserInformation(userNode);
   }
 
@@ -217,19 +226,18 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
 
   /**
    * Queries the user API using email address to get more information about the user.
-   *
    * @param userNode JSON node that contains user information provided by JIRA.
    */
   private void augmentUserInformation(ObjectNode userNode) {
-    JsonNode emailAddressNode = userNode.path(EMAIL_ADDRESS_ENTITY_FIELD);
+    JsonNode emailAddressNode = userNode.path(EMAIL_ADDRESS_PATH);
 
     User user = userService.getUserByEmail(integrationUser, emailAddressNode.asText(EMPTY).trim());
 
     if ((user != null) && (user.getId() != null)) {
       userNode.put(USER_ID, user.getId());
-      userNode.put(EMAIL_ADDRESS_ENTITY_FIELD, user.getEmailAddress());
-      userNode.put(USERNAME_ENTITY_FIELD, user.getUsername());
-      userNode.put(DISPLAY_NAME_ENTITY_FIELD, user.getDisplayName());
+      userNode.put(EMAIL_ADDRESS_PATH, user.getEmailAddress());
+      userNode.put(USERNAME_PATH, user.getUsername());
+      userNode.put(DISPLAY_NAME_PATH, user.getDisplayName());
     }
   }
 
@@ -238,7 +246,6 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    *
    * If the JSON input payload have epic custom field this method should include the epic name and
    * epic link to be displayed by the renderer.
-   *
    * @param input JSON input payload
    */
   private void processEpicLink(JsonNode input) {
@@ -261,7 +268,6 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
 
   /**
    * Returns epic name from a custom field.
-   *
    * @param input JSON input payload
    * @return Epic name or empty string
    */
@@ -289,7 +295,6 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
 
   /**
    * Augment the output entity JSON with the JIRA labels.
-   *
    * @param output Output Entity JSON
    * @param input JSON input data
    */
@@ -315,6 +320,25 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     }
 
     outputIssue.addContent(LABELS_ENTITY_FIELD, list);
+  }
+
+  /**
+   * Returns the user e-mail if it exists, null otherwise.
+   * @param userKey the user key
+   * @return the user e-mail if it exists, null otherwise.
+   */
+  protected User getUserByUserName(String userKey) {
+    if (StringUtils.isEmpty(userKey)) {
+      return null;
+    }
+
+    User user = userService.getUserByUserName(integrationUser, userKey);
+    if (user.getId() == null) {
+      logger.warn("User for " + userKey + " not found");
+      return null;
+    }
+
+    return user;
   }
 
 }
