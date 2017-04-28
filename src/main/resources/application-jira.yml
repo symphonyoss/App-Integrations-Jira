@@ -5,5 +5,3 @@ applications:
     description: "JIRA is an issue tracking tool that allows project teams to capture and organize issues, assign work, and follow their team's activity. In addition to issue tracking, it provides bug tracking and project management functions. This integration will allow you to receive notifications in Symphony whenever one of your JIRA issues is created or updated."
     publisher: Symphony
     context: jira
-    enabled: true
-    visible: true
