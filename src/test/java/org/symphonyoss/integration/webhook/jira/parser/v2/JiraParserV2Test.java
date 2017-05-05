@@ -46,7 +46,7 @@ public abstract class JiraParserV2Test<T extends JiraMetadataParser> extends Jir
 
   private static final String MOCK_DISPLAY_NAME = "Mock user";
 
-  private static final String MOCK_USERNAME = "username";
+  private static final String MOCK_USERNAME = "integrationuser";
 
   private static final String MOCK_EMAIL_ADDRESS = "test@symphony.com";
 
@@ -60,7 +60,6 @@ public abstract class JiraParserV2Test<T extends JiraMetadataParser> extends Jir
   @Before
   public void setUp() throws IllegalAccessException, InstantiationException, NoSuchMethodException,
       InvocationTargetException {
-    //IssueCreatedMetadataParser(userService);
     Constructor<T> constructor = getParserClass().getConstructor(UserService.class);
     parser = constructor.newInstance(userService);
     parser.init();

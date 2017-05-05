@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<metadata name="jiraIssueCreated" type="com.symphony.integration.jira.event.v2.created" version="1.0">
+<metadata name="jiraIssue" type="com.symphony.integration.jira.event.v2.created" version="1.0">
 
     <object id="user" type="com.symphony.integration.user" version="1.0">
         <field key="id" value="user.id" />

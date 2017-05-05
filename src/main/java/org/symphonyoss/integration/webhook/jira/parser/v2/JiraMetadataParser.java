@@ -28,6 +28,8 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.EPIC_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.EPIC_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.FIELDS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.FIELD_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ICONURL_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUETYPE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ITEMS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.KEY_PATH;
@@ -35,6 +37,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LABEL
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LABELS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LINK_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.NAME_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.PRIORITY_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.SELF_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.STATUS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TEXT_ENTITY_FIELD;
@@ -52,10 +55,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.model.message.Message;
+import org.symphonyoss.integration.parser.ParserUtils;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
-import org.symphonyoss.integration.webhook.jira.parser.v1.IssueJiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils;
 import org.symphonyoss.integration.webhook.parser.metadata.EntityObject;
 import org.symphonyoss.integration.webhook.parser.metadata.MetadataParser;
@@ -105,6 +108,12 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     processUser(input);
     processAssignee(input);
     processEpicLink(input);
+    processIconUrls(input);
+  }
+
+  @Override
+  protected void postProcessOutputData(EntityObject output, JsonNode input) {
+    includeLabels(output, input);
   }
 
   /**
@@ -288,9 +297,32 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     return EMPTY;
   }
 
-  @Override
-  protected void postProcessOutputData(EntityObject output, JsonNode input) {
-    includeLabels(output, input);
+  /**
+   * Perform any needed processing on the icon urls
+   * @param input
+   */
+  private void processIconUrls(JsonNode input) {
+    JsonNode fieldsPath = input.path(ISSUE_PATH).path(FIELDS_PATH);
+
+    if (fieldsPath != null) {
+      formatIconUrl((ObjectNode) fieldsPath.path(ISSUETYPE_PATH));
+      formatIconUrl((ObjectNode) fieldsPath.path(PRIORITY_PATH));
+    }
+  }
+
+  /**
+   * Since the & is not supported by MessageML - since it's expected to be a special character code
+   * - this method will replace all & occurrences by &amp;
+   * @param node
+   */
+  private void formatIconUrl(ObjectNode node) {
+    if (node != null) {
+      String iconUrl = node.path(ICONURL_PATH).asText();
+      if (!StringUtils.isEmpty(iconUrl)) {
+        iconUrl = iconUrl.replace("&", "&amp;");
+        node.put(ICONURL_PATH, iconUrl);
+      }
+    }
   }
 
   /**
@@ -333,7 +365,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     }
 
     User user = userService.getUserByUserName(integrationUser, userKey);
-    if (user.getId() == null) {
+    if (user == null || user.getId() == null) {
       logger.warn("User for " + userKey + " not found");
       return null;
     }

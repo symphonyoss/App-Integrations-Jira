@@ -3,15 +3,15 @@
   "webhookEvent": "jira:issue_updated",
   "issue_event_type_name": "issue_commented",
   "user": {
-    "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=test",
+    "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
     "name": "test",
     "key": "test",
     "emailAddress": "test@symphony.com",
     "avatarUrls": {
-      "48x48": "https://whiteam1.atlassian.net/secure/useravatar?avatarId=10334",
-      "24x24": "https://whiteam1.atlassian.net/secure/useravatar?size=small&avatarId=10334",
-      "16x16": "https://whiteam1.atlassian.net/secure/useravatar?size=xsmall&avatarId=10334",
-      "32x32": "https://whiteam1.atlassian.net/secure/useravatar?size=medium&avatarId=10334"
+      "48x48": "https://jira.atlassian.com/secure/useravatar?avatarId=10334",
+      "24x24": "https://jira.atlassian.com/secure/useravatar?size=small&avatarId=10334",
+      "16x16": "https://jira.atlassian.com/secure/useravatar?size=xsmall&avatarId=10334",
+      "32x32": "https://jira.atlassian.com/secure/useravatar?size=medium&avatarId=10334"
     },
     "displayName": "Test User",
     "active": true,
@@ -19,33 +19,33 @@
   },
   "issue": {
     "id": "10100",
-    "self": "https://whiteam1.atlassian.net/rest/api/2/issue/10100",
+    "self": "https://jira.atlassian.com/rest/api/2/issue/10100",
     "key": "SAM-25",
     "fields": {
       "issuetype": {
-        "self": "https://whiteam1.atlassian.net/rest/api/2/issuetype/10001",
+        "self": "https://jira.atlassian.com/rest/api/2/issuetype/10001",
         "id": "10001",
         "description": "gh.issue.story.desc",
-        "iconUrl": "https://whiteam1.atlassian.net/images/icons/issuetypes/story.svg",
+        "iconUrl": "https://jira.atlassian.com/images/icons/issuetypes/story.svg",
         "name": "Story",
         "subtask": false
       },
       "timespent": null,
       "project": {
-        "self": "https://whiteam1.atlassian.net/rest/api/2/project/10000",
+        "self": "https://jira.atlassian.com/rest/api/2/project/10000",
         "id": "10000",
         "key": "SAM",
         "name": "Sample 1",
         "avatarUrls": {
-          "48x48": "https://whiteam1.atlassian.net/secure/projectavatar?avatarId=10324",
-          "24x24": "https://whiteam1.atlassian.net/secure/projectavatar?size=small&avatarId=10324",
-          "16x16": "https://whiteam1.atlassian.net/secure/projectavatar?size=xsmall&avatarId=10324",
-          "32x32": "https://whiteam1.atlassian.net/secure/projectavatar?size=medium&avatarId=10324"
+          "48x48": "https://jira.atlassian.com/secure/projectavatar?avatarId=10324",
+          "24x24": "https://jira.atlassian.com/secure/projectavatar?size=small&avatarId=10324",
+          "16x16": "https://jira.atlassian.com/secure/projectavatar?size=xsmall&avatarId=10324",
+          "32x32": "https://jira.atlassian.com/secure/projectavatar?size=medium&avatarId=10324"
         }
       },
       "fixVersions": [
         {
-          "self": "https://whiteam1.atlassian.net/rest/api/2/version/10001",
+          "self": "https://jira.atlassian.com/rest/api/2/version/10001",
           "id": "10001",
           "name": "Version 2.0",
           "archived": false,
@@ -59,7 +59,7 @@
       "workratio": -1,
       "lastViewed": "2016-05-18T10:30:03.486-0300",
       "watches": {
-        "self": "https://whiteam1.atlassian.net/rest/api/2/issue/SAM-25/watchers",
+        "self": "https://jira.atlassian.com/rest/api/2/issue/SAM-25/watchers",
         "watchCount": 2,
         "isWatching": true
       },
@@ -68,8 +68,8 @@
       "customfield_10021": "Not started",
       "customfield_10022": null,
       "priority": {
-        "self": "https://whiteam1.atlassian.net/rest/api/2/priority/1",
-        "iconUrl": "https://whiteam1.atlassian.net/images/icons/priorities/highest.svg",
+        "self": "https://jira.atlassian.com/rest/api/2/priority/1",
+        "iconUrl": "https://jira.atlassian.com/images/icons/priorities/highest.svg",
         "name": "Highest",
         "id": "1"
       },
@@ -86,15 +86,15 @@
       "versions": [],
       "issuelinks": [],
       "assignee": {
-        "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=test",
+        "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
         "name": "test",
         "key": "test",
         "emailAddress": "test@symphony.com",
         "avatarUrls": {
-          "48x48": "https://whiteam1.atlassian.net/secure/useravatar?avatarId=10334",
-          "24x24": "https://whiteam1.atlassian.net/secure/useravatar?size=small&avatarId=10334",
-          "16x16": "https://whiteam1.atlassian.net/secure/useravatar?size=xsmall&avatarId=10334",
-          "32x32": "https://whiteam1.atlassian.net/secure/useravatar?size=medium&avatarId=10334"
+          "48x48": "https://jira.atlassian.com/secure/useravatar?avatarId=10334",
+          "24x24": "https://jira.atlassian.com/secure/useravatar?size=small&avatarId=10334",
+          "16x16": "https://jira.atlassian.com/secure/useravatar?size=xsmall&avatarId=10334",
+          "32x32": "https://jira.atlassian.com/secure/useravatar?size=medium&avatarId=10334"
         },
         "displayName": "Test User",
         "active": true,
@@ -102,13 +102,13 @@
       },
       "updated": "2016-05-18T10:30:03.490-0300",
       "status": {
-        "self": "https://whiteam1.atlassian.net/rest/api/2/status/10000",
+        "self": "https://jira.atlassian.com/rest/api/2/status/10000",
         "description": "",
-        "iconUrl": "https://whiteam1.atlassian.net/",
+        "iconUrl": "https://jira.atlassian.com/",
         "name": "To Do",
         "id": "10000",
         "statusCategory": {
-          "self": "https://whiteam1.atlassian.net/rest/api/2/statuscategory/2",
+          "self": "https://jira.atlassian.com/rest/api/2/statuscategory/2",
           "id": 2,
           "key": "new",
           "colorName": "blue-gray",
@@ -131,7 +131,7 @@
       "aggregatetimeestimate": null,
       "summary": "Issue Test",
       "creator": {
-        "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=robso",
+        "self": "https://jira.atlassian.com/rest/api/2/user?username=robso",
         "name": "robso",
         "key": "robsonvinicius",
         "emailAddress": "robsonvinicius@gmail.com",
@@ -147,7 +147,7 @@
       },
       "subtasks": [],
       "reporter": {
-        "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=robso",
+        "self": "https://jira.atlassian.com/rest/api/2/user?username=robso",
         "name": "robso",
         "key": "robsonvinicius",
         "emailAddress": "robsonvinicius@gmail.com",
@@ -184,18 +184,18 @@
         "total": 2,
         "comments": [
           {
-            "self": "https://whiteam1.atlassian.net/rest/api/2/issue/10100/comment/10105",
+            "self": "https://jira.atlassian.com/rest/api/2/issue/10100/comment/10105",
             "id": "10105",
             "author": {
-              "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=test",
+              "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
               "name": "test",
               "key": "test",
               "emailAddress": "test@symphony.com",
               "avatarUrls": {
-                "48x48": "https://whiteam1.atlassian.net/secure/useravatar?avatarId=10334",
-                "24x24": "https://whiteam1.atlassian.net/secure/useravatar?size=small&avatarId=10334",
-                "16x16": "https://whiteam1.atlassian.net/secure/useravatar?size=xsmall&avatarId=10334",
-                "32x32": "https://whiteam1.atlassian.net/secure/useravatar?size=medium&avatarId=10334"
+                "48x48": "https://jira.atlassian.com/secure/useravatar?avatarId=10334",
+                "24x24": "https://jira.atlassian.com/secure/useravatar?size=small&avatarId=10334",
+                "16x16": "https://jira.atlassian.com/secure/useravatar?size=xsmall&avatarId=10334",
+                "32x32": "https://jira.atlassian.com/secure/useravatar?size=medium&avatarId=10334"
               },
               "displayName": "Milton2",
               "active": true,
@@ -203,15 +203,15 @@
             },
             "body":"Hey, this is another test comment, but now, [~integrationuser], with mention",
             "updateAuthor": {
-              "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=test",
+              "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
               "name": "test",
               "key": "test",
               "emailAddress": "test@symphony.com",
               "avatarUrls": {
-                "48x48": "https://whiteam1.atlassian.net/secure/useravatar?avatarId=10334",
-                "24x24": "https://whiteam1.atlassian.net/secure/useravatar?size=small&avatarId=10334",
-                "16x16": "https://whiteam1.atlassian.net/secure/useravatar?size=xsmall&avatarId=10334",
-                "32x32": "https://whiteam1.atlassian.net/secure/useravatar?size=medium&avatarId=10334"
+                "48x48": "https://jira.atlassian.com/secure/useravatar?avatarId=10334",
+                "24x24": "https://jira.atlassian.com/secure/useravatar?size=small&avatarId=10334",
+                "16x16": "https://jira.atlassian.com/secure/useravatar?size=xsmall&avatarId=10334",
+                "32x32": "https://jira.atlassian.com/secure/useravatar?size=medium&avatarId=10334"
               },
               "displayName": "Milton2",
               "active": true,
@@ -221,18 +221,18 @@
             "updated": "2016-05-18T10:25:44.154-0300"
           },
           {
-            "self": "https://whiteam1.atlassian.net/rest/api/2/issue/10100/comment/10106",
+            "self": "https://jira.atlassian.com/rest/api/2/issue/10100/comment/10106",
             "id": "10106",
             "author": {
-              "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=test",
+              "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
               "name": "test",
               "key": "test",
               "emailAddress": "test@symphony.com",
               "avatarUrls": {
-                "48x48": "https://whiteam1.atlassian.net/secure/useravatar?avatarId=10334",
-                "24x24": "https://whiteam1.atlassian.net/secure/useravatar?size=small&avatarId=10334",
-                "16x16": "https://whiteam1.atlassian.net/secure/useravatar?size=xsmall&avatarId=10334",
-                "32x32": "https://whiteam1.atlassian.net/secure/useravatar?size=medium&avatarId=10334"
+                "48x48": "https://jira.atlassian.com/secure/useravatar?avatarId=10334",
+                "24x24": "https://jira.atlassian.com/secure/useravatar?size=small&avatarId=10334",
+                "16x16": "https://jira.atlassian.com/secure/useravatar?size=xsmall&avatarId=10334",
+                "32x32": "https://jira.atlassian.com/secure/useravatar?size=medium&avatarId=10334"
               },
               "displayName": "Milton2",
               "active": true,
@@ -240,15 +240,15 @@
             },
             "body":"Hey, this is another test comment, but now, [~integrationuser], with mention",
             "updateAuthor": {
-              "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=test",
+              "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
               "name": "test",
               "key": "test",
               "emailAddress": "test@symphony.com",
               "avatarUrls": {
-                "48x48": "https://whiteam1.atlassian.net/secure/useravatar?avatarId=10334",
-                "24x24": "https://whiteam1.atlassian.net/secure/useravatar?size=small&avatarId=10334",
-                "16x16": "https://whiteam1.atlassian.net/secure/useravatar?size=xsmall&avatarId=10334",
-                "32x32": "https://whiteam1.atlassian.net/secure/useravatar?size=medium&avatarId=10334"
+                "48x48": "https://jira.atlassian.com/secure/useravatar?avatarId=10334",
+                "24x24": "https://jira.atlassian.com/secure/useravatar?size=small&avatarId=10334",
+                "16x16": "https://jira.atlassian.com/secure/useravatar?size=xsmall&avatarId=10334",
+                "32x32": "https://jira.atlassian.com/secure/useravatar?size=medium&avatarId=10334"
               },
               "displayName": "Milton2",
               "active": true,
@@ -260,7 +260,7 @@
         ]
       },
       "votes": {
-        "self": "https://whiteam1.atlassian.net/rest/api/2/issue/SAM-25/votes",
+        "self": "https://jira.atlassian.com/rest/api/2/issue/SAM-25/votes",
         "votes": 0,
         "hasVoted": false
       },
@@ -273,18 +273,18 @@
     }
   },
   "comment": {
-    "self": "https://whiteam1.atlassian.net/rest/api/2/issue/10100/comment/10106",
+    "self": "https://jira.atlassian.com/rest/api/2/issue/10100/comment/10106",
     "id": "10106",
     "author": {
-      "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=test",
+      "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
       "name": "test",
       "key": "test",
       "emailAddress": "test@symphony.com",
       "avatarUrls": {
-        "48x48": "https://whiteam1.atlassian.net/secure/useravatar?avatarId=10334",
-        "24x24": "https://whiteam1.atlassian.net/secure/useravatar?size=small&avatarId=10334",
-        "16x16": "https://whiteam1.atlassian.net/secure/useravatar?size=xsmall&avatarId=10334",
-        "32x32": "https://whiteam1.atlassian.net/secure/useravatar?size=medium&avatarId=10334"
+        "48x48": "https://jira.atlassian.com/secure/useravatar?avatarId=10334",
+        "24x24": "https://jira.atlassian.com/secure/useravatar?size=small&avatarId=10334",
+        "16x16": "https://jira.atlassian.com/secure/useravatar?size=xsmall&avatarId=10334",
+        "32x32": "https://jira.atlassian.com/secure/useravatar?size=medium&avatarId=10334"
       },
       "displayName": "Milton2",
       "active": true,
@@ -292,15 +292,15 @@
     },
     "body":"Hey, this is another test comment, but now, [~integrationuser], with mention",
     "updateAuthor": {
-      "self": "https://whiteam1.atlassian.net/rest/api/2/user?username=test",
+      "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
       "name": "test",
       "key": "test",
       "emailAddress": "test@symphony.com",
       "avatarUrls": {
-        "48x48": "https://whiteam1.atlassian.net/secure/useravatar?avatarId=10334",
-        "24x24": "https://whiteam1.atlassian.net/secure/useravatar?size=small&avatarId=10334",
-        "16x16": "https://whiteam1.atlassian.net/secure/useravatar?size=xsmall&avatarId=10334",
-        "32x32": "https://whiteam1.atlassian.net/secure/useravatar?size=medium&avatarId=10334"
+        "48x48": "https://jira.atlassian.com/secure/useravatar?avatarId=10334",
+        "24x24": "https://jira.atlassian.com/secure/useravatar?size=small&avatarId=10334",
+        "16x16": "https://jira.atlassian.com/secure/useravatar?size=xsmall&avatarId=10334",
+        "32x32": "https://jira.atlassian.com/secure/useravatar?size=medium&avatarId=10334"
       },
       "displayName": "Milton2",
       "active": true,

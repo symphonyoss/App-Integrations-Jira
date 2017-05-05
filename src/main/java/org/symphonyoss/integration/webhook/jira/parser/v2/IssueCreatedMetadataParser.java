@@ -17,6 +17,7 @@
 package org.symphonyoss.integration.webhook.jira.parser.v2;
 
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_CREATED;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_UPDATED;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,9 +35,9 @@ import java.util.List;
 @Component
 public class IssueCreatedMetadataParser extends JiraMetadataParser {
 
-  private static final String METADATA_FILE = "metadataIssueCreated.xml";
+  private static final String METADATA_FILE = "metadataIssueState.xml";
 
-  private static final String TEMPLATE_FILE = "templateIssueCreated.xml";
+  private static final String TEMPLATE_FILE = "templateIssueState.xml";
 
   @Autowired
   public IssueCreatedMetadataParser(UserService userService) {
@@ -55,6 +56,6 @@ public class IssueCreatedMetadataParser extends JiraMetadataParser {
 
   @Override
   public List<String> getEvents() {
-    return Arrays.asList(JIRA_ISSUE_CREATED);
+    return Arrays.asList(JIRA_ISSUE_CREATED, JIRA_ISSUE_UPDATED);
   }
 }

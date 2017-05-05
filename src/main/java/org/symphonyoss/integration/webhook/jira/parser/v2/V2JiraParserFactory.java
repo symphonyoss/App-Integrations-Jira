@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserFactory;
-import org.symphonyoss.integration.webhook.jira.parser.v1.V1ParserFactory;
+import org.symphonyoss.integration.webhook.jira.parser.v1.V1JiraParserFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +33,13 @@ import java.util.List;
  * Created by rsanchez on 21/03/17.
  */
 @Component
-public class V2ParserFactory extends JiraParserFactory {
+public class V2JiraParserFactory extends JiraParserFactory {
 
   @Autowired
   private List<JiraMetadataParser> beans;
 
   @Autowired
-  private V1ParserFactory fallbackFactory;
+  private V1JiraParserFactory fallbackFactory;
 
   @Override
   public boolean accept(MessageMLVersion version) {

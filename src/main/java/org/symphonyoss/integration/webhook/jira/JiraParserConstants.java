@@ -81,6 +81,8 @@ public final class JiraParserConstants {
 
   public static final String FROMSTRING_PATH = "fromString";
 
+  public static final String ICONURL_PATH = "iconUrl";
+
   public static final String UNKNOWN_PROJECT = "Unknown Project";
 
   public static final String AUTHOR_PATH = "author";

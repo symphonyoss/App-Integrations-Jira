@@ -33,6 +33,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LINK_
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.entity.model.User;
@@ -49,6 +50,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 /**
  * This class is responsible to validate the event 'jira:issue_created' sent by JIRA Webhook when
  * the Agent version is equal to or greater than '1.46.0'.
@@ -62,7 +67,7 @@ public class CommentMetadataParser extends JiraMetadataParser {
   private static final String METADATA_FILE = "metadataIssueCommented.xml";
   private static final String TEMPLATE_FILE = "templateIssueCommented.xml";
   private static final String COMMENT_LINK_SUFFIX =
-      "focusedCommentId=%s&page=com.atlassian.jira.plugin.system"
+      "focusedCommentId=%s&amp;page=com.atlassian.jira.plugin.system"
           + ".issuetabpanels%%3Acomment-tabpanel#comment-%s";
 
   private final Map<String, String> actions = new HashMap<>();
@@ -72,9 +77,9 @@ public class CommentMetadataParser extends JiraMetadataParser {
   public CommentMetadataParser(UserService userService) {
     super(userService);
 
-    actions.put(JIRA_ISSUE_COMMENTED, "commented on");
-    actions.put(JIRA_ISSUE_COMMENT_EDITED, "edited a comment on");
-    actions.put(JIRA_ISSUE_COMMENT_DELETED, "deleted a comment on");
+    actions.put(JIRA_ISSUE_COMMENTED, "Commented");
+    actions.put(JIRA_ISSUE_COMMENT_EDITED, "Edited a comment");
+    actions.put(JIRA_ISSUE_COMMENT_DELETED, "Deleted a comment");
   }
 
   @Override
@@ -96,15 +101,8 @@ public class CommentMetadataParser extends JiraMetadataParser {
   @Override
   protected void preProcessInputData(JsonNode input) {
     super.preProcessInputData(input);
-    // TODO process comment data
-    // Need to be set:
-    // - comment url DONE
-    // - comment action (add/edit/delete comment) DONE
-    // - comment mentions
-
     processCommentLink(input);
     processCommentAction(input);
-
     processCommentMentions(input);
   }
 
@@ -115,8 +113,10 @@ public class CommentMetadataParser extends JiraMetadataParser {
    */
   private void processCommentAction(JsonNode input) {
     String webHookEvent = input.path(ISSUE_EVENT_TYPE_NAME).asText();
-    ObjectNode commentNode = (ObjectNode) input.path(COMMENT_PATH);
-    commentNode.put(ACTION_ENTITY_FIELD, actions.get(webHookEvent));
+    ObjectNode commentNode = getCommentNode(input);
+    if (commentNode != null) {
+      commentNode.put(ACTION_ENTITY_FIELD, actions.get(webHookEvent));
+    }
   }
 
   /**
@@ -124,11 +124,14 @@ public class CommentMetadataParser extends JiraMetadataParser {
    * @param input The root json node
    */
   private void processCommentLink(JsonNode input) {
-    JsonNode issueNode = input.path(ISSUE_PATH);
-    ObjectNode commentNode = (ObjectNode) input.path(COMMENT_PATH);
-    String linkedIssueField = getLinkedIssueField(issueNode);
-    String linkedCommentLink = getLinkedCommentLink(linkedIssueField, issueNode);
-    commentNode.put(LINK_ENTITY_FIELD, linkedCommentLink);
+    ObjectNode commentNode = getCommentNode(input);
+
+    if (commentNode != null) {
+      JsonNode issueNode = input.path(ISSUE_PATH);
+      String linkedIssueField = getLinkedIssueField(issueNode);
+      String linkedCommentLink = getLinkedCommentLink(linkedIssueField, issueNode);
+      commentNode.put(LINK_ENTITY_FIELD, linkedCommentLink);
+    }
   }
 
   /**
@@ -155,23 +158,33 @@ public class CommentMetadataParser extends JiraMetadataParser {
    * @param input
    */
   private void processCommentMentions(JsonNode input) {
-    ObjectNode commentNode = (ObjectNode) input.path(COMMENT_PATH);
-    String comment = commentNode.path(BODY_PATH).asText();
+    ObjectNode commentNode = getCommentNode(input);
 
-    comment = JiraParserUtils.stripJiraFormatting(comment);
-    Map<String, User> userMentions = determineUserMentions(comment);
-    if (userMentions != null && !userMentions.isEmpty()) {
-      for (Map.Entry<String, User> userEntry : userMentions.entrySet()) {
-        User user = userEntry.getValue();
+    if (commentNode != null) {
+      String comment = commentNode.path(BODY_PATH).asText();
 
-        String userMention =
-            ParserUtils.presentationFormat(MESSAGEML_MENTION_EMAIL_FORMAT, user.getEmailAddress())
-                .toString();
-        comment.replaceAll(userEntry.getKey(), userMention);
+      Map<String, User> userMentions = determineUserMentions(comment);
+      if (userMentions != null && !userMentions.isEmpty()) {
+        for (Map.Entry<String, User> userEntry : userMentions.entrySet()) {
+          User user = userEntry.getValue();
+
+          //FIXME Agent v3 doen't support tags inside metadata
+//          String userMention =
+//              ParserUtils.presentationFormat(MESSAGEML_MENTION_EMAIL_FORMAT, user
+// .getEmailAddress())
+//                  .toString();
+          String userMention = user.getDisplayName();
+          comment = comment.replaceAll("\\[~" + userEntry.getKey() + "]", userMention);
+        }
       }
-    }
 
-    commentNode.put(BODY_PATH, comment);
+      comment = JiraParserUtils.stripJiraFormatting(comment);
+      commentNode.put(BODY_PATH, comment);
+    }
+  }
+
+  private ObjectNode getCommentNode(JsonNode input) {
+    return input.hasNonNull(COMMENT_PATH) ? (ObjectNode) input.path(COMMENT_PATH) : null;
   }
 
   private Map<String, User> determineUserMentions(String comment) {

@@ -32,7 +32,7 @@ import java.util.List;
  * Created by rsanchez on 21/03/17.
  */
 @Component
-public class V1ParserFactory extends JiraParserFactory {
+public class V1JiraParserFactory extends JiraParserFactory {
 
   @Autowired
   private List<CommonJiraParser> beans;

@@ -367,7 +367,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
    * @param issuePath
    * @param issueSelfPath
    * @param issueKey
-   * @return (<a href="https://whiteam1.atlassian.net/browse/SAM-25"/>)
+   * @return (<a href="https://jira.atlassian.com/browse/SAM-25"/>)
    */
   private SafeString getLinkedIssueFieldFormatted(JsonNode node, String issuePath,
       String issueSelfPath,
@@ -391,7 +391,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
    * @param issuePath
    * @param issueSelfPath
    * @param issueKey
-   * @return https://whiteam1.atlassian.net/browse/SAM-25
+   * @return https://jira.atlassian.com/browse/SAM-25
    */
   private String getLinkedIssueField(JsonNode node, String issuePath, String issueSelfPath,
       String issueKey) {
@@ -664,7 +664,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
   /**
    * Returns an SafeString for epic
    * @param node
-   * @return epic formatted: Epic: CP-5 (<a href="https://whiteam1.atlassian.net/browse/CP-5"/>)
+   * @return epic formatted: Epic: CP-5 (<a href="https://jira.atlassian.com/browse/CP-5"/>)
    * @throws JiraParserException
    */
   protected SafeString getEpicFormatted(JsonNode node) throws JiraParserException {

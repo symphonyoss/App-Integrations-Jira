@@ -1,5 +1,5 @@
 <entity type="com.symphony.integration.jira.event.updated" version="1.0">
-<presentationML>Test User updated Bug SAM-24, Sample Bug Blocker (<a href="https://whiteam1.atlassian.net/browse/SAM-24"/>) to <b>Done</b><br/>Assignee: <mention email="test@symphony.com"/><br/>Labels: <hash tag="production"/><br/>Priority: Highest<br/>Status: Done<br/>Description: </presentationML>
+<presentationML>Test User updated Bug SAM-24, Sample Bug Blocker (<a href="https://jira.atlassian.com/browse/SAM-24"/>) to <b>Done</b><br/>Assignee: <mention email="test@symphony.com"/><br/>Labels: <hash tag="production"/><br/>Priority: Highest<br/>Status: Done<br/>Description: </presentationML>
 <entity name="user" type="com.symphony.integration.jira.user" version="1.0">
 <attribute name="username" type="org.symphonyoss.string" value="test"/>
 <attribute name="emailAddress" type="org.symphonyoss.string" value="test@symphony.com"/>
@@ -17,7 +17,7 @@
 <attribute name="key" type="org.symphonyoss.string" value="SAM-24"/>
 <attribute name="subject" type="org.symphonyoss.string" value="Sample Bug Blocker"/>
 <attribute name="type" type="org.symphonyoss.string" value="Bug"/>
-<attribute name="link" type="com.symphony.uri" value="https://whiteam1.atlassian.net/browse/SAM-24"/>
+<attribute name="link" type="com.symphony.uri" value="https://jira.atlassian.com/browse/SAM-24"/>
 <attribute name="priority" type="org.symphonyoss.string" value="Highest"/>
 <attribute name="status" type="org.symphonyoss.string" value="Done"/>
 <entity name="assignee" type="com.symphony.integration.jira.user" version="1.0">

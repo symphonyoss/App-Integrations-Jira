@@ -41,20 +41,16 @@ import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.NullJiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.v1.CommentJiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.v1.IssueCreatedJiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.v1.IssueUpdatedJiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.v1.V1ParserFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Unit test for {@link V1ParserFactory}
+ * Unit test for {@link V1JiraParserFactory}
  * Created by rsanchez on 23/03/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class V1ParserFactoryTest {
+public class V1JiraParserFactoryTest {
 
   private static final String MOCK_INTEGRATION_TYPE = "mockType";
 
@@ -74,7 +70,7 @@ public class V1ParserFactoryTest {
   private CommentJiraParser commentJiraParser;
 
   @InjectMocks
-  private V1ParserFactory factory;
+  private V1JiraParserFactory factory;
 
   @Before
   public void init() {

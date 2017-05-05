@@ -1,6 +1,6 @@
 {
-  "jiraIssue": {
-    "type": "com.symphony.integration.jira.event.v2.created",
+  "jiraIssueCommented": {
+    "type": "com.symphony.integration.jira.event.v2.issue_commented",
     "version": "1.0",
     "user": {
       "type": "com.symphony.integration.user",
@@ -38,19 +38,25 @@
         "username": "integrationuser",
         "displayName": "Mock user"
       },
-      "epic": {
-        "type": "com.symphony.integration.jira.epic",
-        "version": "1.0",
-        "name": "CP-5",
-        "link": "https://jira.atlassian.com/browse/CP-5"
-      },
       "labels": [
         {
           "type": "com.symphony.integration.jira.label",
           "version": "1.0",
           "text": "production"
+        },
+        {
+          "type": "com.symphony.integration.jira.label",
+          "version": "1.0",
+          "text": "test"
         }
       ]
+    },
+    "comment": {
+      "type": "com.symphony.integration.jira.comment",
+      "version": "1.0",
+      "url": "https://jira.atlassian.com/browse/SAM-25?focusedCommentId=10100&amp;page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-10100",
+      "body": "Hey, <mention email=\"test.user@test.com\"/>, adding a comment to user2",
+      "action": "Commented"
     }
   }
 }
