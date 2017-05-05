@@ -21,6 +21,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -56,8 +57,8 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
       "parser/commentJiraParser/v2/commentAddedWithMentions.json";
 
   private static final String EXPECTED_TEMPLATE_FILE = "<messageML>\n"
-      + "    <div class=\"entity\">\n"
-      + "        <card class=\"barStyle\">\n"
+      + "    <div class=\"entity\" data-entity-id=\"jiraIssueCommented\">\n"
+      + "        <card class=\"barStyle\" accent=\"green\" iconSrc=\"\">\n"
       + "            <header>\n"
       + "                <p>\n"
       + "                    <img src=\"${entity['jiraIssueCommented'].issue.priority.iconUrl}\" "
@@ -72,22 +73,21 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
       + "                        <mention email=\"${entity['jiraIssueCommented'].user"
       + ".emailAddress}\" />\n"
       + "                    <#else>\n"
-      + "                        <span>${entity['jiraIssueCommented'].user.displayName}</span>\n"
+      + "                        <span "
+      + "class=\"tempo-text-color--normal\">${entity['jiraIssueCommented'].user"
+      + ".displayName}</span>\n"
       + "                    </#if>\n"
-      + "                    <span "
-      + "class=\"tempo-text-color--external\">${entity['jiraIssueCommented'].comment"
-      + ".action}</span>\n"
+      + "                    <span class=\"tempo-text-color--green\">${entity['jiraIssueCommented"
+      + "'].comment.action}</span>\n"
       + "                </p>\n"
       + "            </header>\n"
       + "            <body>\n"
-      + "                <div class=\"entity\" data-entity-id=\"jiraIssueCommented\">\n"
+      + "                <div class=\"labelBackground badge\">\n"
       + "                    <p>\n"
       + "                        <span class=\"tempo-text-color--secondary\">Comment:</span>\n"
       + "                        <span "
       + "class=\"tempo-text-color--normal\">${entity['jiraIssueCommented'].comment.body}</span>\n"
-      + "                    </p>\n"
-      + "                    <hr/>\n"
-      + "                    <p>\n"
+      + "                        <br/>\n"
       + "                        "
       +
       "<a class=\"tempo-text-color--link\" href=\"${entity['jiraIssueCommented'].comment.url}\">View comment</a>\n"
@@ -126,6 +126,7 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   }
 
   @Test
+  @Ignore("This is only valid when supporting mentions in the metadata")
   public void testWithMentions() throws IOException, JiraParserException {
     mockUserInfo();
     String integrationuser = "integrationuser";

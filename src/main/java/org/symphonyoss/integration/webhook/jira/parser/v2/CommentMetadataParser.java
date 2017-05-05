@@ -16,8 +16,6 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v2;
 
-import static org.symphonyoss.integration.messageml.MessageMLFormatConstants
-    .MESSAGEML_MENTION_EMAIL_FORMAT;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENTED;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants
@@ -33,11 +31,9 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LINK_
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.entity.model.User;
-import org.symphonyoss.integration.parser.ParserUtils;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils;
 
@@ -49,10 +45,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This class is responsible to validate the event 'jira:issue_created' sent by JIRA Webhook when
