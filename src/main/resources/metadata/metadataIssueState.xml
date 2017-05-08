@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <metadata name="jiraIssue" type="com.symphony.integration.jira.event.v2.state" version="1.0">
 
+    <object id="icon" type="com.symphony.integration.icon" version="1.0">
+        <field key="url" value="icon.url" />
+    </object>
+
     <object id="user" type="com.symphony.integration.user" version="1.0">
         <field key="id" value="user.id" />
         <field key="emailAddress" value="user.emailAddress" />

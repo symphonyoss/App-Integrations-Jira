@@ -1,6 +1,6 @@
 {
-  "jiraIssueCommented": {
-    "type": "com.symphony.integration.jira.event.v2.issue_commented",
+  "jiraIssue": {
+    "type": "com.symphony.integration.jira.event.v2.state",
     "version": "1.0",
     "icon": {
       "type": "com.symphony.integration.icon",
@@ -18,16 +18,16 @@
     "issue": {
       "type": "com.symphony.integration.jira.issue",
       "version": "1.0",
-      "key": "SAM-25",
-      "url": "https://jira.atlassian.com/browse/SAM-25",
-      "subject": "Issue Test",
-      "description": "Only for test",
-      "status": "TO DO",
+      "key": "SAM-24",
+      "url": "https://jira.atlassian.com/browse/SAM-24",
+      "subject": "Sample Bug Blocker",
+      "status": "DONE",
+      "action": "Updated",
       "issueType": {
         "type": "com.symphony.integration.jira.issueType",
         "version": "1.0",
-        "name": "Story",
-        "iconUrl": "https://jira.atlassian.com/images/icons/issuetypes/story.svg"
+        "name": "Bug",
+        "iconUrl": "https://jira.atlassian.com/secure/viewavatar?size=xsmall&amp;avatarId=10303&amp;avatarType=issuetype"
       },
       "priority": {
         "type": "com.symphony.integration.jira.priority",
@@ -48,20 +48,8 @@
           "type": "com.symphony.integration.jira.label",
           "version": "1.0",
           "text": "production"
-        },
-        {
-          "type": "com.symphony.integration.jira.label",
-          "version": "1.0",
-          "text": "test"
         }
       ]
-    },
-    "comment": {
-      "type": "com.symphony.integration.jira.comment",
-      "version": "1.0",
-      "url": "https://jira.atlassian.com/browse/SAM-25?focusedCommentId=10100&amp;page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-10100",
-      "body": "Hey, this is another test comment!",
-      "action": "Commented"
     }
   }
 }

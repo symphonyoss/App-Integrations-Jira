@@ -33,6 +33,8 @@ public final class JiraParserConstants {
 
   public static final String ISSUE_PATH = "issue";
 
+  public static final String ICON_PATH = "icon";
+
   public static final String FIELD_PATH = "field";
 
   public static final String FIELDS_PATH = "fields";
@@ -44,6 +46,8 @@ public final class JiraParserConstants {
   public static final String PROJECT_PATH = "project";
 
   public static final String USER_PATH = "user";
+
+  public static final String URL_PATH = "url";
 
   public static final String USERNAME_PATH = "username";
 

@@ -1,6 +1,6 @@
 {
-  "jiraIssueCommented": {
-    "type": "com.symphony.integration.jira.event.v2.issue_commented",
+  "jiraIssue": {
+    "type": "com.symphony.integration.jira.event.v2.state",
     "version": "1.0",
     "icon": {
       "type": "com.symphony.integration.icon",
@@ -23,6 +23,7 @@
       "subject": "Issue Test",
       "description": "Only for test",
       "status": "TO DO",
+      "action": "Updated",
       "issueType": {
         "type": "com.symphony.integration.jira.issueType",
         "version": "1.0",
@@ -55,13 +56,6 @@
           "text": "test"
         }
       ]
-    },
-    "comment": {
-      "type": "com.symphony.integration.jira.comment",
-      "version": "1.0",
-      "url": "https://jira.atlassian.com/browse/SAM-25?focusedCommentId=10100&amp;page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-10100",
-      "body": "Hey, this is another test comment!",
-      "action": "Commented"
     }
   }
 }

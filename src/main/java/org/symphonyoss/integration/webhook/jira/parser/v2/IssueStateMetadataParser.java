@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.service.UserService;
 
 import java.util.Arrays;
@@ -49,8 +50,9 @@ public class IssueStateMetadataParser extends JiraMetadataParser {
   private final Map<String, String> actions = new HashMap<>();
 
   @Autowired
-  public IssueStateMetadataParser(UserService userService) {
-    super(userService);
+  public IssueStateMetadataParser(UserService userService,
+      IntegrationProperties integrationProperties) {
+    super(userService, integrationProperties);
 
     actions.put(JIRA_ISSUE_CREATED, "Created");
     actions.put(JIRA_ISSUE_UPDATED, "Updated");

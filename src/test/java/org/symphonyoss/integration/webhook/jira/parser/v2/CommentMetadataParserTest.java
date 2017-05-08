@@ -58,7 +58,8 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
 
   private static final String EXPECTED_TEMPLATE_FILE = "<messageML>\n"
       + "    <div class=\"entity\" data-entity-id=\"jiraIssueCommented\">\n"
-      + "        <card class=\"barStyle\" accent=\"green\" iconSrc=\"\">\n"
+      + "        <card class=\"barStyle\" accent=\"green\" "
+      + "iconSrc=\"${entity['jiraIssueCommented'].icon.url}\">\n"
       + "            <header>\n"
       + "                <p>\n"
       + "                    <img src=\"${entity['jiraIssueCommented'].issue.priority.iconUrl}\" "

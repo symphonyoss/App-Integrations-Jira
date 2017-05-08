@@ -36,6 +36,18 @@ public class IssueStateMetadataParserTest extends JiraParserV2Test<IssueStateMet
   private static final String FILE_ISSUE_CREATED_WITH_EPIC =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreatedWithEpic.json";
 
+  private static final String FILE_ISSUE_UPDATED =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdated.json";
+
+  private static final String FILE_ISSUE_UPDATED_INPROGRESS =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdatedInProgress.json";
+
+  private static final String FILE_ISSUE_UPDATED_EPIC_UPDATED =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueEpicUpdated.json";
+
+  private static final String FILE_ISSUE_UPDATED_EMAIL_WITH_SPACES =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleEmailAddressWithSpace.json";
+
   private static final String FILE_EXPECTED_ISSUE_CREATED =
       "parser/issueCreatedJiraParser/v2/issueCreatedEntityJSON.json";
 
@@ -45,9 +57,22 @@ public class IssueStateMetadataParserTest extends JiraParserV2Test<IssueStateMet
   private static final String FILE_EXPECTED_ISSUE_CREATED_WITH_EPIC =
       "parser/issueCreatedJiraParser/v2/issueCreatedWithEpicEntityJSON.json";
 
+  private static final String FILE_EXPECTED_ISSUE_UPDATED =
+      "parser/issueUpdatedJiraParser/v2/issueUpdatedEntityJSON.json";
+
+  private static final String FILE_EXPECTED_ISSUE_UPDATED_INPROGRESS =
+      "parser/issueUpdatedJiraParser/v2/issueUpdatedInProgressEntityJSON.json";
+
+  private static final String FILE_EXPECTED_ISSUE_UPDATED_EPIC_UPDATED =
+      "parser/issueUpdatedJiraParser/v2/issueUpdatedEpicUpdatedEntityJSON.json";
+
+  private static final String FILE_EXPECTED_ISSUE_UPDATED_EMAIL_WITH_SPACES =
+      "parser/issueUpdatedJiraParser/v2/issueUpdatedEmailWithSpacesEntityJSON.json";
+
   private static final String EXPECTED_TEMPLATE_FILE = "<messageML>\n"
       + "    <div class=\"entity\" data-entity-id=\"jiraIssue\">\n"
-      + "        <card class=\"barStyle\" accent=\"green\" iconSrc=\"\">\n"
+      + "        <card class=\"barStyle\" accent=\"green\" iconSrc=\"${entity['jiraIssue'].icon"
+      + ".url}\">\n"
       + "            <header>\n"
       + "                <p>\n"
       + "                    <img src=\"${entity['jiraIssue'].issue.priority.iconUrl}\" "
@@ -154,5 +179,29 @@ public class IssueStateMetadataParserTest extends JiraParserV2Test<IssueStateMet
   public void testIssueCreatedWithEpic() throws IOException, JiraParserException {
     mockUserInfo();
     testParser(FILE_ISSUE_CREATED_WITH_EPIC, FILE_EXPECTED_ISSUE_CREATED_WITH_EPIC);
+  }
+
+  @Test
+  public void testIssueUpdated() throws IOException, JiraParserException {
+    mockUserInfo();
+    testParser(FILE_ISSUE_UPDATED, FILE_EXPECTED_ISSUE_UPDATED);
+  }
+
+  @Test
+  public void testIssueUpdatedInProgress() throws IOException, JiraParserException {
+    mockUserInfo();
+    testParser(FILE_ISSUE_UPDATED_INPROGRESS, FILE_EXPECTED_ISSUE_UPDATED_INPROGRESS);
+  }
+
+  @Test
+  public void testIssueUpdatedEpicUpdated() throws IOException, JiraParserException {
+    mockUserInfo();
+    testParser(FILE_ISSUE_UPDATED_EPIC_UPDATED, FILE_EXPECTED_ISSUE_UPDATED_EPIC_UPDATED);
+  }
+
+  @Test
+  public void testIssueUpdatedEmailWithSpaces() throws IOException, JiraParserException {
+    mockUserInfo();
+    testParser(FILE_ISSUE_UPDATED_EMAIL_WITH_SPACES, FILE_EXPECTED_ISSUE_UPDATED_EMAIL_WITH_SPACES);
   }
 }

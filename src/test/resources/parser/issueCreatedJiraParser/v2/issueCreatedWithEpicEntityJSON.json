@@ -2,6 +2,11 @@
   "jiraIssue": {
     "type": "com.symphony.integration.jira.event.v2.state",
     "version": "1.0",
+    "icon": {
+      "type": "com.symphony.integration.icon",
+      "version": "1.0",
+      "url": "http://my.url.com/img/jira_logo_rounded.png"
+    },
     "user": {
       "type": "com.symphony.integration.user",
       "version": "1.0",

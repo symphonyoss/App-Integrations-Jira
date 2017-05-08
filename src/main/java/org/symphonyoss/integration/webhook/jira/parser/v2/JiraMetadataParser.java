@@ -29,6 +29,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.EPIC_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.FIELDS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.FIELD_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ICONURL_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ICON_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUETYPE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ITEMS_PATH;
@@ -42,6 +43,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.SELF_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.STATUS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TEXT_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TOSTRING_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.URL_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USERNAME_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_PATH;
 import static org.symphonyoss.integration.webhook.jira.parser.v1.IssueJiraParser.UNASSIGNED;
@@ -55,7 +57,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.model.message.Message;
-import org.symphonyoss.integration.parser.ParserUtils;
+import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
@@ -80,14 +82,20 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   private static final Logger logger = LoggerFactory.getLogger(JiraMetadataParser.class);
 
   private static final String LABELS_TYPE = "com.symphony.integration.jira.label";
+  private static final String INTEGRATION_NAME = "jira";
+  private static final String IMG_SUBPATH = "img";
+  private static final String JIRA_LOGO_PNG = "jira_logo_rounded.png";
 
   private UserService userService;
+
+  private IntegrationProperties integrationProperties;
 
   private String integrationUser;
 
   @Autowired
-  public JiraMetadataParser(UserService userService) {
+  public JiraMetadataParser(UserService userService, IntegrationProperties integrationProperties) {
     this.userService = userService;
+    this.integrationProperties = integrationProperties;
   }
 
   @Override
@@ -102,6 +110,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
 
   @Override
   protected void preProcessInputData(JsonNode input) {
+    processIconUrl(input);
     processIssueLink(input);
     processDescription(input);
     processStatus(input);
@@ -109,6 +118,23 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     processAssignee(input);
     processEpicLink(input);
     processIconUrls(input);
+  }
+
+  /**
+   * Retrieve the jira logo absolute path to be used in the template sponsor container
+   * @param input root json node
+   */
+  private void processIconUrl(JsonNode input) {
+    String baseUrl = integrationProperties.getApplicationUrl(INTEGRATION_NAME);
+    String iconUrl = StringUtils.EMPTY;
+
+    if (!StringUtils.isEmpty(baseUrl)) {
+      String urlFormat = "%s/%s/%s";
+      iconUrl = String.format(urlFormat, baseUrl, IMG_SUBPATH, JIRA_LOGO_PNG);
+    }
+
+    ObjectNode iconNode = (ObjectNode) input.with(ICON_PATH);
+    iconNode.put(URL_PATH, iconUrl);
   }
 
   @Override

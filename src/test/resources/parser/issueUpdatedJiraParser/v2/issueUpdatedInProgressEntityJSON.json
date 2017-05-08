@@ -1,0 +1,46 @@
+{
+  "jiraIssue": {
+    "type": "com.symphony.integration.jira.event.v2.state",
+    "version": "1.0",
+    "icon": {
+      "type": "com.symphony.integration.icon",
+      "version": "1.0",
+      "url": "http://my.url.com/img/jira_logo_rounded.png"
+    },
+    "user": {
+      "type": "com.symphony.integration.user",
+      "version": "1.0",
+      "id": "123456",
+      "emailAddress": "test@symphony.com",
+      "username": "integrationuser",
+      "displayName": "Mock user"
+    },
+    "issue": {
+      "type": "com.symphony.integration.jira.issue",
+      "version": "1.0",
+      "key": "SAM-1",
+      "url": "https://jira.atlassian.com/browse/SAM-1",
+      "subject": "As an Agile team, I'd like to learn about Scrum >> Click the \"SAM-1\" link at the left of this row to see detail in the Description tab on the right",
+      "description": "About Scrum&lt;br/&gt;&lt;br/&gt;Scrum is an iterative approach to Agile software development. The methodology has been around since the 1980s but was popularised by Jeff Sutherland and Ken Schwaber. &lt;br/&gt;&lt;br/&gt;Scrum breaks the development of a product down in to discrete iterations (termed Sprints) that each deliver functionality that could potentially be shipped to users.&lt;br/&gt;&lt;br/&gt;The Scrum Alliance offers an excellent [introduction to Scrum http://www.scrumalliance.org/resources/47] that provides an overview of key Scrum concepts, stakeholders, processes and artefacts.",
+      "status": "IN PROGRESS",
+      "action": "Updated",
+      "issueType": {
+        "type": "com.symphony.integration.jira.issueType",
+        "version": "1.0",
+        "name": "Story",
+        "iconUrl": "https://jira.atlassian.com/images/icons/issuetypes/story.svg"
+      },
+      "priority": {
+        "type": "com.symphony.integration.jira.priority",
+        "version": "1.0",
+        "iconUrl": "https://jira.atlassian.com/images/icons/priorities/medium.svg",
+        "name": "Medium"
+      },
+      "assignee": {
+        "type": "com.symphony.integration.user",
+        "version": "1.0",
+        "displayName": "Unassigned"
+      }
+    }
+  }
+}

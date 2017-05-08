@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Before;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.message.Message;
+import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
@@ -55,15 +57,21 @@ public abstract class JiraParserV2Test<T extends JiraMetadataParser> extends Jir
   @Mock
   protected UserService userService;
 
+  @Mock
+  protected IntegrationProperties integrationProperties;
+
   protected T parser;
 
   @Before
   public void setUp() throws IllegalAccessException, InstantiationException, NoSuchMethodException,
       InvocationTargetException {
-    Constructor<T> constructor = getParserClass().getConstructor(UserService.class);
-    parser = constructor.newInstance(userService);
+    Constructor<T> constructor = getParserClass().getConstructor(UserService.class,
+        IntegrationProperties.class);
+    parser = constructor.newInstance(userService, integrationProperties);
     parser.init();
     parser.setIntegrationUser(MOCK_INTEGRATION_USER);
+
+    when(integrationProperties.getApplicationUrl("jira")).thenReturn("http://my.url.com");
   }
 
   protected abstract String getExpectedTemplate();

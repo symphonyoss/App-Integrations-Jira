@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.entity.model.User;
+import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils;
 
@@ -66,8 +67,9 @@ public class CommentMetadataParser extends JiraMetadataParser {
 
 
   @Autowired
-  public CommentMetadataParser(UserService userService) {
-    super(userService);
+  public CommentMetadataParser(UserService userService,
+      IntegrationProperties integrationProperties) {
+    super(userService, integrationProperties);
 
     actions.put(JIRA_ISSUE_COMMENTED, "Commented");
     actions.put(JIRA_ISSUE_COMMENT_EDITED, "Edited Comment");
