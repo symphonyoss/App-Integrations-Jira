@@ -70,8 +70,8 @@ public class CommentMetadataParser extends JiraMetadataParser {
     super(userService);
 
     actions.put(JIRA_ISSUE_COMMENTED, "Commented");
-    actions.put(JIRA_ISSUE_COMMENT_EDITED, "Edited a comment");
-    actions.put(JIRA_ISSUE_COMMENT_DELETED, "Deleted a comment");
+    actions.put(JIRA_ISSUE_COMMENT_EDITED, "Edited Comment");
+    actions.put(JIRA_ISSUE_COMMENT_DELETED, "Deleted Comment");
   }
 
   @Override
@@ -105,7 +105,7 @@ public class CommentMetadataParser extends JiraMetadataParser {
    */
   private void processCommentAction(JsonNode input) {
     String webHookEvent = input.path(ISSUE_EVENT_TYPE_NAME).asText();
-    ObjectNode commentNode = getCommentNode(input);
+    ObjectNode commentNode = (ObjectNode) input.with(COMMENT_PATH);
     if (commentNode != null) {
       commentNode.put(ACTION_ENTITY_FIELD, actions.get(webHookEvent));
     }

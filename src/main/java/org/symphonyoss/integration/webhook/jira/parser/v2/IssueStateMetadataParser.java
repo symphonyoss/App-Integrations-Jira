@@ -18,13 +18,20 @@ package org.symphonyoss.integration.webhook.jira.parser.v2;
 
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_CREATED;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_UPDATED;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ACTION_ENTITY_FIELD;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUE_PATH;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.service.UserService;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class is responsible to validate the event 'jira:issue_created' sent by JIRA Webhook when
@@ -33,15 +40,20 @@ import java.util.List;
  * Created by rsanchez on 30/03/17.
  */
 @Component
-public class IssueCreatedMetadataParser extends JiraMetadataParser {
+public class IssueStateMetadataParser extends JiraMetadataParser {
 
   private static final String METADATA_FILE = "metadataIssueState.xml";
 
   private static final String TEMPLATE_FILE = "templateIssueState.xml";
 
+  private final Map<String, String> actions = new HashMap<>();
+
   @Autowired
-  public IssueCreatedMetadataParser(UserService userService) {
+  public IssueStateMetadataParser(UserService userService) {
     super(userService);
+
+    actions.put(JIRA_ISSUE_CREATED, "Created");
+    actions.put(JIRA_ISSUE_UPDATED, "Updated");
   }
 
   @Override
@@ -57,5 +69,22 @@ public class IssueCreatedMetadataParser extends JiraMetadataParser {
   @Override
   public List<String> getEvents() {
     return Arrays.asList(JIRA_ISSUE_CREATED, JIRA_ISSUE_UPDATED);
+  }
+
+  @Override
+  protected void preProcessInputData(JsonNode input) {
+    super.preProcessInputData(input);
+    processIssueAction(input);
+  }
+
+  /**
+   * This method adds an action field to the metadata json with a text indicating the performed
+   * action (create, update)
+   * @param input The root json node
+   */
+  private void processIssueAction(JsonNode input) {
+    String webHookEvent = input.path(WEBHOOK_EVENT).asText();
+    ObjectNode issueNode = (ObjectNode) input.with(ISSUE_PATH);
+    issueNode.put(ACTION_ENTITY_FIELD, actions.get(webHookEvent));
   }
 }

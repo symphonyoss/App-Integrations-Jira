@@ -24,11 +24,11 @@ import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import java.io.IOException;
 
 /**
- * Unit test class for {@link IssueCreatedMetadataParser}
+ * Unit test class for {@link IssueStateMetadataParser}
  * Created by rsanchez on 29/03/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class IssueCreatedMetadataParserTest extends JiraParserV2Test<IssueCreatedMetadataParser> {
+public class IssueStateMetadataParserTest extends JiraParserV2Test<IssueStateMetadataParser> {
 
   private static final String FILE_ISSUE_CREATED =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreated.json";
@@ -62,7 +62,8 @@ public class IssueCreatedMetadataParserTest extends JiraParserV2Test<IssueCreate
       + "                    <#else>\n"
       + "                        <span>${entity['jiraIssue'].user.displayName}</span>\n"
       + "                    </#if>\n"
-      + "                    <span class=\"tempo-text-color--green\">Created</span>\n"
+      + "                    <span class=\"tempo-text-color--green\">${entity['jiraIssue'].issue"
+      + ".action}</span>\n"
       + "                </p>\n"
       + "            </header>\n"
       + "            <body>\n"
@@ -134,8 +135,8 @@ public class IssueCreatedMetadataParserTest extends JiraParserV2Test<IssueCreate
   }
 
   @Override
-  protected Class<IssueCreatedMetadataParser> getParserClass() {
-    return IssueCreatedMetadataParser.class;
+  protected Class<IssueStateMetadataParser> getParserClass() {
+    return IssueStateMetadataParser.class;
   }
 
   @Test

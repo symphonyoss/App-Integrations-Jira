@@ -50,6 +50,11 @@
           "text": "test"
         }
       ]
+    },
+    "comment": {
+      "type": "com.symphony.integration.jira.comment",
+      "version": "1.0",
+      "action": "Commented"
     }
   }
 }

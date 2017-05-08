@@ -62,7 +62,7 @@ public class V2JiraParserFactoryTest {
   private List<JiraParser> beans = new ArrayList<>();
 
   @Mock
-  private IssueCreatedMetadataParser issueCreatedJiraParser;
+  private IssueStateMetadataParser issueCreatedJiraParser;
 
   @Spy
   private NullJiraParser defaultJiraParser;

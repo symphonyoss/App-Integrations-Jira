@@ -14,16 +14,18 @@
                     <span class="tempo-text-color--green">${entity['jiraIssueCommented'].comment.action}</span>
                 </p>
             </header>
-            <body>
-                <div class="labelBackground badge">
-                    <p>
-                        <span class="tempo-text-color--secondary">Comment:</span>
-                        <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].comment.body}</span>
-                        <br/>
-                        <a class="tempo-text-color--link" href="${entity['jiraIssueCommented'].comment.url}">View comment</a>
-                    </p>
-                </div>
-            </body>
+            <#if (entity['jiraIssueCommented'].comment.body)??>
+                <body>
+                    <div class="labelBackground badge">
+                        <p>
+                            <span class="tempo-text-color--secondary">Comment:</span>
+                            <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].comment.body}</span>
+                            <br/>
+                            <a class="tempo-text-color--link" href="${entity['jiraIssueCommented'].comment.url}">View comment</a>
+                        </p>
+                    </div>
+                </body>
+            </#if>
         </card>
     </div>
 </messageML>

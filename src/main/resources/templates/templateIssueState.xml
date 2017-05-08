@@ -11,7 +11,7 @@
                     <#else>
                         <span>${entity['jiraIssue'].user.displayName}</span>
                     </#if>
-                    <span class="tempo-text-color--green">Created</span>
+                    <span class="tempo-text-color--green">${entity['jiraIssue'].issue.action}</span>
                 </p>
             </header>
             <body>
