@@ -42,6 +42,9 @@ public class EmailAddressWithSpaceTest extends JiraParserTest {
   private static final String FILENAME =
       "parser/issueUpdatedJiraParser/jiraCallbackSampleEmailAddressWithSpace.json";
 
+  public static final String EXPECTED_EMAIL_WITH_SPACE_MESSAGEML =
+      "parser/commentJiraParser/commentAndEmailAddressWithSpace.xml";
+
   @InjectMocks
   private CommentJiraParser commentJiraParser = new CommentJiraParser();
 
@@ -51,7 +54,7 @@ public class EmailAddressWithSpaceTest extends JiraParserTest {
   public void testParseCommentAdded() throws WebHookParseException, IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     JsonNode node = mapper.readTree(classLoader.getResourceAsStream(FILENAME));
-    String expectedMessage = FileUtils.readFile("parser/commentJiraParser/commentAndEmailAddressWithSpace.xml");
+    String expectedMessage = FileUtils.readMessageMLFile(EXPECTED_EMAIL_WITH_SPACE_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());

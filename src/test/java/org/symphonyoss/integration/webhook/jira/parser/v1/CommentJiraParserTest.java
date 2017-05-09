@@ -88,6 +88,36 @@ public class CommentJiraParserTest extends JiraParserTest {
   private static final String COMMENT_ADDED_WITH_LINEBREAK =
       "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithLinebreak.json";
 
+  public static final String EXPECTED_USER_MENTION_NOT_FOUND_MESSAGEML =
+      "parser/commentJiraParser/commentAddedMentionUserNotFoundMessageML.xml";
+
+  public static final String EXPECTED_USER_MENTION_MESSAGEML =
+      "parser/commentJiraParser/commentAddedWithMentionsMessageML.xml";
+
+  public static final String EXPECTED_WITH_LINE_BREAK_MESSAGEML =
+      "parser/commentJiraParser/commentAddedWithLinebreakMessageML.xml";
+
+  public static final String EXPECTED_COMMENT_MESSAGEML =
+      "parser/commentJiraParser/commentAddedMessageML.xml";
+
+  public static final String EXPECTED_WITHOUT_COMMENT_MESSAGEML =
+      "parser/commentJiraParser/commentAddedWithoutCommentMessageML.xml";
+
+  public static final String EXPECTED_COMMENT_WITH_LINK_MESSAGEML =
+      "parser/commentJiraParser/commentAddedWithLinkMessageML.xml";
+
+  public static final String EXPECTED_COMMENT_WITH_MARKUP_MESSAGEML =
+      "parser/commentJiraParser/commentAddedMessageMLWithMarkup.xml";
+
+  public static final String EXPECTED_COMMENT_WITHOUT_LABELS_MESSAGEML =
+      "parser/commentJiraParser/commentAddedWithoutLabelsMessageML.xml";
+
+  public static final String EXPECTED_COMMENT_WITHOUT_ISSUE_MESSAGEML =
+      "parser/commentJiraParser/commentAddedWithoutIssueMessageML.xml";
+
+  public static final String EXPECTED_COMMENT_WITHOUT_PROJECT_NAME_MESSAGEML =
+      "parser/commentJiraParser/commentAddedWithoutProjectNameMessageML.xml";
+
   @InjectMocks
   private CommentJiraParser commentJiraParser = new CommentJiraParser();
 
@@ -97,7 +127,7 @@ public class CommentJiraParserTest extends JiraParserTest {
   public void testParseCommentAdded() throws WebHookParseException, IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_COMPLETE_REQUEST));
-    String expectedMessage = FileUtils.readFile("parser/commentJiraParser/commentAddedMessageML.xml");
+    String expectedMessage = FileUtils.readMessageMLFile(EXPECTED_COMMENT_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());
@@ -106,14 +136,16 @@ public class CommentJiraParserTest extends JiraParserTest {
   @Test
   public void testParseCommentAddedRestrictedComment() throws WebHookParseException, IOException {
     ClassLoader classLoader = getClass().getClassLoader();
-    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_COMMENT_ADDED_RESTRICTED_COMMENT));
+    JsonNode node = JsonUtils.readTree(
+        classLoader.getResourceAsStream(FILENAME_COMMENT_ADDED_RESTRICTED_COMMENT));
     assertNull(this.commentJiraParser.parse(null, node));
   }
 
   @Test
   public void testParseCommentUpdatedRestrictedComment() throws WebHookParseException, IOException {
     ClassLoader classLoader = getClass().getClassLoader();
-    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_COMMENT_UPDATED_RESTRICTED_COMMENT));
+    JsonNode node = JsonUtils.readTree(
+        classLoader.getResourceAsStream(FILENAME_COMMENT_UPDATED_RESTRICTED_COMMENT));
     assertNull(this.commentJiraParser.parse(null, node));
   }
 
@@ -121,7 +153,7 @@ public class CommentJiraParserTest extends JiraParserTest {
   public void testParseCommentAddedWithURL() throws WebHookParseException, IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_URL_MARKUP));
-    String expectedMessage = FileUtils.readFile("parser/commentJiraParser/commentAddedWithLinkMessageML.xml");
+    String expectedMessage = FileUtils.readMessageMLFile(EXPECTED_COMMENT_WITH_LINK_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());
@@ -133,7 +165,7 @@ public class CommentJiraParserTest extends JiraParserTest {
     JsonNode node =
         JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_COMPLETE_JIRA_MARKUP_REQUEST));
 
-    String expected = FileUtils.readFile("parser/commentJiraParser/commentAddedMessageMLWithMarkup.xml");
+    String expected = FileUtils.readMessageMLFile(EXPECTED_COMMENT_WITH_MARKUP_MESSAGEML);
 
     String userKey1 = "user.Key_1";
 
@@ -156,8 +188,7 @@ public class CommentJiraParserTest extends JiraParserTest {
   public void testParseCommentAddedWithoutLabels() throws WebHookParseException, IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_NO_LABELS_REQUEST));
-    String expectedMessage = FileUtils.readFile(
-        "parser/commentJiraParser/commentAddedWithoutLabelsMessageML.xml");
+    String expectedMessage = FileUtils.readMessageMLFile(EXPECTED_COMMENT_WITHOUT_LABELS_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());
@@ -167,8 +198,7 @@ public class CommentJiraParserTest extends JiraParserTest {
   public void testParseCommentAddedWithoutIssueType() throws WebHookParseException, IOException {
     JsonNode node =
         JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_NO_ISSUE_TYPE_REQUEST));
-    String expectedMessage = FileUtils.readFile(
-        "parser/commentJiraParser/commentAddedWithoutIssueMessageML.xml");
+    String expectedMessage = FileUtils.readMessageMLFile(EXPECTED_COMMENT_WITHOUT_ISSUE_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());
@@ -182,8 +212,8 @@ public class CommentJiraParserTest extends JiraParserTest {
 
     JsonNode node =
         JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_NO_PROJECT_NAME_REQUEST));
-    String expectedMessage = FileUtils.readFile(
-        "parser/commentJiraParser/commentAddedWithoutProjectNameMessageML.xml");
+    String expectedMessage =
+        FileUtils.readMessageMLFile(EXPECTED_COMMENT_WITHOUT_PROJECT_NAME_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());
@@ -193,8 +223,7 @@ public class CommentJiraParserTest extends JiraParserTest {
   public void testParseCommentAddedWithoutComment() throws WebHookParseException, IOException {
     JsonNode node =
         JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_NO_COMMENT_REQUEST));
-    String expectedMessage = FileUtils.readFile(
-        "parser/commentJiraParser/commentAddedWithoutCommentMessageML.xml");
+    String expectedMessage = FileUtils.readMessageMLFile(EXPECTED_WITHOUT_COMMENT_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());
@@ -205,7 +234,7 @@ public class CommentJiraParserTest extends JiraParserTest {
       IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(FILENAME_EMAIL_WITH_SPACE));
-    String expectedMessage = FileUtils.readFile("parser/commentJiraParser/commentAddedMessageML.xml");
+    String expectedMessage = FileUtils.readMessageMLFile(EXPECTED_COMMENT_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());
@@ -213,22 +242,23 @@ public class CommentJiraParserTest extends JiraParserTest {
 
   @Test
   public void testCommentAddedMentionUserNotFound() throws IOException, WebHookParseException {
-    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(COMMENT_ADDED_WITH_MENTION_FILENAME));
+    JsonNode node =
+        JsonUtils.readTree(classLoader.getResourceAsStream(COMMENT_ADDED_WITH_MENTION_FILENAME));
 
     when(userService.getUserByUserName(anyString(), anyString())).thenReturn(new User());
     Message actual = this.commentJiraParser.parse(null, node);
 
     assertNotNull(actual);
 
-    String expected = FileUtils.readFile(
-        "parser/commentJiraParser/commentAddedMentionUserNotFoundMessageML.xml");
+    String expected = FileUtils.readMessageMLFile(EXPECTED_USER_MENTION_NOT_FOUND_MESSAGEML);
 
     assertEquals(expected, actual.getMessage());
   }
 
   @Test
   public void testCommentAddedWithMentions() throws IOException, WebHookParseException {
-    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(COMMENT_ADDED_WITH_MENTIONS_FILENAME));
+    JsonNode node =
+        JsonUtils.readTree(classLoader.getResourceAsStream(COMMENT_ADDED_WITH_MENTIONS_FILENAME));
 
     User user = new User();
     user.setEmailAddress("integrationuser@symphony.com");
@@ -248,18 +278,18 @@ public class CommentJiraParserTest extends JiraParserTest {
 
     assertNotNull(actual);
 
-    String expected = FileUtils.readFile(
-        "parser/commentJiraParser/commentAddedWithMentionsMessageML.xml");
+    String expected = FileUtils.readMessageMLFile(EXPECTED_USER_MENTION_MESSAGEML);
 
     assertEquals(expected, actual.getMessage());
   }
 
   @Test
-  public void testParseCommentAddedWithLinebreak() throws WebHookParseException, IOException{
+  public void testParseCommentAddedWithLinebreak() throws WebHookParseException, IOException {
     ClassLoader classLoader = getClass().getClassLoader();
-    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(COMMENT_ADDED_WITH_LINEBREAK));
+    JsonNode node =
+        JsonUtils.readTree(classLoader.getResourceAsStream(COMMENT_ADDED_WITH_LINEBREAK));
 
-    String expectedMessage = FileUtils.readFile("parser/commentJiraParser/commentAddedWithLinebreakMessageML.xml");
+    String expectedMessage = FileUtils.readMessageMLFile(EXPECTED_WITH_LINE_BREAK_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());

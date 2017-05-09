@@ -51,10 +51,19 @@ import java.util.Map;
 @RunWith(MockitoJUnitRunner.class)
 public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
+  public static final String
+      ISSUE_UPDATED_EPIC_NULL_MESSAGEML =
+      "parser/issueUpdatedJiraParser/issueUpdatedEpicNullMessageML.xml";
   private static final String FILENAME =
       "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdated.json";
   private static final String EPIC_FILENAME =
       "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueEpicUpdated.json";
+  public static final String ISSUE_UPDATED_MESSAGEML =
+      "parser/issueUpdatedJiraParser/issueUpdatedMessageML.xml";
+  public static final String ISSUE_UPDATED_UNASSIGNED_MESSAGEML =
+      "parser/issueUpdatedJiraParser/issueUpdatedUnassigneeMessageML.xml";
+  public static final String ISSUE_UPDATED_WITHOUT_CHANGE_LOG_MESSAGEML =
+      "parser/issueUpdatedJiraParser/issueUpdatedWithoutChangeLogMessageML.xml";
 
   @InjectMocks
   private JiraParser issueUpdated = new IssueUpdatedJiraParser();
@@ -77,7 +86,7 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
     assertNotNull(result);
 
-    String expected = FileUtils.readFile("parser/issueUpdatedJiraParser/issueUpdatedMessageML.xml");
+    String expected = FileUtils.readMessageMLFile(ISSUE_UPDATED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -97,7 +106,7 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     assertNotNull(result);
 
     String expected =
-        FileUtils.readFile("parser/issueUpdatedJiraParser/issueUpdatedUnassigneeMessageML.xml");
+        FileUtils.readMessageMLFile(ISSUE_UPDATED_UNASSIGNED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -121,8 +130,8 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
     Message result = issueUpdated.parse(parameters, root);
 
-    String expected = FileUtils.readFile(
-        "parser/issueUpdatedJiraParser/issueUpdatedWithoutChangeLogMessageML.xml");
+    String expected = FileUtils.readMessageMLFile(
+        ISSUE_UPDATED_WITHOUT_CHANGE_LOG_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -139,7 +148,7 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     assertNotNull(result);
 
     String expected =
-        FileUtils.readFile("parser/issueUpdatedJiraParser/issueUpdatedEpicNullMessageML.xml");
+        FileUtils.readMessageMLFile(ISSUE_UPDATED_EPIC_NULL_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }

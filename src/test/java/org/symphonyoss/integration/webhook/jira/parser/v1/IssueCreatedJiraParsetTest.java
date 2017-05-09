@@ -48,14 +48,25 @@ import java.util.Collections;
 @RunWith(MockitoJUnitRunner.class)
 public class IssueCreatedJiraParsetTest extends JiraParserTest {
 
+  public static final String
+      ISSUE_CREATED_WITH_EPIC_MESSAGEML =
+      "parser/issueCreatedJiraParser/issueCreatedWithEpicMessageML.xml";
   private static final String FILE_ISSUE_CREATED =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreated.json";
 
   private static final String FILE_ISSUE_CREATED_JIRA_MARKUP =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreatedJiraMarkup.json";
 
-  public static final String FILE_ISSUE_CREATED_WITH_EPIC =
+  private static final String FILE_ISSUE_CREATED_WITH_EPIC =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreatedWithEpic.json";
+
+  private static final String ISSUE_CREATED_MESSAGEML =
+      "parser/issueCreatedJiraParser/issueCreatedMessageML.xml";
+
+  public static final String ISSUE_CREATED_JIRA_MARKUP_MESSAGEML =
+      "parser/issueCreatedJiraParser/issueCreatedMessageMLJiraMarkup.xml";
+  public static final String ISSUE_CREATED_UNASSIGNED_MESSAGEML =
+      "parser/issueCreatedJiraParser/issueCreatedUnassigneeMessageML.xml";
 
   @InjectMocks
   private IssueCreatedJiraParser issueCreated = new IssueCreatedJiraParser();
@@ -78,7 +89,7 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
 
     assertNotNull(result);
 
-    String expected = FileUtils.readFile("parser/issueCreatedJiraParser/issueCreatedMessageML.xml");
+    String expected = FileUtils.readMessageMLFile(ISSUE_CREATED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -94,7 +105,7 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
     assertNotNull(result);
 
     String expected =
-        FileUtils.readFile("parser/issueCreatedJiraParser/issueCreatedMessageMLJiraMarkup.xml");
+        FileUtils.readMessageMLFile(ISSUE_CREATED_JIRA_MARKUP_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -111,7 +122,7 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
     assertNotNull(result);
 
     String expected =
-        FileUtils.readFile("parser/issueCreatedJiraParser/issueCreatedUnassigneeMessageML.xml");
+        FileUtils.readMessageMLFile(ISSUE_CREATED_UNASSIGNED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -130,7 +141,7 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
     Message result = issueCreated.parse(Collections.<String, String>emptyMap(), node);
 
     String expected =
-        FileUtils.readFile("parser/issueCreatedJiraParser/issueCreatedWithEpicMessageML.xml");
+        FileUtils.readMessageMLFile(ISSUE_CREATED_WITH_EPIC_MESSAGEML);
     assertEquals(expected, result.getMessage());
   }
 }

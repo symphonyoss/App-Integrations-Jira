@@ -34,13 +34,17 @@ public class FileUtils {
     return JsonUtils.readTree(classLoader.getResourceAsStream(filename));
   }
 
+  public static String readMessageMLFile(String fileName) throws IOException {
+    String expected = readFile(fileName).replaceAll("\n", "");
+    return MESSAGEML_START + expected + MESSAGEML_END;
+  }
+
   public static String readFile(String fileName) throws IOException {
     ClassLoader classLoader = FileUtils.class.getClassLoader();
-    String expected =
+    String file =
         org.apache.commons.io.FileUtils.readFileToString(
             new File(classLoader.getResource(fileName).getPath()), Charset
                 .defaultCharset());
-    expected = expected.replaceAll("\n", "");
-    return MESSAGEML_START + expected + MESSAGEML_END;
+    return file;
   }
 }

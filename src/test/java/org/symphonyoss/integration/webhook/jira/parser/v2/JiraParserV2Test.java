@@ -74,7 +74,7 @@ public abstract class JiraParserV2Test<T extends JiraMetadataParser> extends Jir
     when(integrationProperties.getApplicationUrl("jira")).thenReturn("http://my.url.com");
   }
 
-  protected abstract String getExpectedTemplate();
+  protected abstract String getExpectedTemplate() throws IOException;
 
   protected abstract Class<T> getParserClass();
 
