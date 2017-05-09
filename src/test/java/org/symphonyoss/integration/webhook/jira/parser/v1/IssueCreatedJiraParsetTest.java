@@ -35,6 +35,7 @@ import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
+import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -47,14 +48,25 @@ import java.util.Collections;
 @RunWith(MockitoJUnitRunner.class)
 public class IssueCreatedJiraParsetTest extends JiraParserTest {
 
+  public static final String
+      ISSUE_CREATED_WITH_EPIC_MESSAGEML =
+      "parser/issueCreatedJiraParser/issueCreatedWithEpicMessageML.xml";
   private static final String FILE_ISSUE_CREATED =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreated.json";
 
   private static final String FILE_ISSUE_CREATED_JIRA_MARKUP =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreatedJiraMarkup.json";
 
-  public static final String FILE_ISSUE_CREATED_WITH_EPIC =
+  private static final String FILE_ISSUE_CREATED_WITH_EPIC =
       "parser/issueCreatedJiraParser/jiraCallbackSampleIssueCreatedWithEpic.json";
+
+  private static final String ISSUE_CREATED_MESSAGEML =
+      "parser/issueCreatedJiraParser/issueCreatedMessageML.xml";
+
+  public static final String ISSUE_CREATED_JIRA_MARKUP_MESSAGEML =
+      "parser/issueCreatedJiraParser/issueCreatedMessageMLJiraMarkup.xml";
+  public static final String ISSUE_CREATED_UNASSIGNED_MESSAGEML =
+      "parser/issueCreatedJiraParser/issueCreatedUnassigneeMessageML.xml";
 
   @InjectMocks
   private IssueCreatedJiraParser issueCreated = new IssueCreatedJiraParser();
@@ -72,12 +84,12 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
   public void testIssueCreated() throws IOException, JiraParserException {
     mockUserServiceForTest2User();
 
-    JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
+    JsonNode node = FileUtils.readJsonFromFile(FILE_ISSUE_CREATED);
     Message result = issueCreated.parse(Collections.<String, String>emptyMap(), node);
 
     assertNotNull(result);
 
-    String expected = readFile("parser/issueCreatedJiraParser/issueCreatedMessageML.xml");
+    String expected = FileUtils.readMessageMLFile(ISSUE_CREATED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -87,19 +99,20 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
   public void testIssueCreatedJiraMarkup() throws IOException, JiraParserException {
     mockUserServiceForTest2User();
 
-    JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED_JIRA_MARKUP);
+    JsonNode node = FileUtils.readJsonFromFile(FILE_ISSUE_CREATED_JIRA_MARKUP);
     Message result = issueCreated.parse(Collections.<String, String>emptyMap(), node);
 
     assertNotNull(result);
 
-    String expected = readFile("parser/issueCreatedJiraParser/issueCreatedMessageMLJiraMarkup.xml");
+    String expected =
+        FileUtils.readMessageMLFile(ISSUE_CREATED_JIRA_MARKUP_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
 
   @Test
   public void testIssueCreatedUnassigned() throws IOException, JiraParserException {
-    JsonNode node = readJsonFromFile(FILE_ISSUE_CREATED);
+    JsonNode node = FileUtils.readJsonFromFile(FILE_ISSUE_CREATED);
     ObjectNode fieldsNode = (ObjectNode) node.path(ISSUE_PATH).path(FIELDS_PATH);
     fieldsNode.remove(ASSIGNEE_PATH);
     fieldsNode.putNull(ASSIGNEE_PATH);
@@ -108,7 +121,8 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
 
     assertNotNull(result);
 
-    String expected = readFile("parser/issueCreatedJiraParser/issueCreatedUnassigneeMessageML.xml");
+    String expected =
+        FileUtils.readMessageMLFile(ISSUE_CREATED_UNASSIGNED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -123,10 +137,11 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
     user2.setEmailAddress("test2@symphony.com");
     doReturn(user2).when(userService).getUserByEmail(anyString(), eq("test2@symphony.com"));
 
-    ObjectNode node = (ObjectNode) readJsonFromFile(FILE_ISSUE_CREATED_WITH_EPIC);
+    ObjectNode node = (ObjectNode) FileUtils.readJsonFromFile(FILE_ISSUE_CREATED_WITH_EPIC);
     Message result = issueCreated.parse(Collections.<String, String>emptyMap(), node);
 
-    String expected = readFile("parser/issueCreatedJiraParser/issueCreatedWithEpicMessageML.xml");
+    String expected =
+        FileUtils.readMessageMLFile(ISSUE_CREATED_WITH_EPIC_MESSAGEML);
     assertEquals(expected, result.getMessage());
   }
 }

@@ -18,19 +18,11 @@ package org.symphonyoss.integration.webhook.jira.parser;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_END;
-import static org.symphonyoss.integration.messageml.MessageMLFormatConstants.MESSAGEML_START;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.mockito.Mock;
-import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.service.UserService;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by rsanchez on 22/07/16.
@@ -56,18 +48,4 @@ public class JiraParserTest {
     user.setDisplayName("Test User");
     return user;
   }
-
-  protected JsonNode readJsonFromFile(String filename) throws IOException {
-    ClassLoader classLoader = getClass().getClassLoader();
-    return JsonUtils.readTree(classLoader.getResourceAsStream(filename));
-  }
-
-  public String readFile(String fileName) throws IOException {
-    ClassLoader classLoader = getClass().getClassLoader();
-    String expected =
-        FileUtils.readFileToString(new File(classLoader.getResource(fileName).getPath()));
-    expected = expected.replaceAll("\n", "");
-    return MESSAGEML_START + expected + MESSAGEML_END;
-  }
-
 }

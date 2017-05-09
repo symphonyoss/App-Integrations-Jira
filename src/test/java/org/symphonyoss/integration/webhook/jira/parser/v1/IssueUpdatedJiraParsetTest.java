@@ -16,6 +16,15 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v1;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ASSIGNEE_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.FIELDS_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUE_PATH;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
@@ -28,17 +37,11 @@ import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
+import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.*;
 
 /**
  * Test class to validate {@link IssueCreatedJiraParser}
@@ -48,8 +51,19 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.*;
 @RunWith(MockitoJUnitRunner.class)
 public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
-  private static final String FILENAME = "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdated.json";
-  private static final String EPIC_FILENAME = "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueEpicUpdated.json";
+  public static final String
+      ISSUE_UPDATED_EPIC_NULL_MESSAGEML =
+      "parser/issueUpdatedJiraParser/issueUpdatedEpicNullMessageML.xml";
+  private static final String FILENAME =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdated.json";
+  private static final String EPIC_FILENAME =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueEpicUpdated.json";
+  public static final String ISSUE_UPDATED_MESSAGEML =
+      "parser/issueUpdatedJiraParser/issueUpdatedMessageML.xml";
+  public static final String ISSUE_UPDATED_UNASSIGNED_MESSAGEML =
+      "parser/issueUpdatedJiraParser/issueUpdatedUnassigneeMessageML.xml";
+  public static final String ISSUE_UPDATED_WITHOUT_CHANGE_LOG_MESSAGEML =
+      "parser/issueUpdatedJiraParser/issueUpdatedWithoutChangeLogMessageML.xml";
 
   @InjectMocks
   private JiraParser issueUpdated = new IssueUpdatedJiraParser();
@@ -72,7 +86,7 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
     assertNotNull(result);
 
-    String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedMessageML.xml");
+    String expected = FileUtils.readMessageMLFile(ISSUE_UPDATED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -91,7 +105,8 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
     assertNotNull(result);
 
-    String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedUnassigneeMessageML.xml");
+    String expected =
+        FileUtils.readMessageMLFile(ISSUE_UPDATED_UNASSIGNED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -115,7 +130,8 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
     Message result = issueUpdated.parse(parameters, root);
 
-    String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedWithoutChangeLogMessageML.xml");
+    String expected = FileUtils.readMessageMLFile(
+        ISSUE_UPDATED_WITHOUT_CHANGE_LOG_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -131,7 +147,8 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
     assertNotNull(result);
 
-    String expected = readFile("parser/issueUpdatedJiraParser/issueUpdatedEpicNullMessageML.xml");
+    String expected =
+        FileUtils.readMessageMLFile(ISSUE_UPDATED_EPIC_NULL_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser.v2;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENTED;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_CREATED;
+import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_UPDATED;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,67 +35,61 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.NullJiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.v1.V1ParserFactory;
-import org.symphonyoss.integration.webhook.jira.parser.v1.CommentJiraParser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
- * Unit test for {@link V2ParserFactory}
+ * Unit test for {@link V1JiraParserFactory}
  * Created by rsanchez on 23/03/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class V2ParserFactoryTest {
+public class V1JiraParserFactoryTest {
 
   private static final String MOCK_INTEGRATION_TYPE = "mockType";
 
   @Spy
   private List<JiraParser> beans = new ArrayList<>();
 
-  @Mock
-  private IssueCreatedMetadataParser issueCreatedJiraParser;
-
   @Spy
   private NullJiraParser defaultJiraParser;
 
   @Spy
+  private IssueCreatedJiraParser issueCreatedJiraParser;
+
+  @Spy
+  private IssueUpdatedJiraParser issueUpdatedJiraParser;
+
+  @Spy
   private CommentJiraParser commentJiraParser;
 
-  @Mock
-  private V1ParserFactory fallbackFactory;
-
   @InjectMocks
-  private V2ParserFactory factory;
+  private V1JiraParserFactory factory;
 
   @Before
   public void init() {
-    doReturn(Arrays.asList(JIRA_ISSUE_CREATED)).when(issueCreatedJiraParser).getEvents();
-
     beans.add(issueCreatedJiraParser);
+    beans.add(issueUpdatedJiraParser);
+    beans.add(commentJiraParser);
     beans.add(defaultJiraParser);
 
     factory.init();
-
-    doReturn(defaultJiraParser).when(fallbackFactory).getParser(any(JsonNode.class));
   }
 
   @Test
   public void testNotAcceptable() {
-    assertFalse(factory.accept(MessageMLVersion.V1));
+    assertFalse(factory.accept(MessageMLVersion.V2));
   }
 
   @Test
   public void testAcceptable() {
-    assertTrue(factory.accept(MessageMLVersion.V2));
+    assertTrue(factory.accept(MessageMLVersion.V1));
   }
 
   @Test
@@ -106,31 +100,39 @@ public class V2ParserFactoryTest {
     factory.onConfigChange(settings);
 
     verify(issueCreatedJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
+    verify(issueUpdatedJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
+    verify(commentJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
     verify(defaultJiraParser, times(1)).setIntegrationUser(MOCK_INTEGRATION_TYPE);
   }
 
   @Test
-  public void testGetV1Parser() {
+  public void testCommentJiraParser() {
     ObjectNode node = JsonNodeFactory.instance.objectNode();
     node.put(ISSUE_EVENT_TYPE_NAME, JIRA_ISSUE_COMMENTED);
-
-    doReturn(commentJiraParser).when(fallbackFactory).getParser(node);
 
     assertEquals(commentJiraParser, factory.getParser(node));
   }
 
   @Test
-  public void testGetDefaultParser() {
-    ObjectNode node = JsonNodeFactory.instance.objectNode();
-
-    assertEquals(defaultJiraParser, factory.getParser(node));
-  }
-
-  @Test
-  public void testGetParser() {
+  public void testIssueCreatedJiraParser() {
     ObjectNode node = JsonNodeFactory.instance.objectNode();
     node.put(WEBHOOK_EVENT, JIRA_ISSUE_CREATED);
 
     assertEquals(issueCreatedJiraParser, factory.getParser(node));
   }
+
+  @Test
+  public void testIssueUpdatedJiraParser() {
+    ObjectNode node = JsonNodeFactory.instance.objectNode();
+    node.put(WEBHOOK_EVENT, JIRA_ISSUE_UPDATED);
+
+    assertEquals(issueUpdatedJiraParser, factory.getParser(node));
+  }
+
+  @Test
+  public void testNullJiraParser() {
+    JsonNode node = JsonNodeFactory.instance.objectNode();
+    assertNull(factory.getParser(node));
+  }
+
 }

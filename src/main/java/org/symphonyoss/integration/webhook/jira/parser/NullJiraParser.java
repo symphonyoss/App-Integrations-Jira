@@ -19,8 +19,6 @@ package org.symphonyoss.integration.webhook.jira.parser;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.model.message.Message;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
-import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.util.Collections;
 import java.util.List;

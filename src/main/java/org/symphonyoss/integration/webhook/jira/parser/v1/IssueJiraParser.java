@@ -51,7 +51,8 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TYPE_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.UNKNOWN_PROJECT;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_PATH;
-import static org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils.stripJiraFormatting;
+import static org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils
+    .stripJiraFormatting;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
@@ -123,7 +124,6 @@ public abstract class IssueJiraParser extends CommonJiraParser {
     String issueKey = getIssueKey(node);
     SafeString linkedIssue = getLinkedIssueFieldFormatted(node, ISSUE_PATH, SELF_PATH, issueKey);
     String issueType = getIssueTypeName(fields);
-    String project = getIssueProjectName(fields);
     String subject = getIssueSummary(node);
 
     String userSymphonyDisplayName = getSymphonyUserDisplayName(emailAddress);
@@ -238,7 +238,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
    * @return the user e-mail if it exists, null otherwise.
    */
   protected User getUserByUserName(String userKey) {
-    if ((userKey == null) || (userKey.isEmpty())) {
+    if (StringUtils.isEmpty(userKey)) {
       return null;
     }
 
@@ -368,7 +368,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
    * @param issuePath
    * @param issueSelfPath
    * @param issueKey
-   * @return (<a href="https://whiteam1.atlassian.net/browse/SAM-25"/>)
+   * @return (<a href="https://jira.atlassian.com/browse/SAM-25"/>)
    */
   private SafeString getLinkedIssueFieldFormatted(JsonNode node, String issuePath,
       String issueSelfPath,
@@ -392,7 +392,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
    * @param issuePath
    * @param issueSelfPath
    * @param issueKey
-   * @return https://whiteam1.atlassian.net/browse/SAM-25
+   * @return https://jira.atlassian.com/browse/SAM-25
    */
   private String getLinkedIssueField(JsonNode node, String issuePath, String issueSelfPath,
       String issueKey) {
@@ -627,7 +627,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
       return null;
     }
 
-    return presentationFormat("Labels: %s", (Object[])labels);
+    return presentationFormat("Labels: %s", (Object[]) labels);
   }
 
   /**
@@ -665,12 +665,12 @@ public abstract class IssueJiraParser extends CommonJiraParser {
   /**
    * Returns an SafeString for epic
    * @param node
-   * @return epic formatted: Epic: CP-5 (<a href="https://whiteam1.atlassian.net/browse/CP-5"/>)
+   * @return epic formatted: Epic: CP-5 (<a href="https://jira.atlassian.com/browse/CP-5"/>)
    * @throws JiraParserException
    */
   protected SafeString getEpicFormatted(JsonNode node) throws JiraParserException {
     String epic = getEpic(node);
-    if(StringUtils.isEmpty(epic)){
+    if (StringUtils.isEmpty(epic)) {
       return null;
     }
 

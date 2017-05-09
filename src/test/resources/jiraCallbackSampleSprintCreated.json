@@ -3,7 +3,7 @@
   "webhookEvent": "sprint_created",
   "sprint": {
     "id": 3,
-    "self": "https://whiteam1.atlassian.net/rest/agile/1.0/sprint/3",
+    "self": "https://jira.atlassian.com/rest/agile/1.0/sprint/3",
     "state": "future",
     "name": "Sample Sprint 3",
     "originBoardId": 1

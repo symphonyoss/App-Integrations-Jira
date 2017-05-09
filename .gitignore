@@ -11,6 +11,11 @@ target/
 .idea
 *.iml
 
+# Eclipse
+.classpath
+.settings
+.project
+
 # NPM
 node_modules/
 dist/

@@ -1,0 +1,32 @@
+<messageML>
+    <div class="entity" data-entity-id="jiraIssueCommented">
+        <card class="barStyle" accent="green" iconSrc="${entity['jiraIssueCommented'].icon.url}">
+            <header>
+                <p>
+                    <img src="${entity['jiraIssueCommented'].issue.priority.iconUrl}" class="icon" />
+                    <a class="tempo-text-color--link" href="${entity['jiraIssueCommented'].issue.url}">${entity['jiraIssueCommented'].issue.key}</a>
+                    <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].issue.subject} - </span>
+                    <#if (entity['jiraIssueCommented'].user.id)??>
+                        <mention email="${entity['jiraIssueCommented'].user.emailAddress}" />
+                    <#else>
+                        <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].user.displayName}</span>
+                    </#if>
+                    <span class="tempo-text-color--green">${entity['jiraIssueCommented'].comment.action}</span>
+                </p>
+            </header>
+            <#if (entity['jiraIssueCommented'].comment.body)??>
+                <body>
+                    <div class="labelBackground badge">
+                        <p>
+                            <span class="tempo-text-color--secondary">Comment:</span>
+                            <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].comment.body}</span>
+                        </p>
+                        <p>
+                            <a class="tempo-text-color--link" href="${entity['jiraIssueCommented'].comment.url}">View comment</a>
+                        </p>
+                    </div>
+                </body>
+            </#if>
+        </card>
+    </div>
+</messageML>

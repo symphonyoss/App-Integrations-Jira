@@ -14,39 +14,32 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.parser.v2;
+package org.symphonyoss.integration.webhook.jira.parser.v1;
 
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
-import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.WEBHOOK_EVENT;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserFactory;
-import org.symphonyoss.integration.webhook.jira.parser.v1.V1ParserFactory;
+import org.symphonyoss.integration.webhook.jira.parser.v1.CommonJiraParser;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Parser factory for the MessageML v2.
+ * Parser factory for the MessageML v1.
  *
  * Created by rsanchez on 21/03/17.
  */
 @Component
-public class V2ParserFactory extends JiraParserFactory {
+public class V1JiraParserFactory extends JiraParserFactory {
 
   @Autowired
-  private List<JiraMetadataParser> beans;
-
-  @Autowired
-  private V1ParserFactory fallbackFactory;
+  private List<CommonJiraParser> beans;
 
   @Override
   public boolean accept(MessageMLVersion version) {
-    return MessageMLVersion.V2.equals(version);
+    return MessageMLVersion.V1.equals(version);
   }
 
   @Override
@@ -54,15 +47,4 @@ public class V2ParserFactory extends JiraParserFactory {
     return new ArrayList<JiraParser>(beans);
   }
 
-  @Override
-  public JiraParser getParser(JsonNode node) {
-    JiraParser result = super.getParser(node);
-
-    if (result == null) {
-      // Fallback use V1 Factory
-      return fallbackFactory.getParser(node);
-    }
-
-    return result;
-  }
 }

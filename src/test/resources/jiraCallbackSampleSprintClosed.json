@@ -3,7 +3,7 @@
   "webhookEvent": "sprint_closed",
   "sprint": {
     "id": 1,
-    "self": "https://whiteam1.atlassian.net/rest/agile/1.0/sprint/1",
+    "self": "https://jira.atlassian.com/rest/agile/1.0/sprint/1",
     "state": "closed",
     "name": "Sample Sprint 2",
     "startDate": "2016-05-09T07:21:05.375-03:00",

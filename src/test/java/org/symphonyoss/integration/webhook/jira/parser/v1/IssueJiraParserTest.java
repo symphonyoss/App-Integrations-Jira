@@ -421,7 +421,7 @@ public class IssueJiraParserTest {
   public void testIssueGetEpicFormatted(){
     ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
     ObjectNode issueNode = node.putObject(ISSUE_PATH);
-    issueNode.put(SELF_PATH, "https://whiteam1.atlassian.net/rest/api/2/issue/10100");
+    issueNode.put(SELF_PATH, "https://jira.atlassian.com/rest/api/2/issue/10100");
 
     ObjectNode changeLogNode = node.putObject(CHANGELOG_PATH);
     ArrayNode itensNode = changeLogNode.putArray(ITEMS_PATH);
@@ -431,7 +431,7 @@ public class IssueJiraParserTest {
     item.put(TOSTRING_PATH, "CP-5");
     itensNode.add(item);
     SafeString result = issueJiraParser.getEpicFormatted(node);
-    Assert.assertEquals("Epic: CP-5 (<a href=\"https://whiteam1.atlassian.net/browse/CP-5\"/>)", result.toString());
+    Assert.assertEquals("Epic: CP-5 (<a href=\"https://jira.atlassian.com/browse/CP-5\"/>)", result.toString());
   }
 
   @Test
@@ -445,7 +445,7 @@ public class IssueJiraParserTest {
   public void testIssueGetEpicFormattedChangeLogWithNoEpic(){
     ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
     ObjectNode issueNode = node.putObject(ISSUE_PATH);
-    issueNode.put(SELF_PATH, "https://whiteam1.atlassian.net/rest/api/2/issue/10100");
+    issueNode.put(SELF_PATH, "https://jira.atlassian.com/rest/api/2/issue/10100");
 
     ObjectNode changeLogNode = node.putObject(CHANGELOG_PATH);
     ArrayNode itensNode = changeLogNode.putArray(ITEMS_PATH);
