@@ -51,7 +51,8 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TYPE_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.UNKNOWN_PROJECT;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USER_PATH;
-import static org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils.stripJiraFormatting;
+import static org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils
+    .stripJiraFormatting;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
@@ -626,7 +627,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
       return null;
     }
 
-    return presentationFormat("Labels: %s", (Object[])labels);
+    return presentationFormat("Labels: %s", (Object[]) labels);
   }
 
   /**
@@ -669,7 +670,7 @@ public abstract class IssueJiraParser extends CommonJiraParser {
    */
   protected SafeString getEpicFormatted(JsonNode node) throws JiraParserException {
     String epic = getEpic(node);
-    if(StringUtils.isEmpty(epic)){
+    if (StringUtils.isEmpty(epic)) {
       return null;
     }
 

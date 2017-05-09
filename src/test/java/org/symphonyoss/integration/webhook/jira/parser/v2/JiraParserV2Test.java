@@ -35,8 +35,6 @@ import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
 import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
 /**
@@ -60,14 +58,12 @@ public abstract class JiraParserV2Test<T extends JiraMetadataParser> extends Jir
   @Mock
   protected IntegrationProperties integrationProperties;
 
-  protected T parser;
+  private T parser;
 
   @Before
-  public void setUp() throws IllegalAccessException, InstantiationException, NoSuchMethodException,
-      InvocationTargetException {
-    Constructor<T> constructor = getParserClass().getConstructor(UserService.class,
-        IntegrationProperties.class);
-    parser = constructor.newInstance(userService, integrationProperties);
+  public void setUp() {
+
+    parser = getParser();
     parser.init();
     parser.setIntegrationUser(MOCK_INTEGRATION_USER);
 
@@ -76,7 +72,7 @@ public abstract class JiraParserV2Test<T extends JiraMetadataParser> extends Jir
 
   protected abstract String getExpectedTemplate() throws IOException;
 
-  protected abstract Class<T> getParserClass();
+  protected abstract T getParser();
 
   protected void testParser(String callbackJsonFilename, String expectedEntityJsonFilename)
       throws IOException {

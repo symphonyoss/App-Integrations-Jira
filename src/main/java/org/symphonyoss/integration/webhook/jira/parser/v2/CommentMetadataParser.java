@@ -48,7 +48,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This class is responsible to validate the event 'jira:issue_created' sent by JIRA Webhook when
+ * This class is responsible to validate the event 'jira:issue_updated' and event types
+ * 'issue_commented', 'issue_comment_edited' and 'issue_comment_deleted' sent by JIRA Webhook when
  * the Agent version is equal to or greater than '1.46.0'.
  *
  * Created by aurojr on 25/04/17.

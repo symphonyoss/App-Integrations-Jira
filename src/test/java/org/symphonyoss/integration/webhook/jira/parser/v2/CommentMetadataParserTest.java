@@ -57,6 +57,8 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   private static final String FILE_EXPECTED_MENTIONS =
       "parser/commentJiraParser/v2/commentAddedWithMentions.json";
 
+  private CommentMetadataParser parserInstance;
+
   @Override
   protected String getExpectedTemplate() throws IOException {
     // MetadataParser appends a '\n' at the end of the file
@@ -64,8 +66,11 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   }
 
   @Override
-  protected Class<CommentMetadataParser> getParserClass() {
-    return CommentMetadataParser.class;
+  protected CommentMetadataParser getParser() {
+    if (parserInstance == null) {
+      parserInstance = new CommentMetadataParser(userService, integrationProperties);
+    }
+    return parserInstance;
   }
 
   @Test

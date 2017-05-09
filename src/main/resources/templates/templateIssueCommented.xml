@@ -20,7 +20,8 @@
                         <p>
                             <span class="tempo-text-color--secondary">Comment:</span>
                             <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].comment.body}</span>
-                            <br/>
+                        </p>
+                        <p>
                             <a class="tempo-text-color--link" href="${entity['jiraIssueCommented'].comment.url}">View comment</a>
                         </p>
                     </div>

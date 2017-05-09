@@ -70,14 +70,19 @@ public class IssueStateMetadataParserTest extends JiraParserV2Test<IssueStateMet
   private static final String FILE_EXPECTED_ISSUE_UPDATED_EMAIL_WITH_SPACES =
       "parser/issueUpdatedJiraParser/v2/issueUpdatedEmailWithSpacesEntityJSON.json";
 
+  private IssueStateMetadataParser parserInstance;
+
   @Override
   protected String getExpectedTemplate() throws IOException {
     return FileUtils.readFile("templates/templateIssueState.xml");
   }
 
   @Override
-  protected Class<IssueStateMetadataParser> getParserClass() {
-    return IssueStateMetadataParser.class;
+  protected IssueStateMetadataParser getParser() {
+    if (parserInstance == null) {
+      parserInstance = new IssueStateMetadataParser(userService, integrationProperties);
+    }
+    return parserInstance;
   }
 
   @Test
