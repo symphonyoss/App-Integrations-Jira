@@ -42,6 +42,9 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   private static final String FILE_COMMENT_ADDED_NO_COMMENT =
       "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithoutComment.json";
 
+  private static final String FILE_COMMENT_RESTRICTED =
+      "parser/commentJiraParser/jiraCallbackSampleCommentAddedRestrictedComment.json";
+
   private static final String FILE_COMMENT_ADDED_WITH_MENTIONS =
       "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithMentions.json";
 
@@ -56,6 +59,9 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
 
   private static final String FILE_EXPECTED_MENTIONS =
       "parser/commentJiraParser/v2/commentAddedWithMentions.json";
+
+  private static final String FILE_EXPECTED_RESTRICTED =
+      "parser/commentJiraParser/v2/commentAddedRestricted.json";
 
   private CommentMetadataParser parserInstance;
 
@@ -88,6 +94,12 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   public void testNoCommentText() throws IOException, JiraParserException {
     mockUserInfo();
     testParser(FILE_COMMENT_ADDED_NO_COMMENT, FILE_EXPECTED_COMMENT_NO_BODY);
+  }
+
+  @Test
+  public void testRestrictedComment() throws IOException, JiraParserException {
+    mockUserInfo();
+    testParser(FILE_COMMENT_RESTRICTED, FILE_EXPECTED_RESTRICTED);
   }
 
   @Test
