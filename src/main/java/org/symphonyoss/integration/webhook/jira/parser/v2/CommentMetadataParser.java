@@ -16,8 +16,6 @@
 
 package org.symphonyoss.integration.webhook.jira.parser.v2;
 
-import static org.symphonyoss.integration.messageml.MessageMLFormatConstants
-    .MESSAGEML_MENTION_EMAIL_FORMAT;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_ISSUE_COMMENTED;
 import static org.symphonyoss.integration.webhook.jira.JiraEventConstants
@@ -28,17 +26,14 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.BODY_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.COMMENT_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ID_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUE_PATH;
-import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.JIRA;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LINK_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.VISIBILITY_PATH;
-import static org.symphonyoss.integration.webhook.jira.parser.v1.CommentJiraParser.MENTION_MARKUP;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.entity.Entity;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.parser.ParserUtils;
@@ -191,7 +186,7 @@ public class CommentMetadataParser extends JiraMetadataParser {
 
     comment = JiraParserUtils.stripJiraFormatting(comment);
 
-    SafeString safeComment = new SafeString(comment);
+    SafeString safeComment = ParserUtils.escapeAndAddLineBreaks(comment);
 
     // FIXME: Uncomment me when soft mentions are supported on MessageML v2
 //    Map<String, User> usersToMention = determineUserMentions(comment);
@@ -203,7 +198,6 @@ public class CommentMetadataParser extends JiraMetadataParser {
 //            ParserUtils.presentationFormat(MENTION_MARKUP, user.getUsername()));
 //      }
 //    }
-    safeComment.replaceLineBreaks();
     return safeComment;
   }
 
@@ -225,13 +219,11 @@ public class CommentMetadataParser extends JiraMetadataParser {
 
   /**
    * JIRA comments may be restricted to certain user groups on JIRA. This is indicated by the
-   * presence of a "visibility"
-   * attribute on the comment. This method will deem a comment as restricted if the "visibility"
-   * attribute is present,
-   * regardless of its content, as it is not possible to evaluate the visibility restriction on JIRA
-   * against the rooms
-   * the webhook will post to.
-   * @param node JIRA payload.
+   * presence of a "visibility" attribute on the comment. Thus, this method will deem a comment as
+   * restricted if the "visibility" attribute is present, regardless of its content, as it is not
+   * possible to evaluate the visibility restriction on JIRA against the rooms the webhook will post
+   * to.
+   * @param node JIRA root node.
    * @return Indication on whether the comment is restricted or not.
    */
   private boolean isCommentRestricted(JsonNode node) {

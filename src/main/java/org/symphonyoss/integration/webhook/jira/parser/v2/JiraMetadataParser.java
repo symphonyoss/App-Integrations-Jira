@@ -133,7 +133,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     JsonNode summaryNode = fieldsNode.path(SUMMARY_PATH);
 
     if (summaryNode != null) {
-      SafeString summary = new SafeString(summaryNode.asText());
+      SafeString summary = ParserUtils.escapeAndAddLineBreaks(summaryNode.asText());
       summary.replaceLineBreaks();
       ((ObjectNode) fieldsNode).put(SUMMARY_PATH, summary.toString());
     }
@@ -391,7 +391,8 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
       String label = name.replaceAll("#", "");
 
       EntityObject nestedObject = new EntityObject(LABELS_TYPE, getVersion());
-      nestedObject.addContent(TEXT_ENTITY_FIELD, ParserUtils.escapeAndAddLineBreaks(label).toString());
+      nestedObject.addContent(TEXT_ENTITY_FIELD,
+          ParserUtils.escapeAndAddLineBreaks(label).toString());
 
       list.add(nestedObject);
     }
