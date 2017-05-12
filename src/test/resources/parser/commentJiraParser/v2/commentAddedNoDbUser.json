@@ -55,7 +55,7 @@
     "comment": {
       "type": "com.symphony.integration.jira.comment",
       "version": "1.0",
-      "url": "https://jira.atlassian.com/browse/SAM-25?focusedCommentId=10100&amp;page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-10100",
+      "url": "https://jira.atlassian.com/browse/SAM-25?focusedCommentId=10106&amp;page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-10106",
       "body": "Hey, this is another test comment!",
       "action": "Commented"
     }
