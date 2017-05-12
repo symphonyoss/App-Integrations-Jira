@@ -27,6 +27,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.COMME
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ID_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LINK_ENTITY_FIELD;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.VISIBILITY_PATH;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -35,6 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
+import org.symphonyoss.integration.parser.ParserUtils;
+import org.symphonyoss.integration.parser.SafeString;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils;
 
@@ -124,7 +127,7 @@ public class CommentMetadataParser extends JiraMetadataParser {
     if (commentNode != null) {
       JsonNode issueNode = input.path(ISSUE_PATH);
       String linkedIssueField = getLinkedIssueField(issueNode);
-      String linkedCommentLink = getLinkedCommentLink(linkedIssueField, issueNode);
+      String linkedCommentLink = getLinkedCommentLink(linkedIssueField, commentNode);
       commentNode.put(LINK_ENTITY_FIELD, linkedCommentLink);
     }
   }
@@ -156,30 +159,46 @@ public class CommentMetadataParser extends JiraMetadataParser {
     ObjectNode commentNode = getCommentNode(input);
 
     if (commentNode != null) {
-      String comment = commentNode.path(BODY_PATH).asText();
+      String comment = StringUtils.EMPTY;
 
-      Map<String, User> userMentions = determineUserMentions(comment);
-      if (userMentions != null && !userMentions.isEmpty()) {
-        for (Map.Entry<String, User> userEntry : userMentions.entrySet()) {
-          User user = userEntry.getValue();
-
-          //FIXME Agent v3 doen't support tags inside metadata
-//          String userMention =
-//              ParserUtils.presentationFormat(MESSAGEML_MENTION_EMAIL_FORMAT, user
-// .getEmailAddress())
-//                  .toString();
-          String userMention = user.getDisplayName();
-          comment = comment.replaceAll("\\[~" + userEntry.getKey() + "]", userMention);
-        }
+      if (!isCommentRestricted(input)) {
+        comment = formatComment(commentNode.path(BODY_PATH).asText()).toString();
       }
-
-      comment = JiraParserUtils.stripJiraFormatting(comment);
       commentNode.put(BODY_PATH, comment);
     }
   }
 
   private ObjectNode getCommentNode(JsonNode input) {
     return input.hasNonNull(COMMENT_PATH) ? (ObjectNode) input.path(COMMENT_PATH) : null;
+  }
+
+  /**
+   * Jira's RTE syntax are not supported yet. For that reason, all jira formatting is removed in
+   * this method, and the user mentions are replaced by Nexus soft mention ([~user])
+   * @param comment The raw comment from Jira's webhook
+   * @return Comment supported by MessageML v2 syntax
+   */
+  private SafeString formatComment(String comment) {
+
+    if (StringUtils.isEmpty(comment)) {
+      return SafeString.EMPTY_SAFE_STRING;
+    }
+
+    comment = JiraParserUtils.stripJiraFormatting(comment);
+
+    SafeString safeComment = ParserUtils.escapeAndAddLineBreaks(comment);
+
+    // FIXME: Uncomment me when soft mentions are supported on MessageML v2
+//    Map<String, User> usersToMention = determineUserMentions(comment);
+//    if (usersToMention != null && !usersToMention.isEmpty()) {
+//      for (Map.Entry<String, User> userToMention : usersToMention.entrySet()) {
+//        User user = userToMention.getValue();
+//
+//        safeComment.safeReplace(new SafeString(userToMention.getKey()),
+//            ParserUtils.presentationFormat(MENTION_MARKUP, user.getUsername()));
+//      }
+//    }
+    return safeComment;
   }
 
   private Map<String, User> determineUserMentions(String comment) {
@@ -196,5 +215,18 @@ public class CommentMetadataParser extends JiraMetadataParser {
       }
     }
     return usersToMention;
+  }
+
+  /**
+   * JIRA comments may be restricted to certain user groups on JIRA. This is indicated by the
+   * presence of a "visibility" attribute on the comment. Thus, this method will deem a comment as
+   * restricted if the "visibility" attribute is present, regardless of its content, as it is not
+   * possible to evaluate the visibility restriction on JIRA against the rooms the webhook will post
+   * to.
+   * @param node JIRA root node.
+   * @return Indication on whether the comment is restricted or not.
+   */
+  private boolean isCommentRestricted(JsonNode node) {
+    return node.path(COMMENT_PATH).has(VISIBILITY_PATH);
   }
 }

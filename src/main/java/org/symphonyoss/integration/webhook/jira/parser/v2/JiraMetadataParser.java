@@ -41,6 +41,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.NAME_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.PRIORITY_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.SELF_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.STATUS_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.SUMMARY_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TEXT_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TOSTRING_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.URL_PATH;
@@ -58,6 +59,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
+import org.symphonyoss.integration.parser.ParserUtils;
+import org.symphonyoss.integration.parser.SafeString;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
@@ -112,12 +115,28 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   protected void preProcessInputData(JsonNode input) {
     processIconUrl(input);
     processIssueLink(input);
+    processSummary(input);
     processDescription(input);
     processStatus(input);
     processUser(input);
     processAssignee(input);
     processEpicLink(input);
     processIconUrls(input);
+  }
+
+  /**
+   * This method parses the issue description to avoid invalid characters
+   * @param input
+   */
+  private void processSummary(JsonNode input) {
+    JsonNode fieldsNode = input.path(ISSUE_PATH).path(FIELDS_PATH);
+    JsonNode summaryNode = fieldsNode.path(SUMMARY_PATH);
+
+    if (summaryNode != null) {
+      SafeString summary = ParserUtils.escapeAndAddLineBreaks(summaryNode.asText());
+      summary.replaceLineBreaks();
+      ((ObjectNode) fieldsNode).put(SUMMARY_PATH, summary.toString());
+    }
   }
 
   /**
@@ -372,7 +391,8 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
       String label = name.replaceAll("#", "");
 
       EntityObject nestedObject = new EntityObject(LABELS_TYPE, getVersion());
-      nestedObject.addContent(TEXT_ENTITY_FIELD, label);
+      nestedObject.addContent(TEXT_ENTITY_FIELD,
+          ParserUtils.escapeAndAddLineBreaks(label).toString());
 
       list.add(nestedObject);
     }
