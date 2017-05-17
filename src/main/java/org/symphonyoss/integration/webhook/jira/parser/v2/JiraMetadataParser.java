@@ -18,7 +18,6 @@ package org.symphonyoss.integration.webhook.jira.parser.v2;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.symphonyoss.integration.entity.model.EntityConstants.USER_ID;
-import static org.symphonyoss.integration.parser.ParserUtils.MESSAGEML_LINEBREAK;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ASSIGNEE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.CHANGELOG_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.DESCRIPTION_PATH;
@@ -51,7 +50,6 @@ import static org.symphonyoss.integration.webhook.jira.parser.v1.IssueJiraParser
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -244,9 +242,9 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     String description = fieldsNode.path(DESCRIPTION_PATH).asText(EMPTY);
 
     if (StringUtils.isNotEmpty(description)) {
-      String formattedValue =
-          JiraParserUtils.stripJiraFormatting(description).replaceAll("\n", MESSAGEML_LINEBREAK);
-      fieldsNode.put(DESCRIPTION_PATH, StringEscapeUtils.escapeXml10(formattedValue));
+      description = JiraParserUtils.stripJiraFormatting(description);
+      SafeString safeDescription = ParserUtils.escapeAndAddLineBreaks(description);
+      fieldsNode.put(DESCRIPTION_PATH, safeDescription.toString());
     }
   }
 
