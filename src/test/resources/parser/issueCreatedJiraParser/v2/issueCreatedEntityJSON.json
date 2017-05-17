@@ -21,7 +21,7 @@
       "key": "SAM-25",
       "url": "https://jira.atlassian.com/browse/SAM-25",
       "subject": "Issue Test",
-      "description": "Only &lt;br /&gt;for &lt;b&gt;test&lt;/b&gt; line break&lt;br/&gt; &lt;code&gt;test&lt;/code&gt;",
+      "description": "Only &lt;br /&gt;for &lt;b&gt;test&lt;/b&gt; line break<br/> &lt;code&gt;test&lt;/code&gt;",
       "status": "TO DO",
       "action": "Created",
       "issueType": {
