@@ -101,6 +101,8 @@ public final class JiraParserConstants {
 
   public static final String VISIBILITY_PATH = "visibility";
 
+  public static final String ACCENT_PATH = "accent";
+
   public static final String PROJECT_ENTITY_FIELD = "project";
 
   public static final String KEY_ENTITY_FIELD = "key";

@@ -17,6 +17,8 @@
 package org.symphonyoss.integration.webhook.jira.parser.v1;
 
 import org.apache.commons.lang3.StringUtils;
+import org.symphonyoss.integration.parser.ParserUtils;
+import org.symphonyoss.integration.parser.StringFormatterContainer;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +30,8 @@ import java.util.regex.Pattern;
  * Created by mquilzini on 18/05/16.
  */
 public class JiraParserUtils {
+
+  public static final String MENTION_MARKUP = "[~%s]";
 
   /**
    * Linebreak constant to build a messageML.
@@ -46,6 +50,12 @@ public class JiraParserUtils {
       return jiraMessage;
     }
 
+    // Remove markup links from jiraMessage string, change them to %s to avoid wrongly formatting
+    // of links
+    StringFormatterContainer formatterContainer =
+        ParserUtils.buildStringFormatForLinks(jiraMessage, false);
+    jiraMessage = formatterContainer.getFormatString();
+
     // remove header, paragraph
     jiraMessage = jiraMessage.replaceAll("h[0-6]. |bq. ", "");
 
@@ -63,8 +73,7 @@ public class JiraParserUtils {
 
     // remove markup for strong, emphasized, underlined, superscript, subscript, deleted,
     // citation, anchor, monospaced text.
-    regex = "(\\{\\{|\\^|\\+|\\*|_|~|\\?\\?|\\[#|-)([\\w\\d\\s]+)"
-        + "(\\^|\\+|\\*|_|~|\\?\\?|]|}}|-)";
+    regex = "(\\{\\{|\\^|\\+|\\*|_|~|\\?\\?|\\[#|-)([\\w\\d\\s]+)(\\^|\\+|\\*|_|~|\\?\\?|]|}}|-)";
     jiraMessage = keepMiddleOnPattern(jiraMessage, regex);
 
     // remove colors
@@ -103,6 +112,10 @@ public class JiraParserUtils {
 
     // put line breaks back
     jiraMessage = jiraMessage.replaceAll(MESSAGEML_LINEBREAK, "\n");
+
+    // put the links back on the string
+    formatterContainer.setFormatString(jiraMessage);
+    jiraMessage = formatterContainer.format();
 
     return jiraMessage;
   }

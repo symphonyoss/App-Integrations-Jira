@@ -1,6 +1,6 @@
 <messageML>
     <div class="entity" data-entity-id="jiraIssueCommented">
-        <card class="barStyle" accent="green" iconSrc="${entity['jiraIssueCommented'].icon.url}">
+        <card class="barStyle" accent="orange" iconSrc="${entity['jiraIssueCommented'].icon.url}">
             <header>
                 <p>
                     <img src="${entity['jiraIssueCommented'].issue.priority.iconUrl}" class="icon" />
@@ -16,9 +16,6 @@
                         <p>
                             <span class="tempo-text-color--secondary">Comment:</span>
                             <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].comment.body}</span>
-                        </p>
-                        <p>
-                            <a class="tempo-text-color--link" href="${entity['jiraIssueCommented'].comment.url}">View comment</a>
                         </p>
                     </div>
                 </body>

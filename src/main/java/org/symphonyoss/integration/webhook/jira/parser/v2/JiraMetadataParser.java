@@ -18,6 +18,32 @@ package org.symphonyoss.integration.webhook.jira.parser.v2;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.symphonyoss.integration.entity.model.EntityConstants.USER_ID;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.BUG_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.CHANGE_REQUEST_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.DOCUMENTATION_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.EPIC_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.IMPROVEMENT_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants
+    .INCIDENT_SEVERITY_1_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants
+    .INCIDENT_SEVERITY_2_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants
+    .INCIDENT_SEVERITY_3_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants
+    .INCIDENT_SEVERITY_4_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.INCIDENT_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.NEW_FEATURE_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.PROBLEM_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.SPIKE_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.STORY_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.SUPPORT_ISSUE_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.TASK_TYPE;
+import static org.symphonyoss.integration.webhook.jira.JiraParserAccentConstants.BLUE_ACCENT;
+import static org.symphonyoss.integration.webhook.jira.JiraParserAccentConstants.GREEN_ACCENT;
+import static org.symphonyoss.integration.webhook.jira.JiraParserAccentConstants.ORANGE_ACCENT;
+import static org.symphonyoss.integration.webhook.jira.JiraParserAccentConstants.PURPLE_ACCENT;
+import static org.symphonyoss.integration.webhook.jira.JiraParserAccentConstants.RED_ACCENT;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ACCENT_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ASSIGNEE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.CHANGELOG_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.DESCRIPTION_PATH;
@@ -69,8 +95,15 @@ import org.symphonyoss.integration.webhook.parser.metadata.MetadataParser;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Abstract JIRA parser responsible to augment the JIRA input data querying the user API and
@@ -81,22 +114,47 @@ import java.util.Map;
 public abstract class JiraMetadataParser extends MetadataParser implements JiraParser {
 
   private static final Logger logger = LoggerFactory.getLogger(JiraMetadataParser.class);
-
+  private static final Pattern userCommentPattern = Pattern.compile("(\\[~)([\\w.]+)(])");
   private static final String LABELS_TYPE = "com.symphony.integration.jira.label";
   private static final String INTEGRATION_NAME = "jira";
   private static final String IMG_SUBPATH = "img";
   private static final String JIRA_LOGO_PNG = "jira_logo_rounded.png";
 
   private UserService userService;
-
   private IntegrationProperties integrationProperties;
-
   private String integrationUser;
+  private Map<String, String> accentMap = new HashMap<>();
 
   @Autowired
   public JiraMetadataParser(UserService userService, IntegrationProperties integrationProperties) {
     this.userService = userService;
     this.integrationProperties = integrationProperties;
+  }
+
+  @Override
+  @PostConstruct
+  public void init() {
+    super.init();
+    accentMap.put(BUG_TYPE, RED_ACCENT);
+    accentMap.put(INCIDENT_TYPE, RED_ACCENT);
+    accentMap.put(SUPPORT_ISSUE_TYPE, RED_ACCENT);
+    accentMap.put(INCIDENT_SEVERITY_1_TYPE, RED_ACCENT);
+
+    accentMap.put(EPIC_TYPE, PURPLE_ACCENT);
+    accentMap.put(INCIDENT_SEVERITY_4_TYPE, PURPLE_ACCENT);
+    accentMap.put(DOCUMENTATION_TYPE, PURPLE_ACCENT);
+
+    accentMap.put(STORY_TYPE, GREEN_ACCENT);
+    accentMap.put(NEW_FEATURE_TYPE, GREEN_ACCENT);
+    accentMap.put(IMPROVEMENT_TYPE, GREEN_ACCENT);
+    accentMap.put(CHANGE_REQUEST_TYPE, GREEN_ACCENT);
+
+    accentMap.put(SPIKE_TYPE, ORANGE_ACCENT);
+    accentMap.put(PROBLEM_TYPE, ORANGE_ACCENT);
+    accentMap.put(INCIDENT_SEVERITY_2_TYPE, ORANGE_ACCENT);
+    accentMap.put(INCIDENT_SEVERITY_3_TYPE, ORANGE_ACCENT);
+
+    accentMap.put(TASK_TYPE, BLUE_ACCENT);
   }
 
   @Override
@@ -111,6 +169,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
 
   @Override
   protected void preProcessInputData(JsonNode input) {
+    processAccent(input);
     processIconUrl(input);
     processIssueLink(input);
     processSummary(input);
@@ -120,6 +179,25 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     processAssignee(input);
     processEpicLink(input);
     processIconUrls(input);
+  }
+
+  /**
+   * This method puts in the Jira's payload JSON the accent according to the issue type, defined in
+   * the accentMap initialization
+   * @param input
+   */
+  private void processAccent(JsonNode input) {
+    JsonNode fieldsNode = input.path(ISSUE_PATH).path(FIELDS_PATH);
+    if (fieldsNode.has(ISSUETYPE_PATH)) {
+      String issueName = fieldsNode.path(ISSUETYPE_PATH).path(NAME_PATH).asText();
+      if (StringUtils.isNotEmpty(issueName)) {
+        issueName = issueName.toLowerCase();
+
+        if (accentMap.containsKey(issueName)) {
+          ((ObjectNode) input).put(ACCENT_PATH, accentMap.get(issueName));
+        }
+      }
+    }
   }
 
   /**
@@ -233,6 +311,54 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   }
 
   /**
+   * This method formats the fields that support Jira's RTE formatting, changing it to the
+   * corresponding supported by Nexus.<br/>
+   * Jira's RTE syntax are not supported yet, for that reason, all jira formatting is removed in
+   * this method, and the user mentions are replaced by Nexus soft mention ([~user])
+   * @param fieldContent The field content without formatting
+   * @return Comment supported by MessageML v2 syntax
+   */
+  protected String formatTextContent(String fieldContent) {
+    String finalDescription = StringUtils.EMPTY;
+    if (StringUtils.isNotEmpty(fieldContent)) {
+      finalDescription = ParserUtils.escapeAndAddLineBreaks(fieldContent).toString();
+
+      finalDescription = JiraParserUtils.stripJiraFormatting(finalDescription);
+
+      // FIXME: Uncomment me when soft mentions are supported on MessageML v2
+//      Map<String, User> usersToMention = determineUserMentions(safeDescription.toString());
+//      if (usersToMention != null && !usersToMention.isEmpty()) {
+//        for (Map.Entry<String, User> userToMention : usersToMention.entrySet()) {
+//          User user = userToMention.getValue();
+//
+//          safeDescription.safeReplace(new SafeString(userToMention.getKey()),
+//              ParserUtils.presentationFormat(MENTION_MARKUP, user.getUsername()));
+//        }
+//      }
+
+      finalDescription = ParserUtils.markupLinks(finalDescription);
+
+    }
+    return finalDescription;
+  }
+
+  private Map<String, User> determineUserMentions(String comment) {
+    Set<String> userMentions = new HashSet<>();
+    Map<String, User> usersToMention = new HashMap<>();
+    Matcher matcher = userCommentPattern.matcher(comment);
+    while (matcher.find()) {
+      userMentions.add(matcher.group(2));
+    }
+    for (String userName : userMentions) {
+      User user = getUserByUserName(userName);
+      if (user != null && StringUtils.isNotEmpty(user.getEmailAddress())) {
+        usersToMention.put(userName, user);
+      }
+    }
+    return usersToMention;
+  }
+
+  /**
    * Process issue description removing the JIRA formatting and replacing line break to <br/>
    * tags. It also escapes special characters.
    * @param input JSON input data
@@ -241,11 +367,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     ObjectNode fieldsNode = (ObjectNode) input.path(ISSUE_PATH).path(FIELDS_PATH);
     String description = fieldsNode.path(DESCRIPTION_PATH).asText(EMPTY);
 
-    if (StringUtils.isNotEmpty(description)) {
-      description = JiraParserUtils.stripJiraFormatting(description);
-      SafeString safeDescription = ParserUtils.escapeAndAddLineBreaks(description);
-      fieldsNode.put(DESCRIPTION_PATH, safeDescription.toString());
-    }
+    fieldsNode.put(DESCRIPTION_PATH, formatTextContent(description));
   }
 
   /**
