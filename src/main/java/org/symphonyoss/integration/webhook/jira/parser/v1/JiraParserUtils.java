@@ -85,7 +85,7 @@ public class JiraParserUtils {
     jiraMessage = keepMiddleOnPattern(jiraMessage, regex);
 
     // remove links
-    regex = "(\\[link title\\|)([\\w\\d\\s\\.\\/\\:]+)(\\])";
+    regex = "(\\[link title\\|)([%\\w\\d\\s\\.\\/\\:]+)(\\])";
     jiraMessage = keepMiddleOnPattern(jiraMessage, regex);
 
     // remove mailto
