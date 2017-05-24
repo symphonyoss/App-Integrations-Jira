@@ -33,6 +33,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.DISPL
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.JIRA;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.UPDATE_AUTHOR_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.VISIBILITY_PATH;
+import static org.symphonyoss.integration.webhook.jira.parser.v1.JiraParserUtils.MENTION_MARKUP;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
@@ -78,7 +79,6 @@ public class CommentJiraParser extends IssueJiraParser {
   private static final Map<String, String> actions = new HashMap<>();
 
   private static final Pattern userCommentPattern = Pattern.compile("(\\[~)([\\w.]+)(])");
-  public static final String MENTION_MARKUP = "[~%s]";
 
   public CommentJiraParser() {
     actions.put(JIRA_ISSUE_COMMENTED, "commented on");
@@ -93,7 +93,8 @@ public class CommentJiraParser extends IssueJiraParser {
   }
 
   @Override
-  protected String getMessage(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+  protected String getMessage(Map<String, String> parameters, JsonNode node)
+      throws JiraParserException {
     if (isCommentRestricted(node)) {
       return null;
     } else {
@@ -103,11 +104,13 @@ public class CommentJiraParser extends IssueJiraParser {
   }
 
   /**
-   * JIRA comments may be restricted to certain user groups on JIRA. This is indicated by the presence of a "visibility"
-   * attribute on the comment. This method will deem a comment as restricted if the "visibility" attribute is present,
-   * regardless of its content, as it is not possible to evaluate the visibility restriction on JIRA against the rooms
+   * JIRA comments may be restricted to certain user groups on JIRA. This is indicated by the
+   * presence of a "visibility"
+   * attribute on the comment. This method will deem a comment as restricted if the "visibility"
+   * attribute is present,
+   * regardless of its content, as it is not possible to evaluate the visibility restriction on JIRA
+   * against the rooms
    * the webhook will post to.
-   *
    * @param node JIRA payload.
    * @return Indication on whether the comment is restricted or not.
    */
@@ -124,14 +127,14 @@ public class CommentJiraParser extends IssueJiraParser {
     SafeString safeComment = SafeString.EMPTY_SAFE_STRING;
     SafeString safeCommentPresentationML = SafeString.EMPTY_SAFE_STRING;
 
-    if(StringUtils.isNotEmpty(comment)){
+    if (StringUtils.isNotEmpty(comment)) {
       Map<String, User> usersToMention = determineUserMentions(comment);
       comment = JiraParserUtils.stripJiraFormatting(comment);
 
       safeComment = new SafeString(comment);
       safeCommentPresentationML = new SafeString(comment);
 
-      if(usersToMention != null && !usersToMention.isEmpty()){
+      if (usersToMention != null && !usersToMention.isEmpty()) {
         int count = 0;
         for (Map.Entry<String, User> userToMention : usersToMention.entrySet()) {
           User user = userToMention.getValue();
@@ -140,7 +143,8 @@ public class CommentJiraParser extends IssueJiraParser {
               ParserUtils.presentationFormat(MENTION_MARKUP, user.getUsername()));
 
           safeCommentPresentationML.safeReplace(new SafeString(userToMention.getKey()),
-              ParserUtils.presentationFormat(MESSAGEML_MENTION_EMAIL_FORMAT, user.getEmailAddress()));
+              ParserUtils.presentationFormat(MESSAGEML_MENTION_EMAIL_FORMAT,
+                  user.getEmailAddress()));
 
           Entity mentionEntity = user.toEntity(JIRA, String.valueOf(count++));
           commentBuilder.nestedEntity(mentionEntity);
@@ -158,15 +162,20 @@ public class CommentJiraParser extends IssueJiraParser {
     Entity commentEntity = commentBuilder.build();
 
     if (JIRA_ISSUE_COMMENTED.equals(webHookEvent)) {
-      issueBuilder.nestedEntity(commentEntity).attribute(AUTHOR_ENTITY_FIELD, getCommentDisplayName(node, AUTHOR_PATH));
+      issueBuilder.nestedEntity(commentEntity)
+          .attribute(AUTHOR_ENTITY_FIELD, getCommentDisplayName(node, AUTHOR_PATH));
     } else if (JIRA_ISSUE_COMMENT_EDITED.equals(webHookEvent)) {
-      issueBuilder.nestedEntity(commentEntity).attribute(AUTHOR_ENTITY_FIELD, getCommentDisplayName(node, UPDATE_AUTHOR_PATH));
+      issueBuilder.nestedEntity(commentEntity)
+          .attribute(AUTHOR_ENTITY_FIELD, getCommentDisplayName(node, UPDATE_AUTHOR_PATH));
     }
 
     try {
-      return builder.presentationML(presentationML).nestedEntity(issueBuilder.build()).generateXML();
+      return builder.presentationML(presentationML)
+          .nestedEntity(issueBuilder.build())
+          .generateXML();
     } catch (EntityXMLGeneratorException e) {
-      throw new JiraParserException("Something went wrong while building the message for JIRA Comment event.", e);
+      throw new JiraParserException(
+          "Something went wrong while building the message for JIRA Comment event.", e);
     }
   }
 
