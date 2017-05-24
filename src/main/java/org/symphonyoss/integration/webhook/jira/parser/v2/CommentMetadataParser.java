@@ -24,9 +24,6 @@ import static org.symphonyoss.integration.webhook.jira.JiraEventConstants.JIRA_I
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ACTION_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.BODY_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.COMMENT_PATH;
-import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ID_PATH;
-import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ISSUE_PATH;
-import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LINK_ENTITY_FIELD;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.VISIBILITY_PATH;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -90,7 +87,6 @@ public class CommentMetadataParser extends JiraMetadataParser {
   @Override
   protected void preProcessInputData(JsonNode input) {
     super.preProcessInputData(input);
-    processCommentLink(input);
     processCommentAction(input);
     processCommentBody(input);
   }
@@ -106,40 +102,6 @@ public class CommentMetadataParser extends JiraMetadataParser {
     if (commentNode != null) {
       commentNode.put(ACTION_ENTITY_FIELD, actions.get(webHookEvent));
     }
-  }
-
-  /**
-   * This method changes the self link sent by Jira into a common comment Jira url
-   * @param input The root json node
-   */
-  private void processCommentLink(JsonNode input) {
-    ObjectNode commentNode = getCommentNode(input);
-
-    if (commentNode != null) {
-      JsonNode issueNode = input.path(ISSUE_PATH);
-      String linkedIssueField = getLinkedIssueField(issueNode);
-      String linkedCommentLink = getLinkedCommentLink(linkedIssueField, commentNode);
-      commentNode.put(LINK_ENTITY_FIELD, linkedCommentLink);
-    }
-  }
-
-  /**
-   * This method builds the comment permalink according to the issue link and the comment node,
-   * i.e., the given issue link must be built based on the issue related to the given comment node
-   * @param issueLink
-   * @param commentNode
-   * @return
-   */
-  private String getLinkedCommentLink(String issueLink, JsonNode commentNode) {
-    String commentId = commentNode.path(ID_PATH).asText();
-    StringBuilder commentLink = new StringBuilder(issueLink);
-
-    if (!StringUtils.isEmpty(commentId)) {
-      commentLink.append("?");
-      commentLink.append(String.format(COMMENT_LINK_SUFFIX, commentId, commentId));
-    }
-
-    return commentLink.toString();
   }
 
   /**

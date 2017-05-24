@@ -103,8 +103,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Abstract JIRA parser responsible to augment the JIRA input data querying the user API and
  * pre-processing the input data.
@@ -129,32 +127,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   public JiraMetadataParser(UserService userService, IntegrationProperties integrationProperties) {
     this.userService = userService;
     this.integrationProperties = integrationProperties;
-  }
-
-  @Override
-  @PostConstruct
-  public void init() {
-    super.init();
-    accentMap.put(BUG_TYPE, RED_ACCENT);
-    accentMap.put(INCIDENT_TYPE, RED_ACCENT);
-    accentMap.put(SUPPORT_ISSUE_TYPE, RED_ACCENT);
-    accentMap.put(INCIDENT_SEVERITY_1_TYPE, RED_ACCENT);
-
-    accentMap.put(EPIC_TYPE, PURPLE_ACCENT);
-    accentMap.put(INCIDENT_SEVERITY_4_TYPE, PURPLE_ACCENT);
-    accentMap.put(DOCUMENTATION_TYPE, PURPLE_ACCENT);
-
-    accentMap.put(STORY_TYPE, GREEN_ACCENT);
-    accentMap.put(NEW_FEATURE_TYPE, GREEN_ACCENT);
-    accentMap.put(IMPROVEMENT_TYPE, GREEN_ACCENT);
-    accentMap.put(CHANGE_REQUEST_TYPE, GREEN_ACCENT);
-
-    accentMap.put(SPIKE_TYPE, ORANGE_ACCENT);
-    accentMap.put(PROBLEM_TYPE, ORANGE_ACCENT);
-    accentMap.put(INCIDENT_SEVERITY_2_TYPE, ORANGE_ACCENT);
-    accentMap.put(INCIDENT_SEVERITY_3_TYPE, ORANGE_ACCENT);
-
-    accentMap.put(TASK_TYPE, BLUE_ACCENT);
+    initializeAccentMap();
   }
 
   @Override
@@ -181,6 +154,29 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     processIconUrls(input);
   }
 
+  private void initializeAccentMap() {
+    accentMap.put(BUG_TYPE, RED_ACCENT);
+    accentMap.put(INCIDENT_TYPE, RED_ACCENT);
+    accentMap.put(SUPPORT_ISSUE_TYPE, RED_ACCENT);
+    accentMap.put(INCIDENT_SEVERITY_1_TYPE, RED_ACCENT);
+
+    accentMap.put(EPIC_TYPE, PURPLE_ACCENT);
+    accentMap.put(INCIDENT_SEVERITY_4_TYPE, PURPLE_ACCENT);
+    accentMap.put(DOCUMENTATION_TYPE, PURPLE_ACCENT);
+
+    accentMap.put(STORY_TYPE, GREEN_ACCENT);
+    accentMap.put(NEW_FEATURE_TYPE, GREEN_ACCENT);
+    accentMap.put(IMPROVEMENT_TYPE, GREEN_ACCENT);
+    accentMap.put(CHANGE_REQUEST_TYPE, GREEN_ACCENT);
+
+    accentMap.put(SPIKE_TYPE, ORANGE_ACCENT);
+    accentMap.put(PROBLEM_TYPE, ORANGE_ACCENT);
+    accentMap.put(INCIDENT_SEVERITY_2_TYPE, ORANGE_ACCENT);
+    accentMap.put(INCIDENT_SEVERITY_3_TYPE, ORANGE_ACCENT);
+
+    accentMap.put(TASK_TYPE, BLUE_ACCENT);
+  }
+
   /**
    * This method puts in the Jira's payload JSON the accent according to the issue type, defined in
    * the accentMap initialization
@@ -188,14 +184,12 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    */
   private void processAccent(JsonNode input) {
     JsonNode fieldsNode = input.path(ISSUE_PATH).path(FIELDS_PATH);
-    if (fieldsNode.has(ISSUETYPE_PATH)) {
-      String issueName = fieldsNode.path(ISSUETYPE_PATH).path(NAME_PATH).asText();
-      if (StringUtils.isNotEmpty(issueName)) {
-        issueName = issueName.toLowerCase();
+    String issueName = fieldsNode.path(ISSUETYPE_PATH).path(NAME_PATH).asText();
+    if (StringUtils.isNotEmpty(issueName)) {
+      issueName = issueName.toLowerCase();
 
-        if (accentMap.containsKey(issueName)) {
-          ((ObjectNode) input).put(ACCENT_PATH, accentMap.get(issueName));
-        }
+      if (accentMap.containsKey(issueName)) {
+        ((ObjectNode) input).put(ACCENT_PATH, accentMap.get(issueName));
       }
     }
   }
@@ -319,9 +313,8 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    * @return Comment supported by MessageML v2 syntax
    */
   protected String formatTextContent(String fieldContent) {
-    String finalDescription = StringUtils.EMPTY;
     if (StringUtils.isNotEmpty(fieldContent)) {
-      finalDescription = ParserUtils.escapeAndAddLineBreaks(fieldContent).toString();
+      String finalDescription = ParserUtils.escapeAndAddLineBreaks(fieldContent).toString();
 
       finalDescription = JiraParserUtils.stripJiraFormatting(finalDescription);
 
@@ -336,10 +329,10 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
 //        }
 //      }
 
-      finalDescription = ParserUtils.markupLinks(finalDescription);
+      return ParserUtils.markupLinks(finalDescription);
 
     }
-    return finalDescription;
+    return EMPTY;
   }
 
   private Map<String, User> determineUserMentions(String comment) {

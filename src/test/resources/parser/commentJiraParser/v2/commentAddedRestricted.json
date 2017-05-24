@@ -59,7 +59,6 @@
     "comment": {
       "type": "com.symphony.integration.jira.comment",
       "version": "1.0",
-      "url": "https://jira.atlassian.com/browse/SAM-25?focusedCommentId=10106&amp;page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-10106",
       "action": "Commented"
     }
   }
