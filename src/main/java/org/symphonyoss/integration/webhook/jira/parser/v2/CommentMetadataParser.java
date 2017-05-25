@@ -31,8 +31,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.service.UserService;
+import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -85,6 +87,12 @@ public class CommentMetadataParser extends JiraMetadataParser {
   }
 
   @Override
+  public Message parse(Map<String, String> parameters, JsonNode node) throws JiraParserException {
+    // restricted comments are not supported, therefore no message should be sent
+    return !isCommentRestricted(node) ? super.parse(parameters, node) : null;
+  }
+
+  @Override
   protected void preProcessInputData(JsonNode input) {
     super.preProcessInputData(input);
     processCommentAction(input);
@@ -112,11 +120,7 @@ public class CommentMetadataParser extends JiraMetadataParser {
     ObjectNode commentNode = getCommentNode(input);
 
     if (commentNode != null) {
-      String comment = StringUtils.EMPTY;
-
-      if (!isCommentRestricted(input)) {
-        comment = formatTextContent(commentNode.path(BODY_PATH).asText()).toString();
-      }
+      String comment = formatTextContent(commentNode.path(BODY_PATH).asText()).toString();
       commentNode.put(BODY_PATH, comment);
     }
   }
