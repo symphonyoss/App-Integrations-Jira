@@ -36,17 +36,13 @@ This is the messageML v2 that the Jira integration generates after parsing, whic
 ```xml
 <messageML>
     <div class="entity" data-entity-id="jiraIssue">
-        <card class="barStyle" accent="green" iconSrc="${entity['jiraIssue'].icon.url}">
+        <card class="barStyle" accent="${entity['jiraIssue'].accent!'grey'}" iconSrc="${entity['jiraIssue'].icon.url}">
             <header>
                 <p>
                     <img src="${entity['jiraIssue'].issue.priority.iconUrl}" class="icon" />
                     <a class="tempo-text-color--link" href="${entity['jiraIssue'].issue.url}">${entity['jiraIssue'].issue.key}</a>
                     <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.subject} - </span>
-                    <#if (entity['jiraIssue'].user.id)??>
-                        <mention email="${entity['jiraIssue'].user.emailAddress}" />
-                    <#else>
-                        <span>${entity['jiraIssue'].user.displayName}</span>
-                    </#if>
+                    <span>${entity['jiraIssue'].user.displayName}</span>
                     <span class="tempo-text-color--green">${entity['jiraIssue'].issue.action}</span>
                 </p>
             </header>
@@ -66,31 +62,28 @@ This is the messageML v2 that the Jira integration generates after parsing, whic
                             <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.assignee.displayName}</span>
                         </#if>
                     </p>
+                    <hr/>
                     <p>
-                        <span class="label">Type:</span>
+                        <span class="tempo-text-color--secondary">Type:</span>
                         <img src="${entity['jiraIssue'].issue.issueType.iconUrl}" class="icon" />
                         <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.issueType.name}</span>
 
-                        <br/>
-                        <span class="tempo-text-color--secondary">Priority:</span>
+                        <span class="tempo-text-color--secondary">&#160;&#160;&#160;Priority:</span>
                         <img src="${entity['jiraIssue'].issue.priority.iconUrl}" class="icon" />
                         <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.priority.name}</span>
 
 
                         <#if (entity['jiraIssue'].issue.epic)??>
-                            <br/>
-                            <span class="tempo-text-color--secondary">Epic:</span>
+                            <span class="tempo-text-color--secondary">&#160;&#160;&#160;Epic:</span>
                             <a href="${entity['jiraIssue'].issue.epic.link}">${entity['jiraIssue'].issue.epic.name}</a>
                         </#if>
 
-                        <br/>
-                        <span class="tempo-text-color--secondary">Status:</span>
+                        <span class="tempo-text-color--secondary">&#160;&#160;&#160;Status:</span>
                         <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.status?capitalize}</span>
 
 
                         <#if (entity['jiraIssue'].issue.labels)??>
-                            <br/>
-                            <span class="tempo-text-color--secondary">Labels:</span>
+                            <span class="tempo-text-color--secondary">&#160;&#160;&#160;Labels:</span>
                             <#list entity['jiraIssue'].issue.labels as label>
                                 <span class="hashTag">#${label.text}</span>
                             </#list>
@@ -101,6 +94,7 @@ This is the messageML v2 that the Jira integration generates after parsing, whic
         </card>
     </div>
 </messageML>
+
 ```
 ###### Entity JSON
 This is the EntityJSON that the Jira integration generates after parsing, which defines the content of the card that the front-end will use in combination with the MessageML v2 to render the card:
@@ -109,6 +103,7 @@ This is the EntityJSON that the Jira integration generates after parsing, which 
   "jiraIssue": {
     "type": "com.symphony.integration.jira.event.v2.state",
     "version": "1.0",
+    "accent": "green",
     "icon": {
       "type": "com.symphony.integration.icon",
       "version": "1.0",

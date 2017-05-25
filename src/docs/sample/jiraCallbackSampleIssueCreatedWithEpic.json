@@ -13,7 +13,7 @@
       "16x16": "https://secure.gravatar.com/avatar/5bba6a42b432edbddb2852f8da58ea84?d=mm&s=16",
       "32x32": "https://secure.gravatar.com/avatar/5bba6a42b432edbddb2852f8da58ea84?d=mm&s=32"
     },
-    "displayName": "Test User",
+    "displayName": "The creator",
     "active": true,
     "timeZone": "America/Sao_Paulo"
   },
@@ -74,7 +74,9 @@
         "id": "1"
       },
       "labels": [
-        "#production"
+        "#production",
+        "#rabbitmq",
+        "#easteregg"
       ],
       "customfield_10016": null,
       "customfield_10017": null,
@@ -85,17 +87,17 @@
       "versions": [],
       "issuelinks": [],
       "assignee": {
-        "self": "https://jira.atlassian.com/rest/api/2/user?username=test2",
-        "name": "test2",
+        "self": "https://jira.atlassian.com/rest/api/2/user?username=sara.coelho",
+        "name": "sara,coelho",
         "key": "test2",
-        "emailAddress": "test2@symphony.com",
+        "emailAddress": "sara.coelho@symphony.com",
         "avatarUrls": {
           "48x48": "https://jira.atlassian.com/secure/useravatar?avatarId=10334",
           "24x24": "https://jira.atlassian.com/secure/useravatar?size=small&avatarId=10334",
           "16x16": "https://jira.atlassian.com/secure/useravatar?size=xsmall&avatarId=10334",
           "32x32": "https://jira.atlassian.com/secure/useravatar?size=medium&avatarId=10334"
         },
-        "displayName": "Test2 User",
+        "displayName": "Sara Coelho",
         "active": true,
         "timeZone": "America/Sao_Paulo"
       },
@@ -116,7 +118,7 @@
       },
       "components": [],
       "timeoriginalestimate": null,
-      "description": "Only for test",
+      "description": "There are some issues with rabbitMQ, it seems that there's no enough storage to process the carrot queue.",
       "customfield_10010": null,
       "customfield_10011": null,
       "customfield_10012": null,
@@ -128,7 +130,7 @@
       "attachment": [],
       "customfield_10009": "com.atlassian.servicedesk.plugins.approvals.internal.customfield.ApprovalsCFValue@1d6726b",
       "aggregatetimeestimate": null,
-      "summary": "Issue Test",
+      "summary": "Fixing some RabbitMQ health issues",
       "creator": {
         "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
         "name": "test",
@@ -140,7 +142,7 @@
           "16x16": "https://secure.gravatar.com/avatar/5bba6a42b432edbddb2852f8da58ea84?d=mm&s=16",
           "32x32": "https://secure.gravatar.com/avatar/5bba6a42b432edbddb2852f8da58ea84?d=mm&s=32"
         },
-        "displayName": "Test User",
+        "displayName": "The creator",
         "active": true,
         "timeZone": "America/Sao_Paulo"
       },
@@ -156,7 +158,7 @@
           "16x16": "https://secure.gravatar.com/avatar/5bba6a42b432edbddb2852f8da58ea84?d=mm&s=16",
           "32x32": "https://secure.gravatar.com/avatar/5bba6a42b432edbddb2852f8da58ea84?d=mm&s=32"
         },
-        "displayName": "Test User",
+        "displayName": "Sara Coelho",
         "active": true,
         "timeZone": "America/Sao_Paulo"
       },
