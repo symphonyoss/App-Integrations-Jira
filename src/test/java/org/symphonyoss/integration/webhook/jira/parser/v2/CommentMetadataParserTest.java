@@ -64,9 +64,6 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   private static final String FILE_EXPECTED_MENTIONS =
       "parser/commentJiraParser/v2/commentAddedWithMentions.json";
 
-  private static final String FILE_EXPECTED_RESTRICTED =
-      "parser/commentJiraParser/v2/commentAddedRestricted.json";
-
   private CommentMetadataParser parserInstance;
 
   @Override
