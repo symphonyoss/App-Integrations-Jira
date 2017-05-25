@@ -28,7 +28,6 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.VISIB
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.model.message.Message;

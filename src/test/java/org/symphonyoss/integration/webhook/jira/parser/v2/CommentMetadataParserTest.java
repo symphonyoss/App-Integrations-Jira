@@ -15,21 +15,25 @@
  */
 package org.symphonyoss.integration.webhook.jira.parser.v2;
 
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.entity.model.User;
+import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
 
 import java.io.IOException;
+import java.util.Collections;
 
 /**
  * Created by apimentel on 27/04/17.
@@ -99,7 +103,15 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   @Test
   public void testRestrictedComment() throws IOException, JiraParserException {
     mockUserInfo();
-    testParser(FILE_COMMENT_RESTRICTED, FILE_EXPECTED_RESTRICTED);
+
+    JsonNode node = FileUtils.readJsonFromFile(FILE_COMMENT_RESTRICTED);
+    Message result = parserInstance.parse(Collections.<String, String>emptyMap(), node);
+
+    assertNull(result);
+
+    verify(userService, times(0)).getUserByUserName(anyString(), anyString());
+    verify(userService, times(0)).getUserByEmail(anyString(), anyString());
+    verify(integrationProperties, times(0)).getApplicationUrl(anyString());
   }
 
   @Test
