@@ -1,5 +1,7 @@
 [![Symphony Software Foundation - Incubating](https://cdn.rawgit.com/symphonyoss/contrib-toolbox/master/images/ssf-badge-incubating.svg)](https://symphonyoss.atlassian.net/wiki/display/FM/Incubating) [![Build Status](https://travis-ci.org/symphonyoss/App-Integrations-Jira.svg?branch=dev)](https://travis-ci.org/symphonyoss/App-Integrations-Jira) [![Dependencies](https://www.versioneye.com/user/projects/58d049f56893fd004792c870/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/58d049f56893fd004792c870)
 
+*These informations cover only JIRA specific webhook configuration and the rendering pipeline. For more information about Webhook Integration architecture, development environment, application bootstraping and building, please visit https://github.com/symphonyoss/App-Integrations-Zapier.*
+
 # JIRA Webhook Integration
 The JIRA Webhook Integration will allow you to receive notifications in Symphony whenever an issue-related event occurs inside of JIRA.
 
@@ -31,7 +33,7 @@ The Jira integration on the Integration Bridge parses the JSON payload that Jira
 More information about MessageML V2 specification can be accessed [here](https://symphonyoss.atlassian.net/wiki/display/WGFOS/MessageML+V2+Draft+Proposal+-+For+Discussion)
 
 ###### MessageML
-This is the messageML v2 that the Jira integration generates after parsing, which defines the layout of the card and how the front end will render it within Symphony:
+This is the messageML v2 that the JIRA integration generates after parsing, which defines the layout of the card and how the front end will render it within Symphony:
 
 ```xml
 <messageML>
@@ -97,7 +99,7 @@ This is the messageML v2 that the Jira integration generates after parsing, whic
 
 ```
 ###### Entity JSON
-This is the EntityJSON that the Jira integration generates after parsing, which defines the content of the card that the front-end will use in combination with the MessageML v2 to render the card:
+This is the EntityJSON that the JIRA integration generates after parsing, which defines the content of the card that the front-end will use in combination with the MessageML v2 to render the card:
 ```json
 {
   "jiraIssue": {
@@ -172,25 +174,3 @@ This is the EntityJSON that the Jira integration generates after parsing, which 
 ##### Message rendered in Symphony
 
 ![Issue Created rendered](src/docs/sample/sample_issue_created_with_epic_rendered_v2.png)
-
-# Build instructions for the Java developer
-
-### What you’ll build
-You’ll build an integration module to be used with the [Integration Bridge](https://github.com/symphonyoss/App-Integrations-Core).
-
-If you develop a new integration, to get it up and running you'll also need to add it to the core project's web pom file.
-
-### What you’ll need
-* JDK 1.7
-* Maven 3.0.5+
-
-### Build with maven
-JIRA WebHook Integration is compatible with Apache Maven 3.0.5 or above. If you don’t already have Maven installed you can follow the instructions at maven.apache.org.
-
-To start from scratch, do the following:
-
-1. Build the _App-Integrations-Jira_ dependencies (so you have them in your Maven local repository):
-> [_App-Integrations-Commons_](https://github.com/symphonyoss/App-Integrations-Commons)
-2. Clone the source repository using Git: `git clone git@github.com:symphonyoss/App-Integrations-Jira.git`
-3. cd into _App-Integrations-Jira_
-4. Build using maven: `mvn clean install`
