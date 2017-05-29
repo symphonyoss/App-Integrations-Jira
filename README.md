@@ -79,7 +79,9 @@ This is the messageML v2 that the JIRA integration generates after parsing, whic
                         </#if>
 
                         <span class="tempo-text-color--secondary">&#160;&#160;&#160;Status:</span>
-                        <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.status?capitalize}</span>
+                        <span class="tempo-bg-color--${entity['jiraIssue'].tokenColor} tempo-text-color--white tempo-token">
+                            ${entity['jiraIssue'].issue.status?upper_case}
+                        </span>
 
 
                         <#if (entity['jiraIssue'].issue.labels)??>
@@ -94,7 +96,6 @@ This is the messageML v2 that the JIRA integration generates after parsing, whic
         </card>
     </div>
 </messageML>
-
 ```
 ###### Entity JSON
 This is the EntityJSON that the JIRA integration generates after parsing, which defines the content of the card that the front-end will use in combination with the MessageML v2 to render the card:
@@ -104,6 +105,7 @@ This is the EntityJSON that the JIRA integration generates after parsing, which 
     "type": "com.symphony.integration.jira.event.v2.state",
     "version": "1.0",
     "accent": "green",
+    "tokenColor": "blue",
     "icon": {
       "type": "com.symphony.integration.icon",
       "version": "1.0",
