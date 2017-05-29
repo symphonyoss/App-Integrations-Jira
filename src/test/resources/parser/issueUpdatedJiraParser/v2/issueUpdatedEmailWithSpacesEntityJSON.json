@@ -2,7 +2,8 @@
   "jiraIssue": {
     "type": "com.symphony.integration.jira.event.v2.state",
     "version": "1.0",
-    "accent":"green",
+    "accent": "green",
+    "tokenColor": "blue",
     "icon": {
       "type": "com.symphony.integration.icon",
       "version": "1.0",
