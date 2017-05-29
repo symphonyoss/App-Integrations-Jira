@@ -18,6 +18,9 @@ package org.symphonyoss.integration.webhook.jira.parser.v2;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.symphonyoss.integration.entity.model.EntityConstants.USER_ID;
+import static org.symphonyoss.integration.webhook.jira.JiraColorNameConstants.BLUE;
+import static org.symphonyoss.integration.webhook.jira.JiraColorNameConstants.GREEN;
+import static org.symphonyoss.integration.webhook.jira.JiraColorNameConstants.YELLOW;
 import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.BUG_TYPE;
 import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.CHANGE_REQUEST_TYPE;
 import static org.symphonyoss.integration.webhook.jira.JiraIssueTypeConstants.DOCUMENTATION_TYPE;
@@ -46,6 +49,7 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserAccentConstants
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ACCENT_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.ASSIGNEE_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.CHANGELOG_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.COLOR_NAME_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.DESCRIPTION_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.DISPLAY_NAME_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.EMAIL_ADDRESS_PATH;
@@ -65,9 +69,11 @@ import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.LINK_
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.NAME_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.PRIORITY_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.SELF_PATH;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.STATUS_CATEGORY_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.STATUS_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.SUMMARY_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TEXT_ENTITY_FIELD;
+import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TOKEN_COLOR_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.TOSTRING_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.URL_PATH;
 import static org.symphonyoss.integration.webhook.jira.JiraParserConstants.USERNAME_PATH;
@@ -148,6 +154,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     processSummary(input);
     processDescription(input);
     processStatus(input);
+    processStatusColor(input);
     processUser(input);
     processAssignee(input);
     processEpicLink(input);
@@ -236,13 +243,56 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    * @param input JSON input payload
    */
   private void processStatus(JsonNode input) {
-    JsonNode statusNode = input.path(ISSUE_PATH).path(FIELDS_PATH).path(STATUS_PATH);
+    JsonNode statusNode = getStatusNode(input);
 
     String issueStatus = statusNode.path(NAME_PATH).asText(EMPTY);
 
     if (StringUtils.isNotEmpty(issueStatus)) {
       ((ObjectNode) statusNode).put(NAME_PATH, issueStatus.toUpperCase());
     }
+  }
+
+  /**
+   * JIRA's payload categorizes the issues according to three parent categories:<br/>
+   * <ul>
+   * <li>To Do</li>
+   * <li>In Progress</li>
+   * <li>Done</li>
+   * </ul>
+   *
+   * And each one has an associated color, given by the value of
+   * issue/status/statusCategory/colorName in JIRA's payload:
+   * <ul>
+   * <li>To Do: blue(blue-gray in the payload)</li>
+   * <li>In Progress: yellow</li>
+   * <li>Done: green</li>
+   * </ul>
+   * @param input
+   */
+  private void processStatusColor(JsonNode input) {
+    JsonNode statusCategory = getStatusNode(input).path(STATUS_CATEGORY_PATH);
+    String colorName = statusCategory.path(COLOR_NAME_PATH).asText();
+
+    String token;
+    switch (colorName) {
+      case BLUE:
+        token = "blue";
+        break;
+      case YELLOW:
+        token = "yellow";
+        break;
+      case GREEN:
+        token = "green";
+        break;
+      default:
+        token = "gray";
+    }
+
+    ((ObjectNode) input).put(TOKEN_COLOR_PATH, token);
+  }
+
+  private JsonNode getStatusNode(JsonNode input) {
+    return input.path(ISSUE_PATH).path(FIELDS_PATH).path(STATUS_PATH);
   }
 
   /**

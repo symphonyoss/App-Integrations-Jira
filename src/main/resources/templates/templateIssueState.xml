@@ -43,7 +43,9 @@
                         </#if>
 
                         <span class="tempo-text-color--secondary">&#160;&#160;&#160;Status:</span>
-                        <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.status?capitalize}</span>
+                        <span class="tempo-bg-color--${entity['jiraIssue'].tokenColor} tempo-text-color--white tempo-token">
+                            ${entity['jiraIssue'].issue.status?upper_case}
+                        </span>
 
 
                         <#if (entity['jiraIssue'].issue.labels)??>

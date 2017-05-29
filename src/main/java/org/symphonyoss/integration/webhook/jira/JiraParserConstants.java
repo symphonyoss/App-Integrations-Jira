@@ -79,6 +79,10 @@ public final class JiraParserConstants {
 
   public static final String STATUS_PATH = "status";
 
+  public static final String STATUS_CATEGORY_PATH = "statusCategory";
+
+  public static final String COLOR_NAME_PATH = "colorName";
+
   public static final String TO_PATH = "to";
 
   public static final String TOSTRING_PATH = "toString";
@@ -102,6 +106,8 @@ public final class JiraParserConstants {
   public static final String VISIBILITY_PATH = "visibility";
 
   public static final String ACCENT_PATH = "accent";
+
+  public static final String TOKEN_COLOR_PATH = "tokenColor";
 
   public static final String PROJECT_ENTITY_FIELD = "project";
 
