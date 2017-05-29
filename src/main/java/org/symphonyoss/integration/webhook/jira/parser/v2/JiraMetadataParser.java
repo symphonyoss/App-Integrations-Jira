@@ -267,7 +267,11 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    * <li>In Progress: yellow</li>
    * <li>Done: green</li>
    * </ul>
-   * @param input
+   * <br/><br/>
+   * @param input the root node
+   * @see
+   * <a href="https://confluence.atlassian.com/adminjiracloud/defining-status-field-values-776636353.html">
+   * Defining JIRA's status fields values</a>
    */
   private void processStatusColor(JsonNode input) {
     JsonNode statusCategory = getStatusNode(input).path(STATUS_CATEGORY_PATH);
