@@ -24,11 +24,11 @@ language: java
 
 before_install:
   - "curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.30.2/install.sh | bash"
-
-install:
   - "nvm install 6.10"
   - "nvm use 6.10"
   - "npm update -g npm"
+
+install: true
 
 jdk:
   - oraclejdk8
@@ -44,7 +44,7 @@ addons:
       description: "Build submitted via Travis CI"
     notification_email: $COVERITY_NOTIFICATION_EMAIL
     build_command_prepend: "mvn clean"
-    build_command:   "mvn -DsymphonySkipUnitTests=true install"
+    build_command:   "mvn -Denv=dev -DsymphonySkipUnitTests=true install"
     branch_pattern: $COVERITY_BRANCH_PATTERN
 
 script:
