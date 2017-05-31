@@ -20,11 +20,13 @@
 # under the License.
 #
 
-sudo: required
-dist: trusty
-language: node_js
+language: java
+
 node_js:
   - "6.10"
+
+jdk:
+  - oraclejdk8
 
 env:
   global:
@@ -33,9 +35,7 @@ env:
 addons:
   apt:
     packages:
-      - openjdk-8-jdk
-      - maven
-      - rpm
+      - nodejs
   coverity_scan:
     project:
       name: "symphonyoss/App-Integrations-Jira"
