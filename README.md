@@ -1,4 +1,7 @@
-[![Symphony Software Foundation - Incubating](https://cdn.rawgit.com/symphonyoss/contrib-toolbox/master/images/ssf-badge-incubating.svg)](https://symphonyoss.atlassian.net/wiki/display/FM/Incubating) [![Build Status](https://travis-ci.org/symphonyoss/App-Integrations-Jira.svg?branch=dev)](https://travis-ci.org/symphonyoss/App-Integrations-Jira) [![Dependencies](https://www.versioneye.com/user/projects/58d049f56893fd004792c870/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/58d049f56893fd004792c870)
+[![Symphony Software Foundation - Incubating](https://cdn.rawgit.com/symphonyoss/contrib-toolbox/master/images/ssf-badge-incubating.svg)](https://symphonyoss.atlassian.net/wiki/display/FM/Incubating)
+[![Build Status](https://travis-ci.org/symphonyoss/App-Integrations-Jira.svg?branch=dev)](https://travis-ci.org/symphonyoss/App-Integrations-Jira)
+[![Dependencies](https://www.versioneye.com/user/projects/58d049f56893fd004792c870/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/58d049f56893fd004792c870)
+[![Validation Status](https://scan.coverity.com/projects/12824/badge.svg?flat=1)](https://scan.coverity.com/projects/symphonyoss-app-integrations-jira)
 
 *These informations cover only JIRA specific webhook configuration and the rendering pipeline. For more information about Webhook Integration architecture, development environment, application bootstraping and building, please visit https://github.com/symphonyoss/App-Integrations-Zapier.*
 
