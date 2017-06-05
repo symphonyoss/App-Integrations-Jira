@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
-import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
+import org.symphonyoss.integration.utils.SimpleFileUtils;
 
 import java.io.IOException;
 
@@ -54,7 +54,7 @@ public class EmailAddressWithSpaceTest extends JiraParserTest {
   public void testParseCommentAdded() throws WebHookParseException, IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     JsonNode node = mapper.readTree(classLoader.getResourceAsStream(FILENAME));
-    String expectedMessage = FileUtils.readMessageMLFile(EXPECTED_EMAIL_WITH_SPACE_MESSAGEML);
+    String expectedMessage = SimpleFileUtils.readMessageMLFile(EXPECTED_EMAIL_WITH_SPACE_MESSAGEML);
 
     Message actual = this.commentJiraParser.parse(null, node);
     assertEquals(expectedMessage, actual.getMessage());

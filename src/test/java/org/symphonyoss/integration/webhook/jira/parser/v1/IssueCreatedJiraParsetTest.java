@@ -35,7 +35,7 @@ import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
-import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
+import org.symphonyoss.integration.utils.SimpleFileUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -84,12 +84,12 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
   public void testIssueCreated() throws IOException, JiraParserException {
     mockUserServiceForTest2User();
 
-    JsonNode node = FileUtils.readJsonFromFile(FILE_ISSUE_CREATED);
+    JsonNode node = SimpleFileUtils.readJsonFromFile(FILE_ISSUE_CREATED);
     Message result = issueCreated.parse(Collections.<String, String>emptyMap(), node);
 
     assertNotNull(result);
 
-    String expected = FileUtils.readMessageMLFile(ISSUE_CREATED_MESSAGEML);
+    String expected = SimpleFileUtils.readMessageMLFile(ISSUE_CREATED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -99,20 +99,20 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
   public void testIssueCreatedJiraMarkup() throws IOException, JiraParserException {
     mockUserServiceForTest2User();
 
-    JsonNode node = FileUtils.readJsonFromFile(FILE_ISSUE_CREATED_JIRA_MARKUP);
+    JsonNode node = SimpleFileUtils.readJsonFromFile(FILE_ISSUE_CREATED_JIRA_MARKUP);
     Message result = issueCreated.parse(Collections.<String, String>emptyMap(), node);
 
     assertNotNull(result);
 
     String expected =
-        FileUtils.readMessageMLFile(ISSUE_CREATED_JIRA_MARKUP_MESSAGEML);
+        SimpleFileUtils.readMessageMLFile(ISSUE_CREATED_JIRA_MARKUP_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
 
   @Test
   public void testIssueCreatedUnassigned() throws IOException, JiraParserException {
-    JsonNode node = FileUtils.readJsonFromFile(FILE_ISSUE_CREATED);
+    JsonNode node = SimpleFileUtils.readJsonFromFile(FILE_ISSUE_CREATED);
     ObjectNode fieldsNode = (ObjectNode) node.path(ISSUE_PATH).path(FIELDS_PATH);
     fieldsNode.remove(ASSIGNEE_PATH);
     fieldsNode.putNull(ASSIGNEE_PATH);
@@ -122,7 +122,7 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
     assertNotNull(result);
 
     String expected =
-        FileUtils.readMessageMLFile(ISSUE_CREATED_UNASSIGNED_MESSAGEML);
+        SimpleFileUtils.readMessageMLFile(ISSUE_CREATED_UNASSIGNED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -137,11 +137,11 @@ public class IssueCreatedJiraParsetTest extends JiraParserTest {
     user2.setEmailAddress("test2@symphony.com");
     doReturn(user2).when(userService).getUserByEmail(anyString(), eq("test2@symphony.com"));
 
-    ObjectNode node = (ObjectNode) FileUtils.readJsonFromFile(FILE_ISSUE_CREATED_WITH_EPIC);
+    ObjectNode node = (ObjectNode) SimpleFileUtils.readJsonFromFile(FILE_ISSUE_CREATED_WITH_EPIC);
     Message result = issueCreated.parse(Collections.<String, String>emptyMap(), node);
 
     String expected =
-        FileUtils.readMessageMLFile(ISSUE_CREATED_WITH_EPIC_MESSAGEML);
+        SimpleFileUtils.readMessageMLFile(ISSUE_CREATED_WITH_EPIC_MESSAGEML);
     assertEquals(expected, result.getMessage());
   }
 }

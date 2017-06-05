@@ -1,6 +1,6 @@
 <messageML>
     <div class="entity" data-entity-id="jiraIssueCommented">
-        <card class="barStyle" accent="${entity['jiraIssueCommented'].accent!'grey'}" iconSrc="${entity['jiraIssueCommented'].icon.url}">
+        <card class="barStyle" accent="tempo-bg-color--${entity['jiraIssueCommented'].accent!'gray'}" iconSrc="${entity['jiraIssueCommented'].icon.url}">
             <header>
                 <p>
                     <img src="${entity['jiraIssueCommented'].issue.priority.iconUrl}" class="icon" />
