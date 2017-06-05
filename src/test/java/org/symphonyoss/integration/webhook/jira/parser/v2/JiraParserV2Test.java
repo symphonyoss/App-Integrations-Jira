@@ -32,7 +32,7 @@ import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
-import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
+import org.symphonyoss.integration.utils.SimpleFileUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -76,12 +76,12 @@ public abstract class JiraParserV2Test<T extends JiraMetadataParser> extends Jir
 
   protected void testParser(String callbackJsonFilename, String expectedEntityJsonFilename)
       throws IOException {
-    JsonNode node = FileUtils.readJsonFromFile(callbackJsonFilename);
+    JsonNode node = SimpleFileUtils.readJsonFromFile(callbackJsonFilename);
     Message result = parser.parse(Collections.<String, String>emptyMap(), node);
 
     assertNotNull(result);
 
-    JsonNode expectedNode = FileUtils.readJsonFromFile(expectedEntityJsonFilename);
+    JsonNode expectedNode = SimpleFileUtils.readJsonFromFile(expectedEntityJsonFilename);
     String expected = JsonUtils.writeValueAsString(expectedNode);
 
     assertEquals(expected, result.getData());

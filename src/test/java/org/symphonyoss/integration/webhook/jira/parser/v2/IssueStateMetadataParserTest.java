@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
-import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
+import org.symphonyoss.integration.utils.SimpleFileUtils;
 
 import java.io.IOException;
 
@@ -74,7 +74,7 @@ public class IssueStateMetadataParserTest extends JiraParserV2Test<IssueStateMet
 
   @Override
   protected String getExpectedTemplate() throws IOException {
-    return FileUtils.readFile("templates/templateIssueState.xml");
+    return SimpleFileUtils.readFile("templates/templateIssueState.xml");
   }
 
   @Override

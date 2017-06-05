@@ -30,7 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
-import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
+import org.symphonyoss.integration.utils.SimpleFileUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -64,20 +64,15 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   private static final String FILE_EXPECTED_MENTIONS =
       "parser/commentJiraParser/v2/commentAddedWithMentions.json";
 
-  private CommentMetadataParser parserInstance;
-
   @Override
   protected String getExpectedTemplate() throws IOException {
     // MetadataParser appends a '\n' at the end of the file
-    return FileUtils.readFile("templates/templateIssueCommented.xml") + "\n";
+    return SimpleFileUtils.readFile("templates/templateIssueCommented.xml") + "\n";
   }
 
   @Override
   protected CommentMetadataParser getParser() {
-    if (parserInstance == null) {
-      parserInstance = new CommentMetadataParser(userService, integrationProperties);
-    }
-    return parserInstance;
+    return new CommentMetadataParser(userService, integrationProperties);
   }
 
   @Test
@@ -101,8 +96,8 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   public void testRestrictedComment() throws IOException, JiraParserException {
     mockUserInfo();
 
-    JsonNode node = FileUtils.readJsonFromFile(FILE_COMMENT_RESTRICTED);
-    Message result = parserInstance.parse(Collections.<String, String>emptyMap(), node);
+    JsonNode node = SimpleFileUtils.readJsonFromFile(FILE_COMMENT_RESTRICTED);
+    Message result = getParser().parse(Collections.<String, String>emptyMap(), node);
 
     assertNull(result);
 
@@ -115,14 +110,14 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   @Ignore("This is only valid when supporting mentions in the metadata")
   public void testWithMentions() throws IOException, JiraParserException {
     mockUserInfo();
-    String integrationuser = "integrationuser";
+    String integrationUser = "integrationuser";
 
     User user = new User();
     user.setId(123L);
     user.setDisplayName("Misterious Guy");
-    user.setUserName(integrationuser);
+    user.setUserName(integrationUser);
     user.setEmailAddress("test.user@test.com");
-    doReturn(user).when(userService).getUserByUserName(anyString(), eq(integrationuser));
+    doReturn(user).when(userService).getUserByUserName(anyString(), eq(integrationUser));
 
     testParser(FILE_COMMENT_ADDED_WITH_MENTIONS, FILE_EXPECTED_MENTIONS);
 

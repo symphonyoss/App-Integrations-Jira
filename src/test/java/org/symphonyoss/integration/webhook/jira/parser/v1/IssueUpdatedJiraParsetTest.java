@@ -37,7 +37,7 @@ import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParser;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserException;
 import org.symphonyoss.integration.webhook.jira.parser.JiraParserTest;
-import org.symphonyoss.integration.webhook.jira.parser.utils.FileUtils;
+import org.symphonyoss.integration.utils.SimpleFileUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -86,7 +86,7 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
     assertNotNull(result);
 
-    String expected = FileUtils.readMessageMLFile(ISSUE_UPDATED_MESSAGEML);
+    String expected = SimpleFileUtils.readMessageMLFile(ISSUE_UPDATED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -106,7 +106,7 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     assertNotNull(result);
 
     String expected =
-        FileUtils.readMessageMLFile(ISSUE_UPDATED_UNASSIGNED_MESSAGEML);
+        SimpleFileUtils.readMessageMLFile(ISSUE_UPDATED_UNASSIGNED_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
@@ -130,7 +130,7 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
 
     Message result = issueUpdated.parse(parameters, root);
 
-    String expected = FileUtils.readMessageMLFile(
+    String expected = SimpleFileUtils.readMessageMLFile(
         ISSUE_UPDATED_WITHOUT_CHANGE_LOG_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
@@ -148,7 +148,7 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     assertNotNull(result);
 
     String expected =
-        FileUtils.readMessageMLFile(ISSUE_UPDATED_EPIC_NULL_MESSAGEML);
+        SimpleFileUtils.readMessageMLFile(ISSUE_UPDATED_EPIC_NULL_MESSAGEML);
 
     assertEquals(expected, result.getMessage());
   }
