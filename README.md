@@ -39,7 +39,7 @@ This is the messageML v2 that the JIRA integration generates after parsing, whic
 ```xml
 <messageML>
     <div class="entity" data-entity-id="jiraIssue">
-        <card class="barStyle" accent="${entity['jiraIssue'].accent!'grey'}" iconSrc="${entity['jiraIssue'].icon.url}">
+        <card class="barStyle" accent="tempo-bg-color--${entity['jiraIssue'].accent!'grey'}" iconSrc="${entity['jiraIssue'].icon.url}">
             <header>
                 <p>
                     <img src="${entity['jiraIssue'].issue.priority.iconUrl}" class="icon" />
