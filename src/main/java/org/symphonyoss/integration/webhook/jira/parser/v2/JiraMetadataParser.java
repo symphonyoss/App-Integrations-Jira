@@ -502,7 +502,10 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
       JsonNode item = items.get(i);
       String field = item.get(FIELD_PATH).asText();
       if (EPIC_LINK_PATH.equals(field)) {
-        return item.get(TOSTRING_PATH).asText();
+        JsonNode toStringNode = item.get(TOSTRING_PATH);
+        if (!toStringNode.isNull()) {
+          return toStringNode.asText();
+        }
       }
     }
 

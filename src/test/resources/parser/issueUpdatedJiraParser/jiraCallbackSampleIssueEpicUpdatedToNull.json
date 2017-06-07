@@ -274,8 +274,8 @@
         "fieldtype": "custom",
         "from": "10000",
         "fromString": "EPIC-123",
-        "to": "20000",
-        "toString": "EPIC-321"
+        "to": null,
+        "toString": null
       }
     ]
   }

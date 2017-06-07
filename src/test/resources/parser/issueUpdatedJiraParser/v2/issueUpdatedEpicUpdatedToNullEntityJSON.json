@@ -45,12 +45,6 @@
         "username": "integrationuser",
         "displayName": "Mock user"
       },
-      "epic": {
-        "type": "com.symphony.integration.jira.epic",
-        "version": "1.0",
-        "name": "EPIC-321",
-        "link": "https://jira.atlassian.com/browse/EPIC-321"
-      },
       "labels": [
         {
           "type": "com.symphony.integration.jira.label",

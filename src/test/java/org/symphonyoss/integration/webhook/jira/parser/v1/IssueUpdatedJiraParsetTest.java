@@ -56,8 +56,8 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
       "parser/issueUpdatedJiraParser/issueUpdatedEpicNullMessageML.xml";
   private static final String FILENAME =
       "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdated.json";
-  private static final String EPIC_FILENAME =
-      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueEpicUpdated.json";
+  private static final String EPIC_UPDATED_TO_NULL_FILENAME =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueEpicUpdatedToNull.json";
   public static final String ISSUE_UPDATED_MESSAGEML =
       "parser/issueUpdatedJiraParser/issueUpdatedMessageML.xml";
   public static final String ISSUE_UPDATED_UNASSIGNED_MESSAGEML =
@@ -141,7 +141,8 @@ public class IssueUpdatedJiraParsetTest extends JiraParserTest {
     ClassLoader classLoader = getClass().getClassLoader();
     Map<String, String> parameters = new HashMap<>();
 
-    JsonNode node = JsonUtils.readTree(classLoader.getResourceAsStream(EPIC_FILENAME));
+    JsonNode node =
+        JsonUtils.readTree(classLoader.getResourceAsStream(EPIC_UPDATED_TO_NULL_FILENAME));
 
     Message result = issueUpdated.parse(parameters, node);
 
