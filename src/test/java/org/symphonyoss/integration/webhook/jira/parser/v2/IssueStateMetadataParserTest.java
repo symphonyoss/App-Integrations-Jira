@@ -46,6 +46,9 @@ public class IssueStateMetadataParserTest extends JiraParserV2Test<IssueStateMet
   private static final String FILE_ISSUE_UPDATED_EPIC_UPDATED =
       "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueEpicUpdated.json";
 
+  private static final String FILE_ISSUE_UPDATED_EPIC_UPDATED_TO_NULL =
+      "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueEpicUpdatedToNull.json";
+
   private static final String FILE_ISSUE_UPDATED_EMAIL_WITH_SPACES =
       "parser/issueUpdatedJiraParser/jiraCallbackSampleEmailAddressWithSpace.json";
 
@@ -66,6 +69,9 @@ public class IssueStateMetadataParserTest extends JiraParserV2Test<IssueStateMet
 
   private static final String FILE_EXPECTED_ISSUE_UPDATED_EPIC_UPDATED =
       "parser/issueUpdatedJiraParser/v2/issueUpdatedEpicUpdatedEntityJSON.json";
+
+  private static final String FILE_EXPECTED_ISSUE_UPDATED_EPIC_UPDATED_TO_NULL =
+      "parser/issueUpdatedJiraParser/v2/issueUpdatedEpicUpdatedToNullEntityJSON.json";
 
   private static final String FILE_EXPECTED_ISSUE_UPDATED_EMAIL_WITH_SPACES =
       "parser/issueUpdatedJiraParser/v2/issueUpdatedEmailWithSpacesEntityJSON.json";
@@ -118,6 +124,13 @@ public class IssueStateMetadataParserTest extends JiraParserV2Test<IssueStateMet
   public void testIssueUpdatedEpicUpdated() throws IOException, JiraParserException {
     mockUserInfo();
     testParser(FILE_ISSUE_UPDATED_EPIC_UPDATED, FILE_EXPECTED_ISSUE_UPDATED_EPIC_UPDATED);
+  }
+
+  @Test
+  public void testIssueUpdatedEpicUpdatedToNull() throws IOException, JiraParserException {
+    mockUserInfo();
+    testParser(FILE_ISSUE_UPDATED_EPIC_UPDATED_TO_NULL,
+        FILE_EXPECTED_ISSUE_UPDATED_EPIC_UPDATED_TO_NULL);
   }
 
   @Test
