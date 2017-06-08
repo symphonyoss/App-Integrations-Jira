@@ -177,3 +177,29 @@ This is the EntityJSON that the JIRA integration generates after parsing, which 
 ##### Message rendered in Symphony
 
 ![Issue Created rendered](src/docs/sample/sample_issue_created_with_epic_rendered_v2.png)
+
+### Messages color mapping
+To give a better visual information, JIRA's messages have specific flair color (vertical bar on the left) according to the issue type, as follows:
+
+|       Issue Type        |    Color    |
+|:------------------------|:-----------:|
+|Bug                      |     Red     |
+|Incident                 |     Red     |
+|Support Issue            |     Red     |
+|Incident Severity 1      |     Red     |
+|||
+|Epic                     |    Purple   |
+|Incident Severity 4      |    Purple   |
+|Documentation            |    Purple   |
+|||
+|Story                    |    Green    |
+|New Feature              |    Green    |
+|Improvement              |    Green    |
+|Change Request           |    Green    |
+|||
+|Spike                    |    Orange   |
+|Problem                  |    Orange   |
+|Incident Severity 2      |    Orange   |
+|Incident Severity 3      |    Orange   |
+|||
+|Task                     |     Blue    |
