@@ -2,17 +2,17 @@
     <div class="entity" data-entity-id="jiraIssue">
         <card class="barStyle" accent="tempo-bg-color--${entity['jiraIssue'].accent!'gray'}" iconSrc="${entity['jiraIssue'].icon.url}">
             <header>
-                <p>
+                <div>
                     <img src="${entity['jiraIssue'].issue.priority.iconUrl}" class="icon" />
                     <a class="tempo-text-color--link" href="${entity['jiraIssue'].issue.url}">${entity['jiraIssue'].issue.key}</a>
                     <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.subject} - </span>
                     <span>${entity['jiraIssue'].user.displayName}</span>
                     <span class="tempo-text-color--green">${entity['jiraIssue'].issue.action}</span>
-                </p>
+                </div>
             </header>
             <body>
                 <div class="labelBackground badge">
-                    <p>
+                    <div>
                         <#if (entity['jiraIssue'].issue.description)??>
                             <span class="tempo-text-color--secondary">Description:</span>
                             <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.description}</span>
@@ -25,9 +25,9 @@
                         <#else>
                             <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.assignee.displayName}</span>
                         </#if>
-                    </p>
+                    </div>
                     <hr/>
-                    <p>
+                    <div>
                         <span class="tempo-text-color--secondary">Type:</span>
                         <img src="${entity['jiraIssue'].issue.issueType.iconUrl}" class="icon" />
                         <span class="tempo-text-color--normal">${entity['jiraIssue'].issue.issueType.name}</span>
@@ -54,7 +54,7 @@
                                 <span class="hashTag">#${label.text}</span>
                             </#list>
                         </#if>
-                    </p>
+                    </div>
                 </div>
             </body>
         </card>

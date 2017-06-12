@@ -2,21 +2,21 @@
     <div class="entity" data-entity-id="jiraIssueCommented">
         <card class="barStyle" accent="tempo-bg-color--${entity['jiraIssueCommented'].accent!'gray'}" iconSrc="${entity['jiraIssueCommented'].icon.url}">
             <header>
-                <p>
+                <div>
                     <img src="${entity['jiraIssueCommented'].issue.priority.iconUrl}" class="icon" />
                     <a class="tempo-text-color--link" href="${entity['jiraIssueCommented'].issue.url}">${entity['jiraIssueCommented'].issue.key}</a>
                     <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].issue.subject} - </span>
                     <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].user.displayName}</span>
                     <span class="tempo-text-color--green">${entity['jiraIssueCommented'].comment.action}</span>
-                </p>
+                </div>
             </header>
             <#if (entity['jiraIssueCommented'].comment.body)??>
                 <body>
                     <div class="labelBackground badge">
-                        <p>
+                        <div>
                             <span class="tempo-text-color--secondary">Comment:</span>
                             <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].comment.body}</span>
-                        </p>
+                        </div>
                     </div>
                 </body>
             </#if>
