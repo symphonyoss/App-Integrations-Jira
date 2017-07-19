@@ -107,7 +107,6 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
   }
 
   @Test
-  @Ignore("This is only valid when supporting mentions in the metadata")
   public void testWithMentions() throws IOException, JiraParserException {
     mockUserInfo();
     String integrationUser = "integrationuser";
