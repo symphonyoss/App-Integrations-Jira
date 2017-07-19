@@ -213,7 +213,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     JsonNode summaryNode = fieldsNode.path(SUMMARY_PATH);
 
     if (summaryNode != null) {
-      String summary = formatTextContent(summaryNode.toString());
+      String summary = formatTextContent(summaryNode.asText());
       ((ObjectNode) fieldsNode).put(SUMMARY_PATH, summary.toString());
     }
   }
