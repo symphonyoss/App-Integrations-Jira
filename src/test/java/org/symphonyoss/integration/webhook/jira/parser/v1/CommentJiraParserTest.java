@@ -280,7 +280,7 @@ public class CommentJiraParserTest extends JiraParserTest {
 
     String expected = SimpleFileUtils.readMessageMLFile(EXPECTED_USER_MENTION_MESSAGEML);
 
-     assertEquals(expected, actual.getMessage());
+    assertEquals(expected, actual.getMessage());
   }
 
   @Test
