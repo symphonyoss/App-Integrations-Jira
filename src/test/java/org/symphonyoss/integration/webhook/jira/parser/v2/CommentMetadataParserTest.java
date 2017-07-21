@@ -116,7 +116,7 @@ public class CommentMetadataParserTest extends JiraParserV2Test<CommentMetadataP
     user.setDisplayName("Misterious Guy");
     user.setUserName(integrationUser);
     user.setEmailAddress("test.user@test.com");
-    doReturn(user).when(userService).getUserByUserName(anyString(), eq(integrationUser));
+    doReturn(user).when(userService).getUserByUserName(MOCK_INTEGRATION_USER, integrationUser);
 
     testParser(FILE_COMMENT_ADDED_WITH_MENTIONS, FILE_EXPECTED_MENTIONS);
 

@@ -42,7 +42,7 @@ import java.util.Collections;
  */
 public abstract class JiraParserV2Test<T extends JiraMetadataParser> extends JiraParserTest {
 
-  private static final String MOCK_INTEGRATION_USER = "mockUser";
+  protected static final String MOCK_INTEGRATION_USER = "mockUser";
 
   private static final String MOCK_DISPLAY_NAME = "Mock user";
 
