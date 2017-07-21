@@ -123,6 +123,9 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   private static final String INTEGRATION_NAME = "jira";
   private static final String IMG_SUBPATH = "img";
   private static final String JIRA_LOGO_PNG = "jira_logo_rounded.png";
+  private static final String MENTION_MARKUP = "<mention email=\"%s\"/>";
+  public static final String BEGIN_MENTION = "[~";
+  public static final String END_MENTION = "]";
 
   private UserService userService;
   private IntegrationProperties integrationProperties;
@@ -210,8 +213,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     JsonNode summaryNode = fieldsNode.path(SUMMARY_PATH);
 
     if (summaryNode != null) {
-      SafeString summary = ParserUtils.escapeAndAddLineBreaks(summaryNode.asText());
-      summary.replaceLineBreaks();
+      String summary = formatTextContent(summaryNode.asText());
       ((ObjectNode) fieldsNode).put(SUMMARY_PATH, summary.toString());
     }
   }
@@ -368,20 +370,19 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    */
   protected String formatTextContent(String fieldContent) {
     if (StringUtils.isNotEmpty(fieldContent)) {
-      String finalDescription = ParserUtils.escapeAndAddLineBreaks(fieldContent).toString();
+      SafeString description = ParserUtils.escapeAndAddLineBreaks(fieldContent);
 
-      finalDescription = JiraParserUtils.stripJiraFormatting(finalDescription);
+      Map<String, User> usersToMention = determineUserMentions(description.toString());
+      if (usersToMention != null && !usersToMention.isEmpty()) {
+        for (Map.Entry<String, User> userToMention : usersToMention.entrySet()) {
+          User user = userToMention.getValue();
 
-      // FIXME: Uncomment me when soft mentions are supported on MessageML v2
-//      Map<String, User> usersToMention = determineUserMentions(safeDescription.toString());
-//      if (usersToMention != null && !usersToMention.isEmpty()) {
-//        for (Map.Entry<String, User> userToMention : usersToMention.entrySet()) {
-//          User user = userToMention.getValue();
-//
-//          safeDescription.safeReplace(new SafeString(userToMention.getKey()),
-//              ParserUtils.presentationFormat(MENTION_MARKUP, user.getUsername()));
-//        }
-//      }
+          description.safeReplace(new SafeString(BEGIN_MENTION + userToMention.getKey() + END_MENTION),
+              ParserUtils.presentationFormat(MENTION_MARKUP, user.getEmailAddress()));
+        }
+      }
+
+      String finalDescription = JiraParserUtils.stripJiraFormatting(description.toString());
 
       return ParserUtils.markupLinks(finalDescription);
 

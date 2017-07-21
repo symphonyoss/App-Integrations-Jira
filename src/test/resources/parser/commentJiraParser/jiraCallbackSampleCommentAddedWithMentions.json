@@ -129,7 +129,7 @@
       "attachment": [],
       "customfield_10009": "com.atlassian.servicedesk.plugins.approvals.internal.customfield.ApprovalsCFValue@ace1b1",
       "aggregatetimeestimate": null,
-      "summary": "Issue Test",
+      "summary": "Issue [~integrationuser] Test",
       "creator": {
         "self": "https://jira.atlassian.com/rest/api/2/user?username=robso",
         "name": "robso",
