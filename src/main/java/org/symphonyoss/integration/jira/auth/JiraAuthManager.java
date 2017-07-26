@@ -109,10 +109,10 @@ public class JiraAuthManager {
 
     if (validatePK(pk)) {
       return pk;
-    } else {
-      LOGGER.warn("Application public key is invalid, please check the file {}", filename);
-      return null;
     }
+
+    LOGGER.warn("Application public key is invalid, please check the file {}", filename);
+    return null;
   }
 
   /**
@@ -146,10 +146,10 @@ public class JiraAuthManager {
       if (Files.exists(pubKeyPath, LinkOption.NOFOLLOW_LINKS)) {
         byte[] pubKeyBytes = Files.readAllBytes(pubKeyPath);
         return new String(pubKeyBytes);
-      } else {
-        LOGGER.error("Cannot read the public key. Make sure the file {} already exists",
-            pubKeyPath.toAbsolutePath());
       }
+
+      LOGGER.error("Cannot read the public key. Make sure the file {} already exists",
+          pubKeyPath.toAbsolutePath());
     } catch (IOException e) {
       LOGGER.error("Cannot read the file " + fileName + ". Please check the file permissions", e);
     } catch (CertificateNotFoundException e) {
