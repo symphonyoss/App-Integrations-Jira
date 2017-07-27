@@ -16,6 +16,9 @@
 
 package org.symphonyoss.integration.jira.authorization.oauth.v1;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 
 import java.net.MalformedURLException;
@@ -25,12 +28,15 @@ import java.net.URL;
  * Implementation of the abstract class {@link OAuth1Provider} by Jira.
  * Created by campidelli on 26-jul-17.
  */
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class JiraOAuth1Provider extends OAuth1Provider {
 
   private static final String REQUEST_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
   private static final String AUTHORIZE_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
   private static final String REQUEST_ACCESS_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
 
+  private boolean configured;
   private String consumerKey;
   private String privateKey;
   private URL baseUrl;
@@ -39,7 +45,17 @@ public class JiraOAuth1Provider extends OAuth1Provider {
   private URL authorizeTemporaryTokenUrl;
   private URL requestAccessTokenUrl;
 
-  public JiraOAuth1Provider(String consumerKey, String privateKey, String baseUrl,
+  /**
+   * Initialize this provider with the required parameters. This method MUST be called before any
+   * other operational method otherwise they will fail.
+   * @param consumerKey The consumer key used to configure the Application Link on JIRA.
+   * @param privateKey The private key that is pair of the public key used to configure the
+   * Application Link on JIRA.
+   * @param baseUrl The JIRA instance base URL.
+   * @param authorizationCallbackUrl The URL to be called after a JIRA user authorize (or not) the
+   * usage of JIRA's APIs by us.
+   */
+  public void configure(String consumerKey, String privateKey, String baseUrl,
       String authorizationCallbackUrl) {
 
     this.consumerKey = consumerKey;
@@ -60,6 +76,12 @@ public class JiraOAuth1Provider extends OAuth1Provider {
       throw new JiraOAuth1Exception("Invalid authorization callback URL.",
           e, "Inform a valid authorization callback URL.");
     }
+    this.configured = true;
+  }
+
+  @Override
+  protected boolean isConfigured() {
+    return configured;
   }
 
   @Override

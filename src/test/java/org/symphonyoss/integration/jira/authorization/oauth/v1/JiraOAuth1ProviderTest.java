@@ -18,6 +18,7 @@ package org.symphonyoss.integration.jira.authorization.oauth.v1;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
@@ -28,9 +29,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class JiraOAuth1ProviderTest {
 
+  @InjectMocks
+  JiraOAuth1Provider authProvider;
+
   @Test
   public void test() {
-    JiraOAuth1Provider authProvider = new JiraOAuth1Provider(
-        "a", "b", "http://jira.com/", "http://symphony.com/callback");
+    authProvider.configure("a", "b", "http://jira.com/", "http://symphony.com/callback");
   }
 }
