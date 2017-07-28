@@ -31,6 +31,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
@@ -58,6 +59,7 @@ import java.util.UUID;
 @SpringBootTest
 @EnableConfigurationProperties
 @ContextConfiguration(classes = {IntegrationProperties.class, JiraAuthManager.class})
+@ActiveProfiles("jira")
 public class JiraAuthManagerTest {
 
   private static final String JIRA_APP_TYPE = "jiraWebHookIntegration";
@@ -86,7 +88,7 @@ public class JiraAuthManagerTest {
 
   private static final IntegrationSettings SETTINGS = new IntegrationSettings();
 
-  @SpyBean
+  @Autowired
   private IntegrationProperties properties;
 
   @MockBean
