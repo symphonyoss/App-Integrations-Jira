@@ -16,10 +16,12 @@
 
 package org.symphonyoss.integration.jira.authorization.oauth.v1;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
+import org.symphonyoss.integration.logging.LogMessageSource;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -33,8 +35,14 @@ import java.net.URL;
 public class JiraOAuth1Provider extends OAuth1Provider {
 
   private static final String REQUEST_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
-  private static final String AUTHORIZE_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
+  private static final String AUTHORIZE_TEMPORARY_TOKEN_PATH =
+      "/plugins/servlet/oauth/request-token";
   private static final String REQUEST_ACCESS_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
+
+  private static final String INVALID_BASE_URL = "integration.jira.url.base.invalid";
+  private static final String INVALID_BASE_URL_SOLUTION = INVALID_BASE_URL + ".solution";
+  private static final String INVALID_CALLBACK_URL = "integration.jira.url.callback.invalid";
+  private static final String INVALID_CALLBACK_URL_SOLUTION = INVALID_BASE_URL + ".solution";
 
   private boolean configured;
   private String consumerKey;
@@ -44,6 +52,9 @@ public class JiraOAuth1Provider extends OAuth1Provider {
   private URL requestTemporaryTokenUrl;
   private URL authorizeTemporaryTokenUrl;
   private URL requestAccessTokenUrl;
+
+  @Autowired
+  private LogMessageSource logMessage;
 
   /**
    * Initialize this provider with the required parameters. This method MUST be called before any
@@ -67,14 +78,15 @@ public class JiraOAuth1Provider extends OAuth1Provider {
       authorizeTemporaryTokenUrl = new URL(this.baseUrl, AUTHORIZE_TEMPORARY_TOKEN_PATH);
       requestAccessTokenUrl = new URL(this.baseUrl, REQUEST_ACCESS_TOKEN_PATH);
     } catch (MalformedURLException e) {
-      throw new JiraOAuth1Exception("Invalid base URL.", e, "Inform a valid base URL.");
+      throw new JiraOAuth1Exception(logMessage.getMessage(INVALID_BASE_URL),
+          e, logMessage.getMessage(INVALID_BASE_URL_SOLUTION));
     }
 
     try {
       this.authorizationCallbackUrl = new URL(authorizationCallbackUrl);
     } catch (MalformedURLException e) {
-      throw new JiraOAuth1Exception("Invalid authorization callback URL.",
-          e, "Inform a valid authorization callback URL.");
+      throw new JiraOAuth1Exception(logMessage.getMessage(INVALID_CALLBACK_URL),
+          e, logMessage.getMessage(INVALID_CALLBACK_URL_SOLUTION));
     }
     this.configured = true;
   }
