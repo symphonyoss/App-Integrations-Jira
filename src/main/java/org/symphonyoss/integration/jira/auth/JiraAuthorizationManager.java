@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
-import org.symphonyoss.integration.model.yaml.AppAuthenticationModel;
+import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.yaml.Application;
@@ -49,9 +49,9 @@ import java.security.spec.X509EncodedKeySpec;
  * Created by rsanchez on 24/07/17.
  */
 @Component
-public class JiraAuthManager {
+public class JiraAuthorizationManager {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(JiraAuthManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(JiraAuthorizationManager.class);
 
   private static final String COMPONENT = "JIRA Authentication Manager";
 
@@ -72,16 +72,16 @@ public class JiraAuthManager {
   private IntegrationUtils utils;
 
   /**
-   * Provide the authentication properties from JIRA application.
+   * Provide the authorization properties for JIRA application.
    *
    * @param settings Integration settings
-   * @return Authentication properties
+   * @return authorization properties
    */
-  public AppAuthenticationModel getAuthentcationModel(IntegrationSettings settings) {
+  public AppAuthorizationModel getAuthorizationModel(IntegrationSettings settings) {
     String appType = settings.getType();
     Application application = properties.getApplication(appType);
 
-    AppAuthenticationModel auth = application.getAuth();
+    AppAuthorizationModel auth = application.getAuthorization();
 
     String publicKey = getPublicKey(auth, application);
     auth.getProperties().put(PUBLIC_KEY, publicKey);
@@ -92,11 +92,11 @@ public class JiraAuthManager {
   /**
    * Read the application public key configured on the filesystem and validate it.
    *
-   * @param authModel Authentication properties
+   * @param authModel authorization properties
    * @param application Application settings
    * @return Application public key
    */
-  private String getPublicKey(AppAuthenticationModel authModel, Application application) {
+  private String getPublicKey(AppAuthorizationModel authModel, Application application) {
     String filename = getPublicKeyFilename(authModel, application);
     String publicKey = readPublicKey(filename);
 
@@ -118,11 +118,11 @@ public class JiraAuthManager {
   /**
    * Retrieve the application public key filename.
    *
-   * @param authModel Authentication properties
+   * @param authModel authorization properties
    * @param application Application settings
    * @return Application public key filename
    */
-  private String getPublicKeyFilename(AppAuthenticationModel authModel, Application application) {
+  private String getPublicKeyFilename(AppAuthorizationModel authModel, Application application) {
     String fileName = (String) authModel.getProperties().get(PUBLIC_KEY_FILENAME);
 
     if (StringUtils.isEmpty(fileName)) {
