@@ -18,12 +18,14 @@ package org.symphonyoss.integration.jira.webhook;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.jira.auth.JiraAuthManager;
+import org.symphonyoss.integration.authorization.UserAuthorizationData;
+import org.symphonyoss.integration.exception.authentication.UnauthorizedUserException;
+import org.symphonyoss.integration.jira.auth.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
-import org.symphonyoss.integration.model.yaml.AppAuthenticationModel;
+import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.webhook.WebHookIntegration;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
@@ -54,7 +56,7 @@ public class JiraWebHookIntegration extends WebHookIntegration {
   private List<JiraParserFactory> factories;
 
   @Autowired
-  private JiraAuthManager authManager;
+  private JiraAuthorizationManager authManager;
 
   /**
    * Callback to update the integration settings in the parser classes.
@@ -92,14 +94,26 @@ public class JiraWebHookIntegration extends WebHookIntegration {
   }
 
   @Override
-  public AppAuthenticationModel getAuthenticationModel() {
+  public AppAuthorizationModel getAuthorizationModel() {
     IntegrationSettings settings = getSettings();
 
     if (settings != null) {
-      return authManager.getAuthentcationModel(settings);
+      return authManager.getAuthorizationModel(settings);
     }
 
     return null;
+  }
+
+  @Override
+  public void verifyUserAuthorizationData(UserAuthorizationData authData) {
+    Object data = authData.getData();
+
+    if (data == null) {
+      // TODO APP-1217 Start OAuth Dance (request token)
+      throw new UnauthorizedUserException("User need to start OAuth1 authorization process");
+    }
+
+    // TODO APP-1217 Check if those authorization tokens are valid.
   }
 
 }

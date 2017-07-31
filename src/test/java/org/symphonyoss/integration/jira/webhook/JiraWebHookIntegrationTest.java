@@ -37,7 +37,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.entity.model.User;
-import org.symphonyoss.integration.jira.auth.JiraAuthManager;
+import org.symphonyoss.integration.jira.auth.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.jira.webhook.parser.JiraWebHookParserAdapter;
@@ -48,7 +48,7 @@ import org.symphonyoss.integration.jira.webhook.parser.v1.IssueUpdatedJiraParser
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
-import org.symphonyoss.integration.model.yaml.AppAuthenticationModel;
+import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
@@ -103,7 +103,7 @@ public class JiraWebHookIntegrationTest {
   private JiraParserResolver parserResolver;
 
   @Mock
-  private JiraAuthManager authManager;
+  private JiraAuthorizationManager authManager;
 
   @InjectMocks
   private JiraWebHookIntegration jiraWhi = new JiraWebHookIntegration();
@@ -313,7 +313,7 @@ public class JiraWebHookIntegrationTest {
 
   @Test
   public void testAuthModelNullSettings() {
-    AppAuthenticationModel authenticationModel = jiraWhi.getAuthenticationModel();
+    AppAuthorizationModel authenticationModel = jiraWhi.getAuthorizationModel();
     assertNull(authenticationModel);
   }
 
@@ -322,10 +322,10 @@ public class JiraWebHookIntegrationTest {
     IntegrationSettings settings = new IntegrationSettings();
     jiraWhi.onConfigChange(settings);
 
-    AppAuthenticationModel authenticationModel = new AppAuthenticationModel();
-    doReturn(authenticationModel).when(authManager).getAuthentcationModel(settings);
+    AppAuthorizationModel authenticationModel = new AppAuthorizationModel();
+    doReturn(authenticationModel).when(authManager).getAuthorizationModel(settings);
 
-    AppAuthenticationModel result = jiraWhi.getAuthenticationModel();
+    AppAuthorizationModel result = jiraWhi.getAuthorizationModel();
     assertEquals(authenticationModel, result);
   }
 

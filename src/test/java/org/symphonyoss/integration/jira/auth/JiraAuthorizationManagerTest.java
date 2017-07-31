@@ -20,8 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.symphonyoss.integration.jira.auth.JiraAuthManager.PUBLIC_KEY;
-import static org.symphonyoss.integration.jira.auth.JiraAuthManager.PUBLIC_KEY_FILENAME;
+import static org.symphonyoss.integration.jira.auth.JiraAuthorizationManager.PUBLIC_KEY;
+import static org.symphonyoss.integration.jira.auth.JiraAuthorizationManager.PUBLIC_KEY_FILENAME;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,13 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
-import org.symphonyoss.integration.model.yaml.AppAuthenticationModel;
+import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.model.yaml.Application;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.utils.IntegrationUtils;
@@ -51,16 +50,16 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Unit tests for {@link JiraAuthManager}
+ * Unit tests for {@link JiraAuthorizationManager}
  *
  * Created by rsanchez on 25/07/17.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableConfigurationProperties
-@ContextConfiguration(classes = {IntegrationProperties.class, JiraAuthManager.class})
+@ContextConfiguration(classes = {IntegrationProperties.class, JiraAuthorizationManager.class})
 @ActiveProfiles("jira")
-public class JiraAuthManagerTest {
+public class JiraAuthorizationManagerTest {
 
   private static final String JIRA_APP_TYPE = "jiraWebHookIntegration";
 
@@ -95,7 +94,7 @@ public class JiraAuthManagerTest {
   private IntegrationUtils utils;
 
   @Autowired
-  private JiraAuthManager authManager;
+  private JiraAuthorizationManager authManager;
 
   @BeforeClass
   public static void startup() {
@@ -106,8 +105,8 @@ public class JiraAuthManagerTest {
   public void testCertificateNotFound() {
     doThrow(CertificateNotFoundException.class).when(utils).getCertsDirectory();
 
-    AppAuthenticationModel result = authManager.getAuthentcationModel(SETTINGS);
-    validateAppAuthenticationModel(result, DEFAULT_IB_PORT);
+    AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
+    validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
 
     assertNull(result.getProperties().get(PUBLIC_KEY));
   }
@@ -116,8 +115,8 @@ public class JiraAuthManagerTest {
   public void testIOException() {
     doThrow(IOException.class).when(utils).getCertsDirectory();
 
-    AppAuthenticationModel result = authManager.getAuthentcationModel(SETTINGS);
-    validateAppAuthenticationModel(result, DEFAULT_IB_PORT);
+    AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
+    validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
 
     assertNull(result.getProperties().get(PUBLIC_KEY));
   }
@@ -128,14 +127,14 @@ public class JiraAuthManagerTest {
     doReturn(tmpDir).when(utils).getCertsDirectory();
 
     Application application = properties.getApplication(SETTINGS.getType());
-    application.getAuth().getProperties().put(PUBLIC_KEY_FILENAME, UUID.randomUUID().toString());
+    application.getAuthorization().getProperties().put(PUBLIC_KEY_FILENAME, UUID.randomUUID().toString());
 
-    AppAuthenticationModel result = authManager.getAuthentcationModel(SETTINGS);
-    validateAppAuthenticationModel(result, DEFAULT_IB_PORT);
+    AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
+    validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
 
     assertNull(result.getProperties().get(PUBLIC_KEY));
 
-    application.getAuth().getProperties().remove(PUBLIC_KEY_FILENAME);
+    application.getAuthorization().getProperties().remove(PUBLIC_KEY_FILENAME);
   }
 
   @Test
@@ -147,31 +146,31 @@ public class JiraAuthManagerTest {
     doReturn(certsDirectory).when(utils).getCertsDirectory();
 
     Application application = properties.getApplication(SETTINGS.getType());
-    application.getAuth().getProperties().put(PUBLIC_KEY_FILENAME, INVALID_PUBLIC_KEY);
+    application.getAuthorization().getProperties().put(PUBLIC_KEY_FILENAME, INVALID_PUBLIC_KEY);
 
-    AppAuthenticationModel result = authManager.getAuthentcationModel(SETTINGS);
-    validateAppAuthenticationModel(result, DEFAULT_IB_PORT);
+    AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
+    validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
 
     assertNull(result.getProperties().get(PUBLIC_KEY));
 
-    application.getAuth().getProperties().remove(PUBLIC_KEY_FILENAME);
+    application.getAuthorization().getProperties().remove(PUBLIC_KEY_FILENAME);
   }
 
   @Test
-  public void testAuthModel() throws URISyntaxException {
+  public void testAuthorizationModel() throws URISyntaxException {
     URL pkURL = getClass().getClassLoader().getResource(MOCK_PUBLIC_KEY);
     Path pkPath = Paths.get(pkURL.toURI());
 
     String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
     doReturn(certsDirectory).when(utils).getCertsDirectory();
 
-    AppAuthenticationModel result = authManager.getAuthentcationModel(SETTINGS);
-    validateAppAuthenticationModel(result, DEFAULT_IB_PORT);
+    AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
+    validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
 
     assertEquals(EXPECTED_PUBLIC_KEY, result.getProperties().get(PUBLIC_KEY));
   }
 
-  private void validateAppAuthenticationModel(AppAuthenticationModel model, int port) {
+  private void validateAppAuthorizationModel(AppAuthorizationModel model, int port) {
     assertEquals(DEFAULT_APP_NAME, model.getApplicationName());
 
     String applicationURL = String.format("https://test.symphony.com:%d/integration", port);
