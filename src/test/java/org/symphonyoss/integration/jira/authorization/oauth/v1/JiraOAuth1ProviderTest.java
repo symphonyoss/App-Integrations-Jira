@@ -35,10 +35,13 @@ import org.symphonyoss.integration.logging.LogMessageSource;
 @RunWith(MockitoJUnitRunner.class)
 public class JiraOAuth1ProviderTest {
 
-  static final String BASE_URL = "http://jira.atlassian.com";
-  static final String CALLBACK_URL = "http://myapplication.com/callback";
-  static final String CONSUMER_KEY = "OauthKey";
-  static final String PRIVATE_KEY = "MIICeQIBADANBgkqhkiG9w0BAQEFAASCAmMwggJfAgEAAoGBAN8wcS"
+  private static final String BASE_URL = "http://jira.atlassian.com";
+  private static final String REQUEST_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
+  private static final String AUTHORIZE_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/authorize";
+  private static final String REQUEST_ACCESS_TOKEN_PATH = "/plugins/servlet/oauth/access-token";
+  private static final String CALLBACK_URL = "http://myapplication.com/callback";
+  private static final String CONSUMER_KEY = "OauthKey";
+  private static final String PRIVATE_KEY = "MIICeQIBADANBgkqhkiG9w0BAQEFAASCAmMwggJfAgEAAoGBAN8wcS"
       + "F5AE7sL30p2mnM0X3T1OZy4BDfxucZTYdYmg99vqv6uVQyjc4zKOHRiwnCh2GwatT4jBfoQfWx6VUmvcxKHuZwcVCH"
       + "F/u/Vw85wsMDpD4pBglpX1GsFlfSQe1E115X7mHD7tHlkQHvtVplf5BmYxM6G2EljBmiRRQq4OLbAgMBAAECgYEAxu"
       + "54h6tAWRgvo9IgOVk0CIE9LEKL8L5knStybQbOGqyrvMJ3WdLNjlMPR2fsE8DtxmbmcfkvdUexMvtmzF0BoWDvJgqn"
@@ -69,9 +72,12 @@ public class JiraOAuth1ProviderTest {
     assertEquals(CONSUMER_KEY, authProvider.getConsumerKey());
     assertEquals(PRIVATE_KEY, authProvider.getPrivateKey());
     assertEquals(CALLBACK_URL, authProvider.getAuthorizationCallbackUrl().toString());
-    assertTrue(authProvider.getRequestTemporaryTokenUrl().toString().contains(BASE_URL));
-    assertTrue(authProvider.getAuthorizeTemporaryTokenUrl().toString().contains(BASE_URL));
-    assertTrue(authProvider.getRequestAccessTokenUrl().toString().contains(BASE_URL));
+    assertEquals(BASE_URL + REQUEST_TEMPORARY_TOKEN_PATH,
+        authProvider.getRequestTemporaryTokenUrl().toString());
+    assertEquals(BASE_URL + AUTHORIZE_TEMPORARY_TOKEN_PATH,
+        authProvider.getAuthorizeTemporaryTokenUrl().toString());
+    assertEquals(BASE_URL + REQUEST_ACCESS_TOKEN_PATH,
+        authProvider.getRequestAccessTokenUrl().toString());
   }
 
   @Test(expected = JiraOAuth1Exception.class)

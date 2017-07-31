@@ -35,9 +35,8 @@ import java.net.URL;
 public class JiraOAuth1Provider extends OAuth1Provider {
 
   private static final String REQUEST_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
-  private static final String AUTHORIZE_TEMPORARY_TOKEN_PATH =
-      "/plugins/servlet/oauth/request-token";
-  private static final String REQUEST_ACCESS_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
+  private static final String AUTHORIZE_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/authorize";
+  private static final String REQUEST_ACCESS_TOKEN_PATH = "/plugins/servlet/oauth/access-token";
 
   private static final String INVALID_BASE_URL = "integration.jira.url.base.invalid";
   private static final String INVALID_BASE_URL_SOLUTION = INVALID_BASE_URL + ".solution";
@@ -78,14 +77,15 @@ public class JiraOAuth1Provider extends OAuth1Provider {
       authorizeTemporaryTokenUrl = new URL(this.baseUrl, AUTHORIZE_TEMPORARY_TOKEN_PATH);
       requestAccessTokenUrl = new URL(this.baseUrl, REQUEST_ACCESS_TOKEN_PATH);
     } catch (MalformedURLException e) {
-      throw new JiraOAuth1Exception(logMessage.getMessage(INVALID_BASE_URL),
+      throw new JiraOAuth1Exception(logMessage.getMessage(INVALID_BASE_URL, baseUrl),
           e, logMessage.getMessage(INVALID_BASE_URL_SOLUTION));
     }
 
     try {
       this.authorizationCallbackUrl = new URL(authorizationCallbackUrl);
     } catch (MalformedURLException e) {
-      throw new JiraOAuth1Exception(logMessage.getMessage(INVALID_CALLBACK_URL),
+      throw new JiraOAuth1Exception(
+          logMessage.getMessage(INVALID_CALLBACK_URL, authorizationCallbackUrl),
           e, logMessage.getMessage(INVALID_CALLBACK_URL_SOLUTION));
     }
     this.configured = true;
