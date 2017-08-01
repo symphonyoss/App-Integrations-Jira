@@ -16,11 +16,14 @@
 
 package org.symphonyoss.integration.jira.webhook;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.authorization.UserAuthorizationData;
-import org.symphonyoss.integration.exception.authentication.UnauthorizedUserException;
-import org.symphonyoss.integration.jira.auth.JiraAuthorizationManager;
+import org.symphonyoss.integration.authorization.AuthorizationException;
+import org.symphonyoss.integration.authorization.AuthorizationPayload;
+import org.symphonyoss.integration.authorization.AuthorizedIntegration;
+import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
@@ -47,7 +50,7 @@ import javax.ws.rs.core.MediaType;
  * Created by Milton Quilzini on 04/05/16.
  */
 @Component
-public class JiraWebHookIntegration extends WebHookIntegration {
+public class JiraWebHookIntegration extends WebHookIntegration implements AuthorizedIntegration {
 
   @Autowired
   private JiraParserResolver parserResolver;
@@ -96,25 +99,48 @@ public class JiraWebHookIntegration extends WebHookIntegration {
   @Override
   public AppAuthorizationModel getAuthorizationModel() {
     IntegrationSettings settings = getSettings();
-
     if (settings != null) {
       return authManager.getAuthorizationModel(settings);
     }
-
     return null;
   }
 
   @Override
-  public void verifyUserAuthorizationData(UserAuthorizationData authData) {
-    Object data = authData.getData();
-
-    if (data == null) {
-      // TODO APP-1217 Start OAuth Dance (request token)
-      throw new UnauthorizedUserException("User need to start OAuth1 authorization process");
+  public boolean isUserAuthorized(String url, Long userId) throws AuthorizationException {
+    IntegrationSettings settings = getSettings();
+    if (settings != null) {
+      return authManager.isUserAuthorized(settings, url, userId);
     }
-
-    // TODO APP-1217 Check if those authorization tokens are valid.
+    return false;
   }
 
+  @Override
+  public String getAuthorizationUrl(String url, Long userId) throws AuthorizationException {
+    IntegrationSettings settings = getSettings();
+    if (settings != null) {
+      return authManager.getAuthorizationUrl(settings, url, userId);
+    }
+    return null;
+  }
+
+  @Override
+  public void authorize(AuthorizationPayload authorizationPayload) throws AuthorizationException {
+    String temporaryToken = authorizationPayload.getParameters().get("oauth_token");
+    String verificationCode = authorizationPayload.getParameters().get("oauth_verifier");
+
+    if (StringUtils.isBlank(temporaryToken) || StringUtils.isBlank(verificationCode)) {
+      throw new JiraOAuth1Exception("Insufficient parameters.",
+          "Both parameters 'oauth_token' and 'oauth_verifier' must be informed.");
+    }
+
+    IntegrationSettings settings = getSettings();
+    if (settings == null) {
+      throw new JiraOAuth1Exception("Integration settings not found.",
+          "Check the parameters used to load the integration settings file.");
+    }
+
+    String configurationId = settings.getConfigurationId();
+    authManager.authorizeTemporaryToken(settings, temporaryToken, verificationCode);
+  }
 }
 

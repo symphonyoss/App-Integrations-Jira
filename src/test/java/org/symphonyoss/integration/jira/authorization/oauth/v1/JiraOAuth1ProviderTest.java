@@ -59,7 +59,7 @@ public class JiraOAuth1ProviderTest {
   private JiraOAuth1Provider authProvider;
 
   @Test
-  public void testConfigure() {
+  public void testConfigure() throws JiraOAuth1Exception {
     assertNull(authProvider.getConsumerKey());
     assertNull(authProvider.getPrivateKey());
     assertNull(authProvider.getAuthorizationCallbackUrl());
@@ -81,12 +81,12 @@ public class JiraOAuth1ProviderTest {
   }
 
   @Test(expected = JiraOAuth1Exception.class)
-  public void testConfigureMalformedBaseURL() {
+  public void testConfigureMalformedBaseURL() throws JiraOAuth1Exception {
     authProvider.configure(CONSUMER_KEY, PRIVATE_KEY, "?", CALLBACK_URL);
   }
 
   @Test(expected = JiraOAuth1Exception.class)
-  public void testConfigureMalformedCallbackURL() {
+  public void testConfigureMalformedCallbackURL() throws JiraOAuth1Exception {
     authProvider.configure(CONSUMER_KEY, PRIVATE_KEY, BASE_URL, "?");
   }
 }

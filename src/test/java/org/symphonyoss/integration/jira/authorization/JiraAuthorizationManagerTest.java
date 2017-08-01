@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.jira.auth;
+package org.symphonyoss.integration.jira.authorization;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.symphonyoss.integration.jira.auth.JiraAuthorizationManager.PUBLIC_KEY;
-import static org.symphonyoss.integration.jira.auth.JiraAuthorizationManager.PUBLIC_KEY_FILENAME;
+import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager.PUBLIC_KEY;
+import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager
+    .PUBLIC_KEY_FILENAME;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.model.yaml.Application;

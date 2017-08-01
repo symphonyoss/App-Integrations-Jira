@@ -37,7 +37,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.entity.model.User;
-import org.symphonyoss.integration.jira.auth.JiraAuthorizationManager;
+import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.jira.webhook.parser.JiraWebHookParserAdapter;
