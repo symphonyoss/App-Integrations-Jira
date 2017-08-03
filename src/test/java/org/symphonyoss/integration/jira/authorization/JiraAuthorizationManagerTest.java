@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -66,6 +67,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -224,6 +227,55 @@ public class JiraAuthorizationManagerTest {
         SETTINGS.getConfigurationId(), MOCK_URL, MOCK_USER);
 
     authManager.isUserAuthorized(SETTINGS, MOCK_URL, MOCK_USER);
+  }
+
+  @Test
+  public void testGetAuthorizationUrl() throws AuthorizationException, URISyntaxException {
+    JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN);
+    UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
+
+    Application application = properties.getApplication(SETTINGS.getType());
+    application.getAuthorization().getProperties().put(PRIVATE_KEY_FILENAME, MOCK_PRIVATE_KEY);
+
+    URL pkURL = getClass().getClassLoader().getResource(MOCK_PRIVATE_KEY);
+    Path pkPath = Paths.get(pkURL.toURI());
+
+    String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
+    doReturn(certsDirectory).when(utils).getCertsDirectory();
+
+    doReturn(privateKey).when(oAuthRsaSignerFactory).getPrivateKey(anyString());
+
+    doReturn(MOCK_URL).when(jiraOAuth1Provider).requestAuthorizationUrl(anyString());
+
+    String url = authManager.getAuthorizationUrl(SETTINGS, MOCK_URL, MOCK_USER);
+
+    assertEquals(MOCK_URL, url);
+  }
+
+  @Test
+  public void testAuthorizeTemporaryToken() throws AuthorizationException, URISyntaxException {
+    JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN);
+    UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
+
+    Application application = properties.getApplication(SETTINGS.getType());
+    application.getAuthorization().getProperties().put(PRIVATE_KEY_FILENAME, MOCK_PRIVATE_KEY);
+
+    URL pkURL = getClass().getClassLoader().getResource(MOCK_PRIVATE_KEY);
+    Path pkPath = Paths.get(pkURL.toURI());
+
+    String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
+    doReturn(certsDirectory).when(utils).getCertsDirectory();
+
+    doReturn(privateKey).when(oAuthRsaSignerFactory).getPrivateKey(anyString());
+
+    List<UserAuthorizationData> listUserData = new ArrayList<>();
+    JiraOAuth1Data jiraData = new JiraOAuth1Data(null);
+    jiraData.setAccessToken(MOCK_TOKEN);
+    jiraData.setTemporaryToken(MOCK_TOKEN);
+    listUserData.add(new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraData));
+    doReturn(listUserData).when(authRepoService).search(anyString(), anyMap());
+
+    authManager.authorizeTemporaryToken(SETTINGS, MOCK_TOKEN, null);
   }
 
   @Test
