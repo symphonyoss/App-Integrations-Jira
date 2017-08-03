@@ -20,22 +20,20 @@ import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpStatusCodes;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.net.util.Base64;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
-import org.symphonyoss.integration.authorization.AuthorizationService;
+import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
 import org.symphonyoss.integration.authorization.oauth.OAuthRsaSignerFactory;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
-import org.symphonyoss.integration.exception.RemoteApiException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
+import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
@@ -50,12 +48,8 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +71,7 @@ public class JiraAuthorizationManager {
 
   public static final String PRIVATE_KEY_FILENAME = "privateKeyFilename";
 
-  public static final String PRIVATE_KEY_FILENAME_TEMPLATE = "%s_app_pri.pcks8";
+  public static final String PRIVATE_KEY_FILENAME_TEMPLATE = "%s_app_prv.pcks8";
 
   public static final String PUBLIC_KEY_FILENAME = "publicKeyFilename";
 
@@ -95,7 +89,10 @@ public class JiraAuthorizationManager {
 
   private static final String PRIVATE_KEY_SUFFIX = "-----END PRIVATE KEY-----\n";
 
-  private static final String AUTH_CALLBACK_PATH = "/v1/application/%s/authorization/callback";
+  private static final String AUTH_CALLBACK_PATH = "/v1/application/%s/authorization/authorize";
+
+  @Autowired
+  private LogMessageSource logMessage;
 
   @Autowired
   private IntegrationProperties properties;
@@ -110,7 +107,7 @@ public class JiraAuthorizationManager {
   private OAuthRsaSignerFactory oAuthRsaSignerFactory;
 
   @Autowired
-  private AuthorizationService authorizationService;
+  private AuthorizationRepositoryService authRepoService;
 
   /**
    * Provide the authorization properties for JIRA application.
@@ -155,7 +152,7 @@ public class JiraAuthorizationManager {
       }
     } catch (OAuth1Exception e) {
       throw new IntegrationRuntimeException(COMPONENT,
-          "Unexpected error when validate the application public key", e);
+          logMessage.getMessage("integration.jira.public.key.validation"), e);
     }
 
     LOGGER.warn("Application public key is invalid, please check the file {}", filename);
@@ -205,7 +202,7 @@ public class JiraAuthorizationManager {
       }
     } catch (OAuth1Exception e) {
       throw new IntegrationRuntimeException(COMPONENT,
-          "Unexpected error when validate the application private key", e);
+          logMessage.getMessage("integration.jira.private.key.validation"), e);
     }
 
     LOGGER.warn("Application private key is invalid, please check the file {}", filename);
@@ -256,15 +253,27 @@ public class JiraAuthorizationManager {
     return null;
   }
 
+  /**
+   * Build and return a callback URL to be used when constructing the JiraOauth1Provider.
+   * @param settings Jira integration settings.
+   * @return Built URL.
+   */
   private String getCallbackUrl(IntegrationSettings settings) {
     String callbackUrl = String.format(AUTH_CALLBACK_PATH, settings.getConfigurationId());
     return properties.getSymphonyUrl() + callbackUrl;
   }
 
-
+  /**
+   * Verify if the passed user has authorized us to perform Jira API calls on behalf of him/her.
+   * @param settings Jira integration settings.
+   * @param url Jira base URL.
+   * @param userId Symphony user ID.
+   * @return <code>true</code> If the passed user has authorized the access.
+   * @throws AuthorizationException Thrown in case of error.
+   */
   public boolean isUserAuthorized(IntegrationSettings settings, String url, Long userId)
       throws AuthorizationException {
-    UserAuthorizationData u = authorizationService.find(settings.getConfigurationId(), url, userId);
+    UserAuthorizationData u = authRepoService.find(settings.getConfigurationId(), url, userId);
     if (u == null || !(u.getData() instanceof JiraOAuth1Data)) {
       return false;
     }
@@ -284,11 +293,19 @@ public class JiraAuthorizationManager {
           jiraOAuth1Data.getAccessToken(), myselfUrl, HttpMethods.GET, null);
       return response.getStatusCode() != HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
     } catch (MalformedURLException e) {
-      throw new JiraOAuth1Exception("Invalid API URL " + url,
-          e, "Check the informed base URL " + url);
+      throw new JiraOAuth1Exception(logMessage.getMessage("integration.jira.url.api.invalid", url),
+          e, logMessage.getMessage("integration.jira.url.api.invalid.solution"));
     }
   }
 
+  /**
+   * Return an URL to allow the user to authorize us to perform Jira API calls on behalf of him/her.
+   * @param settings Jira integration settings.
+   * @param url Jira base URL.
+   * @param userId Symphony user ID.
+   * @return Authorization URL.
+   * @throws AuthorizationException Thrown in case of error.
+   */
   public String getAuthorizationUrl(IntegrationSettings settings, String url, Long userId)
       throws AuthorizationException {
     AppAuthorizationModel appAuthorizationModel = getAuthorizationModel(settings);
@@ -304,7 +321,7 @@ public class JiraAuthorizationManager {
     JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken);
     UserAuthorizationData userAuthData = new UserAuthorizationData(url, userId, jiraOAuth1Data);
 
-    authorizationService.save(settings.getConfigurationId(), userAuthData);
+    authRepoService.save(settings.getConfigurationId(), userAuthData);
 
     return authorizationUrl;
   }
@@ -321,12 +338,13 @@ public class JiraAuthorizationManager {
 
     Map<String, String> filter = new HashMap<>();
     filter.put("temporaryToken", temporaryToken);
-    List<UserAuthorizationData> result = authorizationService.search(
+    List<UserAuthorizationData> result = authRepoService.search(
         settings.getConfigurationId(), filter);
 
     if (result.isEmpty()) {
-      throw new JiraOAuth1Exception("No auth user data found for the temporary token "
-          + temporaryToken, "Start the authentication flow by getting the authentication URL.");
+      throw new JiraOAuth1Exception(
+          logMessage.getMessage("integration.jira.auth.user.data.not.found", temporaryToken),
+          logMessage.getMessage("integration.jira.auth.user.data.not.found.solution"));
     }
     UserAuthorizationData userAuthData = result.get(0);
 
@@ -341,6 +359,6 @@ public class JiraAuthorizationManager {
     JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, accessCode);
     userAuthData.setData(jiraOAuth1Data);
 
-    authorizationService.save(settings.getConfigurationId(), userAuthData);
+    authRepoService.save(settings.getConfigurationId(), userAuthData);
   }
 }

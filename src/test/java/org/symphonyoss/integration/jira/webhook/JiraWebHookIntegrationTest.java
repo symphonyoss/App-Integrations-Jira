@@ -46,6 +46,7 @@ import org.symphonyoss.integration.jira.webhook.parser.v1.CommentJiraParser;
 import org.symphonyoss.integration.jira.webhook.parser.v1.IssueCreatedJiraParser;
 import org.symphonyoss.integration.jira.webhook.parser.v1.IssueUpdatedJiraParser;
 import org.symphonyoss.integration.json.JsonUtils;
+import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
@@ -104,6 +105,9 @@ public class JiraWebHookIntegrationTest {
 
   @Mock
   private JiraAuthorizationManager authManager;
+
+  @Mock
+  private LogMessageSource logMessage;
 
   @InjectMocks
   private JiraWebHookIntegration jiraWhi = new JiraWebHookIntegration();
