@@ -263,7 +263,7 @@ public class JiraAuthorizationManager {
    */
   private String getCallbackUrl(IntegrationSettings settings) {
     String callbackUrl = String.format(AUTH_CALLBACK_PATH, settings.getConfigurationId());
-    return properties.getSymphonyUrl() + callbackUrl;
+    return properties.getIntegrationBridgeUrl() + callbackUrl;
   }
 
   /**
