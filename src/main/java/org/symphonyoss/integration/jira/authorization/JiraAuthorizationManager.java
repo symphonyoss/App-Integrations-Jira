@@ -73,7 +73,7 @@ public class JiraAuthorizationManager {
 
   public static final String PRIVATE_KEY_FILENAME = "privateKeyFilename";
 
-  public static final String PRIVATE_KEY_FILENAME_TEMPLATE = "%s_app_prv.pcks8";
+  public static final String PRIVATE_KEY_FILENAME_TEMPLATE = "%s_app.pkcs8";
 
   public static final String PUBLIC_KEY_FILENAME = "publicKeyFilename";
 
