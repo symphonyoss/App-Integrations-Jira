@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
@@ -33,6 +34,7 @@ import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
+import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
@@ -101,13 +103,13 @@ public class JiraAuthorizationManager {
   private IntegrationUtils utils;
 
   @Autowired
-  private JiraOAuth1Provider jiraOAuth1Provider;
-
-  @Autowired
   private OAuthRsaSignerFactory oAuthRsaSignerFactory;
 
   @Autowired
   private AuthorizationRepositoryService authRepoService;
+
+  @Autowired
+  private ApplicationContext context;
 
   /**
    * Provide the authorization properties for JIRA application.
@@ -168,6 +170,7 @@ public class JiraAuthorizationManager {
    */
   private String getPublicKeyFilename(AppAuthorizationModel authModel, Application application) {
     String fileName = (String) authModel.getProperties().get(PUBLIC_KEY_FILENAME);
+
     if (StringUtils.isEmpty(fileName)) {
       return String.format(PUBLIC_KEY_FILENAME_TEMPLATE, application.getId());
     }
@@ -273,24 +276,40 @@ public class JiraAuthorizationManager {
    */
   public boolean isUserAuthorized(IntegrationSettings settings, String url, Long userId)
       throws AuthorizationException {
-    UserAuthorizationData u = authRepoService.find(settings.getConfigurationId(), url, userId);
-    if (u == null || !(u.getData() instanceof JiraOAuth1Data)) {
+    UserAuthorizationData u =
+        authRepoService.find(settings.getType(), settings.getConfigurationId(), url, userId);
+
+    if ((u == null) || (u.getData() == null)) {
       return false;
     }
 
-    JiraOAuth1Data jiraOAuth1Data = (JiraOAuth1Data) u.getData();
+    JiraOAuth1Data jiraOAuth1Data;
+
+    try {
+      jiraOAuth1Data = JsonUtils.readValue(u.getData(), JiraOAuth1Data.class);
+    } catch (IOException e) {
+      throw new JiraOAuth1Exception("Invalid temporary token");
+    }
+
+    if (StringUtils.isEmpty(jiraOAuth1Data.getAccessToken())) {
+      return false;
+    }
+
     AppAuthorizationModel appAuthorizationModel = getAuthorizationModel(settings);
     String consumerKey = (String) appAuthorizationModel.getProperties().get(CONSUMER_KEY);
     String privateKey = getPrivateKey(settings);
     String callbackUrl = getCallbackUrl(settings);
 
-    jiraOAuth1Provider.configure(consumerKey, privateKey, url, callbackUrl);
+    JiraOAuth1Provider provider = context.getBean(JiraOAuth1Provider.class);
+    provider.configure(consumerKey, privateKey, url, callbackUrl);
 
     try {
       URL myselfUrl = new URL(url);
       myselfUrl = new URL(myselfUrl, "/rest/api/2/myself");
-      HttpResponse response = jiraOAuth1Provider.makeAuthorizedRequest(
-          jiraOAuth1Data.getAccessToken(), myselfUrl, HttpMethods.GET, null);
+      HttpResponse response =
+          provider.makeAuthorizedRequest(jiraOAuth1Data.getAccessToken(), myselfUrl,
+              HttpMethods.GET, null);
+
       return response.getStatusCode() != HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
     } catch (MalformedURLException e) {
       throw new JiraOAuth1Exception(logMessage.getMessage("integration.jira.url.api.invalid", url),
@@ -313,15 +332,16 @@ public class JiraAuthorizationManager {
     String privateKey = getPrivateKey(settings);
     String callbackUrl = getCallbackUrl(settings);
 
-    jiraOAuth1Provider.configure(consumerKey, privateKey, url, callbackUrl);
+    JiraOAuth1Provider provider = context.getBean(JiraOAuth1Provider.class);
+    provider.configure(consumerKey, privateKey, url, callbackUrl);
 
-    String temporaryToken = jiraOAuth1Provider.requestTemporaryToken();
-    String authorizationUrl = jiraOAuth1Provider.requestAuthorizationUrl(temporaryToken);
+    String temporaryToken = provider.requestTemporaryToken();
+    String authorizationUrl = provider.requestAuthorizationUrl(temporaryToken);
 
     JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken);
     UserAuthorizationData userAuthData = new UserAuthorizationData(url, userId, jiraOAuth1Data);
 
-    authRepoService.save(settings.getConfigurationId(), userAuthData);
+    authRepoService.save(settings.getType(), settings.getConfigurationId(), userAuthData);
 
     return authorizationUrl;
   }
@@ -338,8 +358,8 @@ public class JiraAuthorizationManager {
 
     Map<String, String> filter = new HashMap<>();
     filter.put("temporaryToken", temporaryToken);
-    List<UserAuthorizationData> result = authRepoService.search(
-        settings.getConfigurationId(), filter);
+    List<UserAuthorizationData> result =
+        authRepoService.search(settings.getType(), settings.getConfigurationId(), filter);
 
     if (result.isEmpty()) {
       throw new JiraOAuth1Exception(
@@ -353,12 +373,13 @@ public class JiraAuthorizationManager {
     String privateKey = getPrivateKey(settings);
     String callbackUrl = getCallbackUrl(settings);
 
-    jiraOAuth1Provider.configure(consumerKey, privateKey, userAuthData.getUrl(), callbackUrl);
+    JiraOAuth1Provider provider = context.getBean(JiraOAuth1Provider.class);
+    provider.configure(consumerKey, privateKey, userAuthData.getUrl(), callbackUrl);
 
-    String accessCode = jiraOAuth1Provider.requestAcessToken(temporaryToken, verifierCode);
+    String accessCode = provider.requestAcessToken(temporaryToken, verifierCode);
     JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, accessCode);
     userAuthData.setData(jiraOAuth1Data);
 
-    authRepoService.save(settings.getConfigurationId(), userAuthData);
+    authRepoService.save(settings.getType(), settings.getConfigurationId(), userAuthData);
   }
 }

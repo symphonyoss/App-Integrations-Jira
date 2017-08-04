@@ -9,6 +9,8 @@ public class JiraOAuth1Data {
   private String temporaryToken;
   private String accessToken;
 
+  public JiraOAuth1Data() {}
+
   public JiraOAuth1Data(String temporaryToken) {
     this.temporaryToken = temporaryToken;
   }
