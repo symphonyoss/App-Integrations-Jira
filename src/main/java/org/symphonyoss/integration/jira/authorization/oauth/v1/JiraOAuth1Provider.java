@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.logging.LogMessageSource;
+import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -64,9 +65,10 @@ public class JiraOAuth1Provider extends OAuth1Provider {
    * @param baseUrl The JIRA instance base URL.
    * @param authorizationCallbackUrl The URL to be called after a JIRA user authorize (or not) the
    * usage of JIRA's APIs by us.
+   * @throws JiraOAuth1Exception thrown when there is a problem with one or more parameters.
    */
   public void configure(String consumerKey, String privateKey, String baseUrl,
-      String authorizationCallbackUrl) {
+      String authorizationCallbackUrl) throws JiraOAuth1Exception {
 
     this.consumerKey = consumerKey;
     this.privateKey = privateKey;

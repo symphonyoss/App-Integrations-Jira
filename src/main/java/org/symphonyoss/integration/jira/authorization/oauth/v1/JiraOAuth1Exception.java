@@ -13,5 +13,9 @@ public class JiraOAuth1Exception extends OAuth1Exception {
   public JiraOAuth1Exception(String message, Throwable cause, String... solutions) {
     super(message, cause, solutions);
   }
+
+  public JiraOAuth1Exception(String message, String... solutions) {
+    super(message, solutions);
+  }
 }
 
