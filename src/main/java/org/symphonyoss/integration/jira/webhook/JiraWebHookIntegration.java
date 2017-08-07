@@ -43,15 +43,30 @@ import javax.ws.rs.core.MediaType;
 /**
  * Implementation of a WebHook to integrate with JIRA, rendering it's messages.
  *
- * This integration class should support MessageML v1 and MessageML v2 according to the Agent Version.
+ * This integration class should support MessageML v1 and MessageML v2 according to the Agent
+ * Version.
  *
- * There is a component {@link JiraParserResolver} responsible to identify the correct factory should
+ * There is a component {@link JiraParserResolver} responsible to identify the correct factory
+ * should
  * be used to build the parsers according to the MessageML supported.
  *
  * Created by Milton Quilzini on 04/05/16.
  */
 @Component
 public class JiraWebHookIntegration extends WebHookIntegration implements AuthorizedIntegration {
+
+  public static final String MSG_INSUFFICIENT_PARAMS =
+      "integration.jira.authorize.insufficient.params";
+  public static final String MSG_INSUFFICIENT_PARAMS_SOLUTION =
+      MSG_INSUFFICIENT_PARAMS + ".solution";
+  public static final String MSG_NO_INTEGRATION_FOUND =
+      "integration.jira.authorize.no.integration.settings";
+  public static final String MSG_NO_INTEGRATION_FOUND_SOLUTION =
+      MSG_NO_INTEGRATION_FOUND + ".solution";
+
+  public static final String OAUTH_TOKEN = "oauth_token";
+
+  public static final String OAUTH_VERIFIER = "oauth_verifier";
 
   @Autowired
   private LogMessageSource logMessage;
@@ -141,20 +156,18 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
    */
   @Override
   public void authorize(AuthorizationPayload authorizationPayload) throws AuthorizationException {
-    String temporaryToken = authorizationPayload.getParameters().get("oauth_token");
-    String verificationCode = authorizationPayload.getParameters().get("oauth_verifier");
+    String temporaryToken = authorizationPayload.getParameters().get(OAUTH_TOKEN);
+    String verificationCode = authorizationPayload.getParameters().get(OAUTH_VERIFIER);
 
     if (StringUtils.isBlank(temporaryToken) || StringUtils.isBlank(verificationCode)) {
-      throw new JiraOAuth1Exception(
-          logMessage.getMessage("integration.jira.authorize.insufficient.params"),
-          logMessage.getMessage("integration.jira.authorize.insufficient.params.solution"));
+      throw new JiraOAuth1Exception(logMessage.getMessage(MSG_INSUFFICIENT_PARAMS),
+          logMessage.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
     }
 
     IntegrationSettings settings = getSettings();
     if (settings == null) {
-      throw new JiraOAuth1Exception(
-          logMessage.getMessage("integration.jira.authorize.no.integration.settings"),
-          logMessage.getMessage("integration.jira.authorize.no.integration.settings.solution"));
+      throw new JiraOAuth1Exception(logMessage.getMessage(MSG_NO_INTEGRATION_FOUND),
+          logMessage.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
     }
 
     authManager.authorizeTemporaryToken(settings, temporaryToken, verificationCode);

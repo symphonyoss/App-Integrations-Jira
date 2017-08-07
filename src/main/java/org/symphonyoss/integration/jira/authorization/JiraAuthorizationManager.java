@@ -69,7 +69,7 @@ public class JiraAuthorizationManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JiraAuthorizationManager.class);
 
-  private static final String COMPONENT = "JIRA Authentication Manager";
+  private static final String COMPONENT = "JIRA Authorization Manager";
 
   public static final String PRIVATE_KEY_FILENAME = "privateKeyFilename";
 
@@ -92,6 +92,8 @@ public class JiraAuthorizationManager {
   private static final String PRIVATE_KEY_SUFFIX = "-----END PRIVATE KEY-----\n";
 
   private static final String AUTH_CALLBACK_PATH = "/v1/application/%s/authorization/authorize";
+
+  private static final String PATH_JIRA_API_MY_SELF = "/rest/api/2/myself";
 
   @Autowired
   private LogMessageSource logMessage;
@@ -276,17 +278,17 @@ public class JiraAuthorizationManager {
    */
   public boolean isUserAuthorized(IntegrationSettings settings, String url, Long userId)
       throws AuthorizationException {
-    UserAuthorizationData u =
+    UserAuthorizationData userAuthorizationData =
         authRepoService.find(settings.getType(), settings.getConfigurationId(), url, userId);
 
-    if ((u == null) || (u.getData() == null)) {
+    if ((userAuthorizationData == null) || (userAuthorizationData.getData() == null)) {
       return false;
     }
 
     JiraOAuth1Data jiraOAuth1Data;
 
     try {
-      jiraOAuth1Data = JsonUtils.readValue(u.getData(), JiraOAuth1Data.class);
+      jiraOAuth1Data = JsonUtils.readValue(userAuthorizationData.getData(), JiraOAuth1Data.class);
     } catch (IOException e) {
       throw new JiraOAuth1Exception("Invalid temporary token");
     }
@@ -295,17 +297,11 @@ public class JiraAuthorizationManager {
       return false;
     }
 
-    AppAuthorizationModel appAuthorizationModel = getAuthorizationModel(settings);
-    String consumerKey = (String) appAuthorizationModel.getProperties().get(CONSUMER_KEY);
-    String privateKey = getPrivateKey(settings);
-    String callbackUrl = getCallbackUrl(settings);
-
-    JiraOAuth1Provider provider = context.getBean(JiraOAuth1Provider.class);
-    provider.configure(consumerKey, privateKey, url, callbackUrl);
+    JiraOAuth1Provider provider = getJiraOAuth1Provider(settings, url);
 
     try {
       URL myselfUrl = new URL(url);
-      myselfUrl = new URL(myselfUrl, "/rest/api/2/myself");
+      myselfUrl = new URL(myselfUrl, PATH_JIRA_API_MY_SELF);
       HttpResponse response =
           provider.makeAuthorizedRequest(jiraOAuth1Data.getAccessToken(), myselfUrl,
               HttpMethods.GET, null);
@@ -327,13 +323,8 @@ public class JiraAuthorizationManager {
    */
   public String getAuthorizationUrl(IntegrationSettings settings, String url, Long userId)
       throws AuthorizationException {
-    AppAuthorizationModel appAuthorizationModel = getAuthorizationModel(settings);
-    String consumerKey = (String) appAuthorizationModel.getProperties().get(CONSUMER_KEY);
-    String privateKey = getPrivateKey(settings);
-    String callbackUrl = getCallbackUrl(settings);
 
-    JiraOAuth1Provider provider = context.getBean(JiraOAuth1Provider.class);
-    provider.configure(consumerKey, privateKey, url, callbackUrl);
+    JiraOAuth1Provider provider = getJiraOAuth1Provider(settings, url);
 
     String temporaryToken = provider.requestTemporaryToken();
     String authorizationUrl = provider.requestAuthorizationUrl(temporaryToken);
@@ -347,7 +338,7 @@ public class JiraAuthorizationManager {
   }
 
   /**
-   * Authorize a temporaty token by getting a permanent access token and saving it.
+   * Authorize a temporary token by getting a permanent access token and saving it.
    * @param settings JIRA integration settings.
    * @param temporaryToken The original temporary token used to get the authorization from a user.
    * @param verifierCode The granted access code created when a user allow our application.
@@ -367,19 +358,33 @@ public class JiraAuthorizationManager {
           logMessage.getMessage("integration.jira.auth.user.data.not.found.solution"));
     }
     UserAuthorizationData userAuthData = result.get(0);
+    String url = userAuthData.getUrl();
 
-    AppAuthorizationModel appAuthorizationModel = getAuthorizationModel(settings);
-    String consumerKey = (String) appAuthorizationModel.getProperties().get(CONSUMER_KEY);
-    String privateKey = getPrivateKey(settings);
-    String callbackUrl = getCallbackUrl(settings);
-
-    JiraOAuth1Provider provider = context.getBean(JiraOAuth1Provider.class);
-    provider.configure(consumerKey, privateKey, userAuthData.getUrl(), callbackUrl);
+    JiraOAuth1Provider provider = getJiraOAuth1Provider(settings, url);
 
     String accessCode = provider.requestAcessToken(temporaryToken, verifierCode);
     JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, accessCode);
     userAuthData.setData(jiraOAuth1Data);
 
     authRepoService.save(settings.getType(), settings.getConfigurationId(), userAuthData);
+  }
+
+  /**
+   * Builds a JiraOAuth1Provider.
+   * @param settings Integration settings.
+   * @param baseUrl Base URL.
+   * @return JiraOAuth1Provider configured.
+   * @throws JiraOAuth1Exception Thrown in case of error.
+   */
+  private JiraOAuth1Provider getJiraOAuth1Provider(IntegrationSettings settings, String baseUrl)
+      throws JiraOAuth1Exception {
+    AppAuthorizationModel appAuthorizationModel = getAuthorizationModel(settings);
+    String consumerKey = (String) appAuthorizationModel.getProperties().get(CONSUMER_KEY);
+    String privateKey = getPrivateKey(settings);
+    String callbackUrl = getCallbackUrl(settings);
+
+    JiraOAuth1Provider provider = context.getBean(JiraOAuth1Provider.class);
+    provider.configure(consumerKey, privateKey, baseUrl, callbackUrl);
+    return provider;
   }
 }
