@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager
@@ -209,7 +210,7 @@ public class JiraAuthorizationManagerTest {
 
   @Test(expected = NullPointerException.class)
   public void testIsUserAuthorizedException() throws AuthorizationException, URISyntaxException {
-    JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN);
+    JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
 
     Application application = properties.getApplication(SETTINGS.getType());
@@ -223,8 +224,8 @@ public class JiraAuthorizationManagerTest {
 
     doReturn(privateKey).when(oAuthRsaSignerFactory).getPrivateKey(anyString());
 
-    doReturn(userData).when(authRepoService).find(
-        SETTINGS.getConfigurationId(), MOCK_URL, MOCK_USER);
+    doReturn(userData).when(authRepoService).find(anyString(),
+        eq(SETTINGS.getConfigurationId()), eq(MOCK_URL), eq(MOCK_USER));
 
     authManager.isUserAuthorized(SETTINGS, MOCK_URL, MOCK_USER);
   }
@@ -273,7 +274,7 @@ public class JiraAuthorizationManagerTest {
     jiraData.setAccessToken(MOCK_TOKEN);
     jiraData.setTemporaryToken(MOCK_TOKEN);
     listUserData.add(new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraData));
-    doReturn(listUserData).when(authRepoService).search(anyString(), anyMap());
+    doReturn(listUserData).when(authRepoService).search(anyString(), anyString(), anyMap());
 
     authManager.authorizeTemporaryToken(SETTINGS, MOCK_TOKEN, null);
   }
