@@ -3,6 +3,7 @@
     "type": "com.symphony.integration.jira.event.v2.issue_commented",
     "version": "1.0",
     "accent": "green",
+    "baseUrl": "https://jira.atlassian.com",
     "icon": {
       "type": "com.symphony.integration.icon",
       "version": "1.0",

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <metadata name="jiraIssue" type="com.symphony.integration.jira.event.v2.state" version="1.0">
     <field key="accent" value="accent" />
+    <field key="baseUrl" value="baseUrl" />
     <field key="tokenColor" value="tokenColor" />
 
     <object id="icon" type="com.symphony.integration.icon" version="1.0">
