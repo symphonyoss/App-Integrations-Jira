@@ -17,9 +17,7 @@
 package org.symphonyoss.integration.jira.authorization;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -31,9 +29,7 @@ import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationMa
 import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager
     .PUBLIC_KEY_FILENAME;
 
-import com.google.api.client.http.HttpContent;
-import com.google.api.client.http.HttpResponse;
-import org.apache.http.HttpStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +48,7 @@ import org.symphonyoss.integration.authorization.oauth.OAuthRsaSignerFactory;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
@@ -228,6 +225,17 @@ public class JiraAuthorizationManagerTest {
         eq(SETTINGS.getConfigurationId()), eq(MOCK_URL), eq(MOCK_USER));
 
     authManager.isUserAuthorized(SETTINGS, MOCK_URL, MOCK_USER);
+  }
+
+  @Test(expected = JiraOAuth1Exception.class)
+  public void testIsUserAuthorizedInvalidURL() throws AuthorizationException {
+    JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
+    UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
+
+    doReturn(userData).when(authRepoService).find(anyString(),
+        eq(SETTINGS.getConfigurationId()), eq(StringUtils.EMPTY), eq(MOCK_USER));
+
+    authManager.isUserAuthorized(SETTINGS, StringUtils.EMPTY, MOCK_USER);
   }
 
   @Test
