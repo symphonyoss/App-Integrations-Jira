@@ -74,6 +74,7 @@ import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.TOSTR
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.URL_PATH;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.USERNAME_PATH;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.USER_PATH;
+import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.BASE_URL;
 import static org.symphonyoss.integration.jira.webhook.parser.v1.IssueJiraParser.UNASSIGNED;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -122,6 +123,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
   private static final String MENTION_MARKUP = "<mention email=\"%s\"/>";
   public static final String BEGIN_MENTION = "[~";
   public static final String END_MENTION = "]";
+  public static final String BASE_API_REGEX = "(\\/rest\\/api.*)";
 
   private UserService userService;
   private IntegrationProperties integrationProperties;
@@ -158,6 +160,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     processAssignee(input);
     processEpicLink(input);
     processIconUrls(input);
+    processBaseUrl(input);
   }
 
   private void initializeAccentMap() {
@@ -520,6 +523,18 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
       formatIconUrl((ObjectNode) fieldsPath.path(ISSUETYPE_PATH));
       formatIconUrl((ObjectNode) fieldsPath.path(PRIORITY_PATH));
     }
+  }
+
+  /**
+   * Process custom field BaseUrl, uses the issue's link and removes the API call
+   * from the URL.
+   * @param input JSON node that contains user information provided by JIRA
+   */
+  private void processBaseUrl(JsonNode input) {
+    String selfPath = input.path(ISSUE_PATH).path(SELF_PATH).asText();
+    selfPath = selfPath.replaceAll(BASE_API_REGEX,"");
+
+    ((ObjectNode) input).put(BASE_URL, selfPath);
   }
 
   /**

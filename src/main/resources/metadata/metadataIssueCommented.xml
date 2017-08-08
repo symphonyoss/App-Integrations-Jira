@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata name="jiraIssueCommented" type="com.symphony.integration.jira.event.v2.issue_commented" version="1.0">
     <field key="accent" value="accent" />
+    <field key="baseUrl" value="baseUrl" />
 
     <object id="icon" type="com.symphony.integration.icon" version="1.0">
         <field key="url" value="icon.url" />

@@ -139,4 +139,6 @@ public final class JiraParserConstants {
 
   public static final String TEXT_ENTITY_FIELD = "text";
 
+  public static final String BASE_URL = "baseUrl";
+
 }
