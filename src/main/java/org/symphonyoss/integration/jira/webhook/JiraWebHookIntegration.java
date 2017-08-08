@@ -16,13 +16,17 @@
 
 package org.symphonyoss.integration.jira.webhook;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.integration.authorization.UserAuthorizationData;
-import org.symphonyoss.integration.exception.authentication.UnauthorizedUserException;
-import org.symphonyoss.integration.jira.auth.JiraAuthorizationManager;
+import org.symphonyoss.integration.authorization.AuthorizationException;
+import org.symphonyoss.integration.authorization.AuthorizationPayload;
+import org.symphonyoss.integration.authorization.AuthorizedIntegration;
+import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
+import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
@@ -39,15 +43,33 @@ import javax.ws.rs.core.MediaType;
 /**
  * Implementation of a WebHook to integrate with JIRA, rendering it's messages.
  *
- * This integration class should support MessageML v1 and MessageML v2 according to the Agent Version.
+ * This integration class should support MessageML v1 and MessageML v2 according to the Agent
+ * Version.
  *
- * There is a component {@link JiraParserResolver} responsible to identify the correct factory should
+ * There is a component {@link JiraParserResolver} responsible to identify the correct factory
+ * should
  * be used to build the parsers according to the MessageML supported.
  *
  * Created by Milton Quilzini on 04/05/16.
  */
 @Component
-public class JiraWebHookIntegration extends WebHookIntegration {
+public class JiraWebHookIntegration extends WebHookIntegration implements AuthorizedIntegration {
+
+  public static final String MSG_INSUFFICIENT_PARAMS =
+      "integration.jira.authorize.insufficient.params";
+  public static final String MSG_INSUFFICIENT_PARAMS_SOLUTION =
+      MSG_INSUFFICIENT_PARAMS + ".solution";
+  public static final String MSG_NO_INTEGRATION_FOUND =
+      "integration.jira.authorize.no.integration.settings";
+  public static final String MSG_NO_INTEGRATION_FOUND_SOLUTION =
+      MSG_NO_INTEGRATION_FOUND + ".solution";
+
+  public static final String OAUTH_TOKEN = "oauth_token";
+
+  public static final String OAUTH_VERIFIER = "oauth_verifier";
+
+  @Autowired
+  private LogMessageSource logMessage;
 
   @Autowired
   private JiraParserResolver parserResolver;
@@ -93,28 +115,62 @@ public class JiraWebHookIntegration extends WebHookIntegration {
     return supportedContentTypes;
   }
 
+  /**
+   * @see AuthorizedIntegration#getAuthorizationModel()
+   */
   @Override
   public AppAuthorizationModel getAuthorizationModel() {
     IntegrationSettings settings = getSettings();
-
     if (settings != null) {
       return authManager.getAuthorizationModel(settings);
     }
-
     return null;
   }
 
+  /**
+   * @see AuthorizedIntegration#isUserAuthorized(String, Long)
+   */
   @Override
-  public void verifyUserAuthorizationData(UserAuthorizationData authData) {
-    Object data = authData.getData();
-
-    if (data == null) {
-      // TODO APP-1217 Start OAuth Dance (request token)
-      throw new UnauthorizedUserException("User need to start OAuth1 authorization process");
+  public boolean isUserAuthorized(String url, Long userId) throws AuthorizationException {
+    IntegrationSettings settings = getSettings();
+    if (settings != null) {
+      return authManager.isUserAuthorized(settings, url, userId);
     }
-
-    // TODO APP-1217 Check if those authorization tokens are valid.
+    return false;
   }
 
+  /**
+   * @see AuthorizedIntegration#getAuthorizationUrl(String, Long)
+   */
+  @Override
+  public String getAuthorizationUrl(String url, Long userId) throws AuthorizationException {
+    IntegrationSettings settings = getSettings();
+    if (settings != null) {
+      return authManager.getAuthorizationUrl(settings, url, userId);
+    }
+    return null;
+  }
+
+  /**
+   * @see AuthorizedIntegration#authorize(AuthorizationPayload)
+   */
+  @Override
+  public void authorize(AuthorizationPayload authorizationPayload) throws AuthorizationException {
+    String temporaryToken = authorizationPayload.getParameters().get(OAUTH_TOKEN);
+    String verificationCode = authorizationPayload.getParameters().get(OAUTH_VERIFIER);
+
+    if (StringUtils.isBlank(temporaryToken) || StringUtils.isBlank(verificationCode)) {
+      throw new JiraOAuth1Exception(logMessage.getMessage(MSG_INSUFFICIENT_PARAMS),
+          logMessage.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
+    }
+
+    IntegrationSettings settings = getSettings();
+    if (settings == null) {
+      throw new JiraOAuth1Exception(logMessage.getMessage(MSG_NO_INTEGRATION_FOUND),
+          logMessage.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
+    }
+
+    authManager.authorizeTemporaryToken(settings, temporaryToken, verificationCode);
+  }
 }
 

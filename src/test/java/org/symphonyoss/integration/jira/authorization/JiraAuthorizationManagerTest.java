@@ -14,18 +14,30 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.jira.auth;
+package org.symphonyoss.integration.jira.authorization;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.symphonyoss.integration.jira.auth.JiraAuthorizationManager.PUBLIC_KEY;
-import static org.symphonyoss.integration.jira.auth.JiraAuthorizationManager.PUBLIC_KEY_FILENAME;
+import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager
+    .PRIVATE_KEY_FILENAME;
+import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager.PUBLIC_KEY;
+import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager
+    .PUBLIC_KEY_FILENAME;
 
+import com.google.api.client.http.HttpContent;
+import com.google.api.client.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,7 +45,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.symphonyoss.integration.authorization.AuthorizationException;
+import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
+import org.symphonyoss.integration.authorization.UserAuthorizationData;
+import org.symphonyoss.integration.authorization.oauth.OAuthRsaSignerFactory;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
+import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.model.yaml.Application;
@@ -46,6 +66,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -85,13 +109,41 @@ public class JiraAuthorizationManagerTest {
 
   private static final String MOCK_PUBLIC_KEY = "jira_app_pub.pem";
 
+  private static final String INVALID_PRIVATE_KEY = "invalid_app_prv.pcks8";
+
+  private static final String MOCK_PRIVATE_KEY = "jira_app_prv.pcks8";
+
+  private static final String MOCK_TOKEN = "mockToken";
+
+  private static final String MOCK_URL = "http://mockurl.com";
+
+  private static final Long MOCK_USER = 0L;
+
   private static final IntegrationSettings SETTINGS = new IntegrationSettings();
 
   @Autowired
   private IntegrationProperties properties;
 
   @MockBean
+  private LogMessageSource logMessage;
+
+  @MockBean
+  private JiraOAuth1Provider jiraOAuth1Provider;
+
+  @MockBean
+  private OAuthRsaSignerFactory oAuthRsaSignerFactory;
+
+  @MockBean
+  private AuthorizationRepositoryService authRepoService;
+
+  @MockBean
   private IntegrationUtils utils;
+
+  @Mock
+  private PublicKey publicKey;
+
+  @Mock
+  private PrivateKey privateKey;
 
   @Autowired
   private JiraAuthorizationManager authManager;
@@ -138,7 +190,7 @@ public class JiraAuthorizationManagerTest {
   }
 
   @Test
-  public void testInvalidFile() throws URISyntaxException {
+  public void testInvalidPublicKeyFile() throws URISyntaxException {
     URL pkURL = getClass().getClassLoader().getResource(INVALID_PUBLIC_KEY);
     Path pkPath = Paths.get(pkURL.toURI());
 
@@ -156,13 +208,86 @@ public class JiraAuthorizationManagerTest {
     application.getAuthorization().getProperties().remove(PUBLIC_KEY_FILENAME);
   }
 
+  @Test(expected = NullPointerException.class)
+  public void testIsUserAuthorizedException() throws AuthorizationException, URISyntaxException {
+    JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
+    UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
+
+    Application application = properties.getApplication(SETTINGS.getType());
+    application.getAuthorization().getProperties().put(PRIVATE_KEY_FILENAME, MOCK_PRIVATE_KEY);
+
+    URL pkURL = getClass().getClassLoader().getResource(MOCK_PRIVATE_KEY);
+    Path pkPath = Paths.get(pkURL.toURI());
+
+    String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
+    doReturn(certsDirectory).when(utils).getCertsDirectory();
+
+    doReturn(privateKey).when(oAuthRsaSignerFactory).getPrivateKey(anyString());
+
+    doReturn(userData).when(authRepoService).find(anyString(),
+        eq(SETTINGS.getConfigurationId()), eq(MOCK_URL), eq(MOCK_USER));
+
+    authManager.isUserAuthorized(SETTINGS, MOCK_URL, MOCK_USER);
+  }
+
   @Test
-  public void testAuthorizationModel() throws URISyntaxException {
+  public void testGetAuthorizationUrl() throws AuthorizationException, URISyntaxException {
+    JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN);
+    UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
+
+    Application application = properties.getApplication(SETTINGS.getType());
+    application.getAuthorization().getProperties().put(PRIVATE_KEY_FILENAME, MOCK_PRIVATE_KEY);
+
+    URL pkURL = getClass().getClassLoader().getResource(MOCK_PRIVATE_KEY);
+    Path pkPath = Paths.get(pkURL.toURI());
+
+    String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
+    doReturn(certsDirectory).when(utils).getCertsDirectory();
+
+    doReturn(privateKey).when(oAuthRsaSignerFactory).getPrivateKey(anyString());
+
+    doReturn(MOCK_URL).when(jiraOAuth1Provider).requestAuthorizationUrl(anyString());
+
+    String url = authManager.getAuthorizationUrl(SETTINGS, MOCK_URL, MOCK_USER);
+
+    assertEquals(MOCK_URL, url);
+  }
+
+  @Test
+  public void testAuthorizeTemporaryToken() throws AuthorizationException, URISyntaxException {
+    JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN);
+    UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
+
+    Application application = properties.getApplication(SETTINGS.getType());
+    application.getAuthorization().getProperties().put(PRIVATE_KEY_FILENAME, MOCK_PRIVATE_KEY);
+
+    URL pkURL = getClass().getClassLoader().getResource(MOCK_PRIVATE_KEY);
+    Path pkPath = Paths.get(pkURL.toURI());
+
+    String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
+    doReturn(certsDirectory).when(utils).getCertsDirectory();
+
+    doReturn(privateKey).when(oAuthRsaSignerFactory).getPrivateKey(anyString());
+
+    List<UserAuthorizationData> listUserData = new ArrayList<>();
+    JiraOAuth1Data jiraData = new JiraOAuth1Data(null);
+    jiraData.setAccessToken(MOCK_TOKEN);
+    jiraData.setTemporaryToken(MOCK_TOKEN);
+    listUserData.add(new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraData));
+    doReturn(listUserData).when(authRepoService).search(anyString(), anyString(), anyMap());
+
+    authManager.authorizeTemporaryToken(SETTINGS, MOCK_TOKEN, null);
+  }
+
+  @Test
+  public void testAuthorizationModel() throws URISyntaxException, OAuth1Exception {
     URL pkURL = getClass().getClassLoader().getResource(MOCK_PUBLIC_KEY);
     Path pkPath = Paths.get(pkURL.toURI());
 
     String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
     doReturn(certsDirectory).when(utils).getCertsDirectory();
+
+    doReturn(publicKey).when(oAuthRsaSignerFactory).getPublicKey(anyString());
 
     AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
     validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
