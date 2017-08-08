@@ -531,13 +531,10 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    * @param input JSON node that contains user information provided by JIRA
    */
   private void processBaseUrl(JsonNode input) {
-    ObjectNode issueNode = (ObjectNode) input.path(ISSUE_PATH);
-    ObjectNode inputNode = (ObjectNode) input;
-
-    String selfPath = issueNode.path(SELF_PATH).asText();
+    String selfPath = input.path(ISSUE_PATH).path(SELF_PATH).asText();
     selfPath = selfPath.replaceAll(BASE_API_REGEX,"");
 
-    inputNode.put(BASE_URL, selfPath);
+    ((ObjectNode) input).put(BASE_URL, selfPath);
   }
 
   /**
