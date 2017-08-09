@@ -279,19 +279,13 @@ public class JiraAuthorizationManager {
   public boolean isUserAuthorized(IntegrationSettings settings, String url, Long userId)
       throws AuthorizationException {
     UserAuthorizationData userAuthorizationData =
-        authRepoService.find(settings.getType(), settings.getConfigurationId(), url, userId);
+        getUserAuthorizationData(settings, url, userId);
 
     if ((userAuthorizationData == null) || (userAuthorizationData.getData() == null)) {
       return false;
     }
 
-    JiraOAuth1Data jiraOAuth1Data;
-
-    try {
-      jiraOAuth1Data = JsonUtils.readValue(userAuthorizationData.getData(), JiraOAuth1Data.class);
-    } catch (IOException e) {
-      throw new JiraOAuth1Exception("Invalid temporary token");
-    }
+    JiraOAuth1Data jiraOAuth1Data = getJiraOAuth1Data(userAuthorizationData);
 
     if (StringUtils.isEmpty(jiraOAuth1Data.getAccessToken())) {
       return false;
@@ -386,5 +380,39 @@ public class JiraAuthorizationManager {
     JiraOAuth1Provider provider = context.getBean(JiraOAuth1Provider.class);
     provider.configure(consumerKey, privateKey, baseUrl, callbackUrl);
     return provider;
+  }
+
+  public String getAccessToken(IntegrationSettings settings, String url, Long userId)
+      throws AuthorizationException {
+    UserAuthorizationData userAuthorizationData = getUserAuthorizationData(settings, url, userId);
+
+    if ((userAuthorizationData == null) || (userAuthorizationData.getData() == null)) {
+      return null;
+    }
+
+    JiraOAuth1Data jiraOAuth1Data = getJiraOAuth1Data(userAuthorizationData);
+
+    if (StringUtils.isEmpty(jiraOAuth1Data.getAccessToken())) {
+      return null;
+    }
+
+    return jiraOAuth1Data.getAccessToken();
+  }
+
+  public JiraOAuth1Data getJiraOAuth1Data(UserAuthorizationData userAuthorizationData)
+      throws AuthorizationException {
+    JiraOAuth1Data jiraOAuth1Data;
+
+    try {
+      jiraOAuth1Data = JsonUtils.readValue(userAuthorizationData.getData(), JiraOAuth1Data.class);
+    } catch (IOException e) {
+      throw new AuthorizationException("Invalid temporary token");
+    }
+    return jiraOAuth1Data;
+  }
+
+  public UserAuthorizationData getUserAuthorizationData(IntegrationSettings settings, String url,
+      Long userId) throws AuthorizationException {
+    return authRepoService.find(settings.getType(), settings.getConfigurationId(), url, userId);
   }
 }

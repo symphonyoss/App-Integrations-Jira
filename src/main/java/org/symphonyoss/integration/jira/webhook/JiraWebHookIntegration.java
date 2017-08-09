@@ -172,5 +172,17 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
 
     authManager.authorizeTemporaryToken(settings, temporaryToken, verificationCode);
   }
+
+  /**
+   * @see AuthorizedIntegration#getAccessToken(String, Long)
+   */
+  @Override
+  public String getAccessToken(String url, Long userId) throws AuthorizationException {
+    IntegrationSettings settings = getSettings();
+    if (settings != null) {
+      return authManager.getAccessToken(settings, url, userId);
+    }
+    return null;
+  }
 }
 
