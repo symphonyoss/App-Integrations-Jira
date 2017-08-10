@@ -370,7 +370,7 @@ public class JiraAuthorizationManager {
    * @return JiraOAuth1Provider configured.
    * @throws JiraOAuth1Exception Thrown in case of error.
    */
-  private JiraOAuth1Provider getJiraOAuth1Provider(IntegrationSettings settings, String baseUrl)
+  public JiraOAuth1Provider getJiraOAuth1Provider(IntegrationSettings settings, String baseUrl)
       throws JiraOAuth1Exception {
     AppAuthorizationModel appAuthorizationModel = getAuthorizationModel(settings);
     String consumerKey = (String) appAuthorizationModel.getProperties().get(CONSUMER_KEY);

@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.webhook.jira.resource;
+package org.symphonyoss.integration.jira.webhook.resource;
 
+import com.google.api.client.http.HttpMethods;
+import com.google.api.client.http.HttpResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,10 +30,16 @@ import org.symphonyoss.integration.Integration;
 import org.symphonyoss.integration.authentication.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.exception.IntegrationUnavailableException;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.logging.LogMessageSource;
+import org.symphonyoss.integration.model.ErrorResponse;
 import org.symphonyoss.integration.service.IntegrationBridge;
-import org.symphonyoss.integration.web.exception.IntegrationUnavailableException;
-import org.symphonyoss.integration.web.model.ErrorResponse;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * REST endpoint to handle requests for JIRA Api.
@@ -45,6 +53,10 @@ public class JiraApiResource {
 
   private static final String INTEGRATION_UNAVAILABLE_SOLUTION =
       INTEGRATION_UNAVAILABLE + ".solution";
+
+  private static final String PATH_JIRA_API_SEARCH_USERS = "/rest/api/2/myself";
+
+
 
   private final IntegrationBridge integrationBridge;
 
@@ -71,14 +83,14 @@ public class JiraApiResource {
   public ResponseEntity searchAssignableUsers(@RequestParam String issueKey,
       @RequestParam String username, @PathVariable String configurationId,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-      @RequestParam(name = "url") String integrationURL) {
+      @RequestParam(name = "url") String jiraIntegrationURL) {
     //TODO 1- Acesstoken (se nao encontrado 401)
 
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
     AuthorizedIntegration authIntegration = getAuthorizedIntegration(configurationId);
-
+    String accessToken;
     try {
-      String accessToken = authIntegration.getAccessToken(integrationURL, userId);
+      accessToken = authIntegration.getAccessToken(jiraIntegrationURL, userId);
       if (accessToken.isEmpty()) {
         ErrorResponse response = new ErrorResponse();
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -98,10 +110,22 @@ public class JiraApiResource {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
     //TODO 3- fazer requisicao pro JIRA
-    //TODO 4- tratar retorno
-
+    HttpResponse response = null;
+    try {
+      JiraOAuth1Provider provider = authIntegration.getJiraOAuth1Provider(jiraIntegrationURL);
+      URL myselfUrl = new URL(jiraIntegrationURL);
+      myselfUrl = new URL(myselfUrl, PATH_JIRA_API_SEARCH_USERS);
+      response =
+          provider.makeAuthorizedRequest(accessToken, myselfUrl,
+              HttpMethods.GET, null);
+    } catch (OAuth1Exception e) {
+      e.printStackTrace();
+    } catch (MalformedURLException e) {
+      e.printStackTrace();
+    }
 
     return ResponseEntity.ok().build();
+
   }
 
   /**
