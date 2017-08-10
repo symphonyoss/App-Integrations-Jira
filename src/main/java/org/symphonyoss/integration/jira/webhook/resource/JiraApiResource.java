@@ -31,13 +31,14 @@ import org.symphonyoss.integration.authentication.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
 import org.symphonyoss.integration.service.IntegrationBridge;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -54,9 +55,10 @@ public class JiraApiResource {
   private static final String INTEGRATION_UNAVAILABLE_SOLUTION =
       INTEGRATION_UNAVAILABLE + ".solution";
 
-  private static final String PATH_JIRA_API_SEARCH_USERS = "/rest/api/2/myself";
+  private static final String PATH_JIRA_API_SEARCH_USERS =
+      "rest/api/latest/user/assignable/search?issueKey={%s}&username={%s}&maxResults={%s}";
 
-
+  private static final String COMPONENT = "JIRA API";
 
   private final IntegrationBridge integrationBridge;
 
@@ -75,6 +77,7 @@ public class JiraApiResource {
    * Get a list of potential assigneers users from an especific Issue.
    * @param issueKey Issue identifier
    * @param username User that made a request from JIRA
+   * @param maxResults
    * @return List of potential assigneers users or 400 Bad Request - Returned if no issue key
    * was provided, 401 Unauthorized - Returned if the user is not authenticated ,
    * 404 Not Found - Returned if the requested user is not found.
@@ -83,7 +86,8 @@ public class JiraApiResource {
   public ResponseEntity searchAssignableUsers(@RequestParam String issueKey,
       @RequestParam String username, @PathVariable String configurationId,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-      @RequestParam(name = "url") String jiraIntegrationURL) {
+      @RequestParam(name = "url") String jiraIntegrationURL, Integer maxResults)
+      throws IOException {
     //TODO 1- Acesstoken (se nao encontrado 401)
 
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
@@ -109,22 +113,25 @@ public class JiraApiResource {
       response.setStatus(HttpStatus.BAD_REQUEST.value());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
     //TODO 3- fazer requisicao pro JIRA
     HttpResponse response = null;
+    String pahtApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username, maxResults);
     try {
       JiraOAuth1Provider provider = authIntegration.getJiraOAuth1Provider(jiraIntegrationURL);
       URL myselfUrl = new URL(jiraIntegrationURL);
-      myselfUrl = new URL(myselfUrl, PATH_JIRA_API_SEARCH_USERS);
+      myselfUrl = new URL(myselfUrl, pahtApiJiraUsersSearch);
       response =
           provider.makeAuthorizedRequest(accessToken, myselfUrl,
               HttpMethods.GET, null);
     } catch (OAuth1Exception e) {
-      e.printStackTrace();
+      throw new IntegrationRuntimeException(COMPONENT,
+          logMessage.getMessage("integration.jira.private.key.validation"), e);
     } catch (MalformedURLException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Invalid URL.", e);
     }
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok().body(response.getContent());
 
   }
 
