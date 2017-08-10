@@ -80,6 +80,13 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
   @Autowired
   private JiraAuthorizationManager authManager;
 
+  @Override
+  public void onCreate(String integrationUser) {
+    super.onCreate(integrationUser);
+
+    registerApp(integrationUser);
+  }
+
   /**
    * Callback to update the integration settings in the parser classes.
    * @param settings Integration settings
