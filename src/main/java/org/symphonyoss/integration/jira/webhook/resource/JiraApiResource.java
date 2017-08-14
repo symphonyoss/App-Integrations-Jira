@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.ws.rs.core.MediaType;
+
 /**
  * REST endpoint to handle requests for JIRA Api.
  *
@@ -56,7 +58,7 @@ public class JiraApiResource {
       INTEGRATION_UNAVAILABLE + ".solution";
 
   private static final String PATH_JIRA_API_SEARCH_USERS =
-      "rest/api/latest/user/assignable/search?issueKey={%s}&username={%s}&maxResults={%s}";
+      "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
 
   private static final String COMPONENT = "JIRA API";
 
@@ -65,6 +67,8 @@ public class JiraApiResource {
   private final LogMessageSource logMessage;
 
   private final JwtAuthentication jwtAuthentication;
+
+  private final Integer maxResults = new Integer(10);
 
   public JiraApiResource(IntegrationBridge integrationBridge,
       LogMessageSource logMessage, JwtAuthentication jwtAuthentication) {
@@ -77,16 +81,15 @@ public class JiraApiResource {
    * Get a list of potential assigneers users from an especific Issue.
    * @param issueKey Issue identifier
    * @param username User that made a request from JIRA
-   * @param maxResults
    * @return List of potential assigneers users or 400 Bad Request - Returned if no issue key
    * was provided, 401 Unauthorized - Returned if the user is not authenticated ,
    * 404 Not Found - Returned if the requested user is not found.
    */
-  @GetMapping("/user/assignable/search")
+  @GetMapping(value = "/user/assignable/search", produces = MediaType.APPLICATION_JSON)
   public ResponseEntity searchAssignableUsers(@RequestParam String issueKey,
-      @RequestParam String username, @PathVariable String configurationId,
+      @RequestParam(required = false) String username, @PathVariable String configurationId,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-      @RequestParam(name = "url") String jiraIntegrationURL, Integer maxResults)
+      @RequestParam(name = "url") String jiraIntegrationURL)
       throws IOException {
     //TODO 1- Acesstoken (se nao encontrado 401)
 
@@ -108,10 +111,14 @@ public class JiraApiResource {
 
 
     //TODO 2- Validar paremtros de entrada (issueKey n pode ser vazio 400)
-    if (issueKey.isEmpty()) {
+    if (issueKey.isEmpty() || jiraIntegrationURL.isEmpty()) {
       ErrorResponse response = new ErrorResponse();
       response.setStatus(HttpStatus.BAD_REQUEST.value());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    if(username == null){
+      username = "";
     }
 
     //TODO 3- fazer requisicao pro JIRA
@@ -131,7 +138,7 @@ public class JiraApiResource {
       throw new RuntimeException("Invalid URL.", e);
     }
 
-    return ResponseEntity.ok().body(response.getContent());
+    return ResponseEntity.ok().body(response.parseAsString());
 
   }
 
