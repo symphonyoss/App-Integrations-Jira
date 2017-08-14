@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.symphonyoss.integration.Integration;
-import org.symphonyoss.integration.authentication.jwt.JwtAuthentication;
+import org.symphonyoss.integration.authentication.api.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
 import org.symphonyoss.integration.service.IntegrationBridge;
@@ -125,12 +125,11 @@ public class JiraApiResource {
     HttpResponse response = null;
     String pahtApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username, maxResults);
     try {
-      JiraOAuth1Provider provider = authIntegration.getJiraOAuth1Provider(jiraIntegrationURL);
+      OAuth1Provider provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
+
       URL myselfUrl = new URL(jiraIntegrationURL);
       myselfUrl = new URL(myselfUrl, pahtApiJiraUsersSearch);
-      response =
-          provider.makeAuthorizedRequest(accessToken, myselfUrl,
-              HttpMethods.GET, null);
+      response = provider.makeAuthorizedRequest(accessToken, myselfUrl, HttpMethods.GET, null);
     } catch (OAuth1Exception e) {
       throw new IntegrationRuntimeException(COMPONENT,
           logMessage.getMessage("integration.jira.private.key.validation"), e);

@@ -26,7 +26,6 @@ import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.logging.LogMessageSource;
@@ -201,9 +200,11 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
   @Override
   public OAuth1Provider getOAuth1Provider(String url) throws OAuth1Exception {
     IntegrationSettings settings = getSettings();
+
     if (settings != null) {
       return authManager.getJiraOAuth1Provider(settings, url);
     }
+
     return null;
   }
 
