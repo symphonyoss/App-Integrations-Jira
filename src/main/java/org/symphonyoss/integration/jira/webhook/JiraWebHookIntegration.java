@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationPayload;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
@@ -194,10 +196,10 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
   }
 
   /**
-   * @see AuthorizedIntegration#getJiraOAuth1Provider(String)
+   * @see AuthorizedIntegration#getOAuth1Provider(String)
    */
   @Override
-  public JiraOAuth1Provider getJiraOAuth1Provider(String url) throws JiraOAuth1Exception {
+  public OAuth1Provider getOAuth1Provider(String url) throws OAuth1Exception {
     IntegrationSettings settings = getSettings();
     if (settings != null) {
       return authManager.getJiraOAuth1Provider(settings, url);
