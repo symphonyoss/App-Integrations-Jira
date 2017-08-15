@@ -18,23 +18,19 @@ package org.symphonyoss.integration.jira.api;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.symphonyoss.integration.Integration;
 import org.symphonyoss.integration.authentication.api.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
-import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
+import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
 import org.symphonyoss.integration.service.IntegrationBridge;
@@ -53,6 +49,10 @@ import javax.ws.rs.core.MediaType;
 @RestController
 @RequestMapping("/v1/{configurationId}/rest/api")
 public class JiraApiResource {
+
+  @Autowired
+  private UserAssignService userAssignService;
+
   private static final String INTEGRATION_UNAVAILABLE = "integration.web.integration.unavailable";
 
   private static final String INTEGRATION_UNAVAILABLE_SOLUTION =
@@ -116,12 +116,13 @@ public class JiraApiResource {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    if(username == null){
+    if (username == null) {
       username = "";
     }
 
     HttpResponse response = null;
-    String pahtApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username, maxResults);
+    String pahtApiJiraUsersSearch =
+        String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username, maxResults);
     try {
       OAuth1Provider provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
 
@@ -138,6 +139,33 @@ public class JiraApiResource {
 
     return ResponseEntity.ok().body(response.parseAsString());
 
+  }
+
+  @PutMapping("/issue/{issueIdOrKey}/assignee")
+  public ResponseEntity assignIssueToUser(@RequestParam String issueKey,
+      @RequestParam String username, @PathVariable String configurationId,
+      @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+      @RequestParam(name = "url") String jiraIntegrationURL) throws IOException {
+
+    //AccessToken
+    Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
+    AuthorizedIntegration authIntegration = getAuthorizedIntegration(configurationId);
+    String accessToken;
+    try {
+      accessToken = authIntegration.getAccessToken(jiraIntegrationURL, userId);
+      if (accessToken.isEmpty()) {
+        ErrorResponse response = new ErrorResponse();
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+      }
+    } catch (AuthorizationException e) {
+      ErrorResponse response =
+          new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    return userAssignService.assignUserToIssue(accessToken, issueKey, username, jiraIntegrationURL,
+        authIntegration);
   }
 
   /**
