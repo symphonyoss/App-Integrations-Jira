@@ -9,4 +9,12 @@ public class ServiceProperties {
 
   public static String INVALID_URL_ERROR = "integration.jira.url.api.invalid";
 
+  public static String INVALID_BASE_URL = "integration.jira.url.base.invalid";
+
+  public static String INVALID_BASE_URL_SOLUTION = INVALID_BASE_URL + ".solution";
+
+  public static String MISSING_FIELD = "integration.jira.missing.field";
+
+  public static String EMPTY_ACCESS_TOKEN = "integration.jira.missing.accessToken";
+
 }

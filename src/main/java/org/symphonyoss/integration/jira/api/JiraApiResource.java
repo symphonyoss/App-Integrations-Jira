@@ -17,11 +17,14 @@
 package org.symphonyoss.integration.jira.api;
 
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.ServiceProperties.EMPTY_ACCESS_TOKEN;
+import static org.symphonyoss.integration.jira.properties.ServiceProperties.INVALID_BASE_URL;
+import static org.symphonyoss.integration.jira.properties.ServiceProperties
+    .INVALID_BASE_URL_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.INVALID_URL_ERROR;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +33,8 @@ import org.symphonyoss.integration.authentication.api.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
-import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.services.UserAssignService;
@@ -143,6 +146,9 @@ public class JiraApiResource {
           logMessage.getMessage("integration.jira.private.key.validation"), e);
     } catch (MalformedURLException e) {
       throw new RuntimeException("Invalid URL.", e);
+    } catch (OAuth1HttpRequestException e) {
+      throw new IntegrationRuntimeException(COMPONENT,
+          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
     }
 
     return ResponseEntity.ok().body(response.parseAsString());
@@ -168,11 +174,13 @@ public class JiraApiResource {
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
     AuthorizedIntegration authIntegration = getAuthorizedIntegration(configurationId);
     String accessToken;
+
     try {
       accessToken = authIntegration.getAccessToken(jiraIntegrationURL, userId);
       if (accessToken.isEmpty()) {
         ErrorResponse response = new ErrorResponse();
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setMessage(logMessage.getMessage(EMPTY_ACCESS_TOKEN));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
       }
     } catch (AuthorizationException e) {
@@ -181,25 +189,27 @@ public class JiraApiResource {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    OAuth1Provider provider = null;
+    OAuth1Provider provider;
     try {
       provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
     } catch (OAuth1Exception e) {
-      throw new IntegrationRuntimeException(COMPONENT,
-          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
+      String errorMessage = logMessage.getMessage(INVALID_BASE_URL, jiraIntegrationURL);
+      String solutionMessage = logMessage.getMessage(INVALID_BASE_URL_SOLUTION);
+      throw new IntegrationRuntimeException(COMPONENT, errorMessage, e, solutionMessage);
     }
 
     //Build the URL
-    URL myselfURL = null;
+    URL userAssigneeUrl;
     try {
-      myselfURL = new URL(jiraIntegrationURL);
-      myselfURL = new URL(myselfURL, String.format(PATH_JIRA_API_ASSIGN_ISSUE, issueKey));
+      userAssigneeUrl = new URL(jiraIntegrationURL);
+      userAssigneeUrl =
+          new URL(userAssigneeUrl, String.format(PATH_JIRA_API_ASSIGN_ISSUE, issueKey));
     } catch (MalformedURLException e) {
       String errorMessage = logMessage.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
       throw new RuntimeException(errorMessage, e);
     }
 
-    return userAssignService.assignUserToIssue(accessToken, issueKey, username, myselfURL,
+    return userAssignService.assignUserToIssue(accessToken, issueKey, username, userAssigneeUrl,
         provider);
   }
 
