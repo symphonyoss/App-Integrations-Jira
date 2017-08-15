@@ -33,15 +33,11 @@ import java.net.URL;
 @Component
 public class UserAssignService {
 
-  private static final String PATH_JIRA_API_ASSIGN_ISSUE =
-      "/rest/api/latest/issue/%s/assignee";
-
   @Autowired
   private LogMessageSource logMessage;
 
   public ResponseEntity assignUserToIssue(String accessToken, String issueKey, String username,
-      String jiraIntegrationURL,
-      AuthorizedIntegration authIntegration) throws IOException {
+      URL integrationURL, OAuth1Provider provider) throws IOException {
 
     //Validate input
     if (issueKey.isEmpty()) {
@@ -52,21 +48,15 @@ public class UserAssignService {
 
     //Jira requisition
     try {
-      OAuth1Provider provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
-      URL myselfUrl = new URL(jiraIntegrationURL);
-      myselfUrl = new URL(myselfUrl, String.format(PATH_JIRA_API_ASSIGN_ISSUE, issueKey));
 
       GenericData data = new GenericData();
       data.put(NAME_PATH, username);
       JsonHttpContent content = new JsonHttpContent(new JacksonFactory(), data);
+      provider.makeAuthorizedRequest(accessToken, integrationURL, HttpMethods.PUT, content);
 
-      provider.makeAuthorizedRequest(accessToken, myselfUrl, HttpMethods.PUT, content);
     } catch (OAuth1Exception e) {
       throw new IntegrationRuntimeException(COMPONENT,
           logMessage.getMessage(APPLICATION_KEY_ERROR), e);
-    } catch (MalformedURLException e) {
-      String errorMessage = logMessage.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
-      throw new RuntimeException(errorMessage, e);
     }
 
     return ResponseEntity.ok(HttpStatus.OK);

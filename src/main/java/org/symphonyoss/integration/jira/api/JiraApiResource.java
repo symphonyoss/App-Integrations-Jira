@@ -16,6 +16,9 @@
 
 package org.symphonyoss.integration.jira.api;
 
+import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.ServiceProperties.INVALID_URL_ERROR;
+
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +61,9 @@ public class JiraApiResource {
 
   private static final String PATH_JIRA_API_SEARCH_USERS =
       "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
+
+  private static final String PATH_JIRA_API_ASSIGN_ISSUE =
+      "/rest/api/latest/issue/%s/assignee";
 
   private static final String COMPONENT = "JIRA API";
 
@@ -175,8 +181,26 @@ public class JiraApiResource {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    return userAssignService.assignUserToIssue(accessToken, issueKey, username, jiraIntegrationURL,
-        authIntegration);
+    OAuth1Provider provider = null;
+    try {
+      provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
+    } catch (OAuth1Exception e) {
+      throw new IntegrationRuntimeException(COMPONENT,
+          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
+    }
+
+    //Build the URL
+    URL myselfURL = null;
+    try {
+      myselfURL = new URL(jiraIntegrationURL);
+      myselfURL = new URL(myselfURL, String.format(PATH_JIRA_API_ASSIGN_ISSUE, issueKey));
+    } catch (MalformedURLException e) {
+      String errorMessage = logMessage.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
+      throw new RuntimeException(errorMessage, e);
+    }
+
+    return userAssignService.assignUserToIssue(accessToken, issueKey, username, myselfURL,
+        provider);
   }
 
   /**
