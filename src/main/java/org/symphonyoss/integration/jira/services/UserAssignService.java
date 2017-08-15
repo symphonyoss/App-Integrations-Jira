@@ -42,14 +42,7 @@ public class UserAssignService {
       AuthorizedIntegration authIntegration) throws IOException {
 
     //Validate input
-    if (issueKey.isEmpty()) {
-      ErrorResponse response = new ErrorResponse();
-      response.setStatus(HttpStatus.BAD_REQUEST.value());
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    //Validate username
-    if (username.isEmpty()) {
+    if (issueKey.isEmpty() || username.isEmpty()) {
       ErrorResponse response = new ErrorResponse();
       response.setStatus(HttpStatus.BAD_REQUEST.value());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -74,7 +67,6 @@ public class UserAssignService {
       throw new RuntimeException("Invalid URL.", e);
     }
     return ResponseEntity.ok().body(response.parseAsString());
-
   }
 
 }
