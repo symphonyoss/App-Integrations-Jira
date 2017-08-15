@@ -37,6 +37,7 @@ import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestExcep
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
+import org.symphonyoss.integration.jira.service.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
@@ -62,6 +63,8 @@ public class JiraApiResource {
   private static final String INTEGRATION_UNAVAILABLE_SOLUTION =
       INTEGRATION_UNAVAILABLE + ".solution";
 
+  private static final String INVALID_BASE_URL = "integration.jira.url.base.invalid";
+
   private static final String PATH_JIRA_API_SEARCH_USERS =
       "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
 
@@ -78,15 +81,19 @@ public class JiraApiResource {
 
   private final UserAssignService userAssignService;
 
+  private final SearchAssignableUsersService searchAssignableUsersService;
+
   private final Integer maxResults = new Integer(10);
 
   public JiraApiResource(IntegrationBridge integrationBridge,
       LogMessageSource logMessage, JwtAuthentication jwtAuthentication,
-      UserAssignService userAssignService) {
+      UserAssignService userAssignService,
+      SearchAssignableUsersService searchAssignableUsersService) {
     this.integrationBridge = integrationBridge;
     this.logMessage = logMessage;
     this.jwtAuthentication = jwtAuthentication;
     this.userAssignService = userAssignService;
+    this.searchAssignableUsersService = searchAssignableUsersService;
   }
 
   /**
@@ -109,9 +116,10 @@ public class JiraApiResource {
     String accessToken;
     try {
       accessToken = authIntegration.getAccessToken(jiraIntegrationURL, userId);
-      if (accessToken.isEmpty()) {
+      if (accessToken == null || accessToken.isEmpty()) {
         ErrorResponse response = new ErrorResponse();
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setMessage(logMessage.getMessage(INVALID_BASE_URL, jiraIntegrationURL));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
       }
     } catch (AuthorizationException e) {
@@ -120,6 +128,7 @@ public class JiraApiResource {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
+    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL, authIntegration);
 
     if (issueKey.isEmpty() || jiraIntegrationURL.isEmpty()) {
       ErrorResponse response = new ErrorResponse();
@@ -131,27 +140,19 @@ public class JiraApiResource {
       username = "";
     }
 
-    HttpResponse response = null;
     String pahtApiJiraUsersSearch =
         String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username, maxResults);
+    URL myselfUrl;
     try {
-      OAuth1Provider provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
-
-      URL myselfUrl = new URL(jiraIntegrationURL);
+      myselfUrl = new URL(jiraIntegrationURL);
       myselfUrl = new URL(myselfUrl, pahtApiJiraUsersSearch);
-      response = provider.makeAuthorizedRequest(accessToken, myselfUrl, HttpMethods.GET, null);
-
-    } catch (OAuth1Exception e) {
-      throw new IntegrationRuntimeException(COMPONENT,
-          logMessage.getMessage("integration.jira.private.key.validation"), e);
     } catch (MalformedURLException e) {
-      throw new RuntimeException("Invalid URL.", e);
-    } catch (OAuth1HttpRequestException e) {
-      throw new IntegrationRuntimeException(COMPONENT,
-          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
+      String errorMessage = logMessage.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
+      throw new RuntimeException(errorMessage, e);
     }
 
-    return ResponseEntity.ok().body(response.parseAsString());
+    return searchAssignableUsersService.searchAssingablesUsers(accessToken, provider, myselfUrl,
+        COMPONENT);
 
   }
 
@@ -189,14 +190,7 @@ public class JiraApiResource {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    OAuth1Provider provider;
-    try {
-      provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
-    } catch (OAuth1Exception e) {
-      String errorMessage = logMessage.getMessage(INVALID_BASE_URL, jiraIntegrationURL);
-      String solutionMessage = logMessage.getMessage(INVALID_BASE_URL_SOLUTION);
-      throw new IntegrationRuntimeException(COMPONENT, errorMessage, e, solutionMessage);
-    }
+    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL, authIntegration);
 
     //Build the URL
     URL userAssigneeUrl;
@@ -211,6 +205,18 @@ public class JiraApiResource {
 
     return userAssignService.assignUserToIssue(accessToken, issueKey, username, userAssigneeUrl,
         provider);
+  }
+
+  public OAuth1Provider getOAuth1Provider(@RequestParam(name = "url") String jiraIntegrationURL,
+      AuthorizedIntegration authIntegration) {
+    OAuth1Provider provider = null;
+    try {
+      provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
+    } catch (OAuth1Exception e) {
+      throw new IntegrationRuntimeException(COMPONENT,
+          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
+    }
+    return provider;
   }
 
   /**

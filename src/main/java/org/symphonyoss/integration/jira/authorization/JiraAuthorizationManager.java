@@ -30,6 +30,7 @@ import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
 import org.symphonyoss.integration.authorization.oauth.OAuthRsaSignerFactory;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
@@ -277,7 +278,7 @@ public class JiraAuthorizationManager {
    * @throws AuthorizationException Thrown in case of error.
    */
   public boolean isUserAuthorized(IntegrationSettings settings, String url, Long userId)
-      throws AuthorizationException {
+      throws AuthorizationException, OAuth1HttpRequestException {
     UserAuthorizationData userAuthorizationData =
         getUserAuthorizationData(settings, url, userId);
 

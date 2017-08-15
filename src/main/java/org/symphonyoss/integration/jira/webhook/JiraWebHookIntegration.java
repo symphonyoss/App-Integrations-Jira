@@ -23,6 +23,7 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationPayload;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
@@ -140,7 +141,8 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
    * @see AuthorizedIntegration#isUserAuthorized(String, Long)
    */
   @Override
-  public boolean isUserAuthorized(String url, Long userId) throws AuthorizationException {
+  public boolean isUserAuthorized(String url, Long userId)
+      throws AuthorizationException, OAuth1HttpRequestException {
     IntegrationSettings settings = getSettings();
     if (settings != null) {
       return authManager.isUserAuthorized(settings, url, userId);
