@@ -85,6 +85,8 @@ public class JiraApiResource {
 
   private final Integer maxResults = new Integer(10);
 
+  private String accessToken;
+
   public JiraApiResource(IntegrationBridge integrationBridge,
       LogMessageSource logMessage, JwtAuthentication jwtAuthentication,
       UserAssignService userAssignService,
@@ -113,28 +115,24 @@ public class JiraApiResource {
 
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
     AuthorizedIntegration authIntegration = getAuthorizedIntegration(configurationId);
-    String accessToken;
+
+
     try {
-      accessToken = authIntegration.getAccessToken(jiraIntegrationURL, userId);
-      if (accessToken == null || accessToken.isEmpty()) {
-        ErrorResponse response = new ErrorResponse();
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setMessage(logMessage.getMessage(INVALID_BASE_URL, jiraIntegrationURL));
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-      }
+      accessToken = getAccessToken(authIntegration, jiraIntegrationURL, userId);
     } catch (AuthorizationException e) {
       ErrorResponse response = new ErrorResponse(
           HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL, authIntegration);
-
-    if (issueKey.isEmpty() || jiraIntegrationURL.isEmpty()) {
+    if (accessToken == null || accessToken.isEmpty()) {
       ErrorResponse response = new ErrorResponse();
-      response.setStatus(HttpStatus.BAD_REQUEST.value());
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+      response.setStatus(HttpStatus.UNAUTHORIZED.value());
+      response.setMessage(logMessage.getMessage(INVALID_BASE_URL, jiraIntegrationURL));
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
+    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL, authIntegration);
 
     if (username == null) {
       username = "";
@@ -152,7 +150,7 @@ public class JiraApiResource {
     }
 
     return searchAssignableUsersService.searchAssingablesUsers(accessToken, provider, myselfUrl,
-        COMPONENT);
+        COMPONENT, issueKey);
 
   }
 
@@ -177,16 +175,10 @@ public class JiraApiResource {
     String accessToken;
 
     try {
-      accessToken = authIntegration.getAccessToken(jiraIntegrationURL, userId);
-      if (accessToken.isEmpty()) {
-        ErrorResponse response = new ErrorResponse();
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setMessage(logMessage.getMessage(EMPTY_ACCESS_TOKEN));
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-      }
+      accessToken = getAccessToken(authIntegration, jiraIntegrationURL, userId);
     } catch (AuthorizationException e) {
-      ErrorResponse response =
-          new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+      ErrorResponse response = new ErrorResponse(
+          HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
@@ -207,18 +199,6 @@ public class JiraApiResource {
         provider);
   }
 
-  public OAuth1Provider getOAuth1Provider(@RequestParam(name = "url") String jiraIntegrationURL,
-      AuthorizedIntegration authIntegration) {
-    OAuth1Provider provider = null;
-    try {
-      provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
-    } catch (OAuth1Exception e) {
-      throw new IntegrationRuntimeException(COMPONENT,
-          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
-    }
-    return provider;
-  }
-
   /**
    * Get an AuthorizedIntegration based on a configuraton ID.
    * @param configurationId Configuration ID used to retrieve the AuthorizedIntegration.
@@ -233,6 +213,24 @@ public class JiraApiResource {
           logMessage.getMessage(INTEGRATION_UNAVAILABLE_SOLUTION));
     }
     return (AuthorizedIntegration) integration;
+  }
+
+  public OAuth1Provider getOAuth1Provider(@RequestParam(name = "url") String jiraIntegrationURL,
+      AuthorizedIntegration authIntegration) {
+    OAuth1Provider provider = null;
+    try {
+      provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
+    } catch (OAuth1Exception e) {
+      throw new IntegrationRuntimeException(COMPONENT,
+          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
+    }
+    return provider;
+  }
+
+  private String getAccessToken(
+      AuthorizedIntegration authIntegration,
+      String jiraIntegrationURL, Long userId) throws AuthorizationException {
+    return authIntegration.getAccessToken(jiraIntegrationURL, userId);
   }
 
 }
