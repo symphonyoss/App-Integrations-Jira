@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.jira.webhook.resource;
+package org.symphonyoss.integration.jira.api;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
@@ -31,6 +31,7 @@ import org.symphonyoss.integration.authentication.api.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
@@ -91,7 +92,6 @@ public class JiraApiResource {
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
       @RequestParam(name = "url") String jiraIntegrationURL)
       throws IOException {
-    //TODO 1- Acesstoken (se nao encontrado 401)
 
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
     AuthorizedIntegration authIntegration = getAuthorizedIntegration(configurationId);
@@ -110,7 +110,6 @@ public class JiraApiResource {
     }
 
 
-    //TODO 2- Validar paremtros de entrada (issueKey n pode ser vazio 400)
     if (issueKey.isEmpty() || jiraIntegrationURL.isEmpty()) {
       ErrorResponse response = new ErrorResponse();
       response.setStatus(HttpStatus.BAD_REQUEST.value());
@@ -121,7 +120,6 @@ public class JiraApiResource {
       username = "";
     }
 
-    //TODO 3- fazer requisicao pro JIRA
     HttpResponse response = null;
     String pahtApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username, maxResults);
     try {
@@ -130,11 +128,21 @@ public class JiraApiResource {
       URL myselfUrl = new URL(jiraIntegrationURL);
       myselfUrl = new URL(myselfUrl, pahtApiJiraUsersSearch);
       response = provider.makeAuthorizedRequest(accessToken, myselfUrl, HttpMethods.GET, null);
+
     } catch (OAuth1Exception e) {
       throw new IntegrationRuntimeException(COMPONENT,
           logMessage.getMessage("integration.jira.private.key.validation"), e);
     } catch (MalformedURLException e) {
       throw new RuntimeException("Invalid URL.", e);
+    } catch (OAuth1HttpRequestException e) {
+      ErrorResponse errorResponse = new ErrorResponse();
+      if(e.getCode() == HttpStatus.BAD_REQUEST.value()) {
+        errorResponse.setStatus(e.getCode());
+        errorResponse.setMessage(e.getLocalizedMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+      }
+
+
     }
 
     return ResponseEntity.ok().body(response.parseAsString());
