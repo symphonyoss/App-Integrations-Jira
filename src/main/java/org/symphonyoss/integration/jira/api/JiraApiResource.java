@@ -28,6 +28,7 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
+import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.services.UserAssignService;
@@ -50,9 +51,6 @@ import javax.ws.rs.core.MediaType;
 @RequestMapping("/v1/{configurationId}/rest/api")
 public class JiraApiResource {
 
-  @Autowired
-  private UserAssignService userAssignService;
-
   private static final String INTEGRATION_UNAVAILABLE = "integration.web.integration.unavailable";
 
   private static final String INTEGRATION_UNAVAILABLE_SOLUTION =
@@ -69,13 +67,17 @@ public class JiraApiResource {
 
   private final JwtAuthentication jwtAuthentication;
 
+  private final UserAssignService userAssignService;
+
   private final Integer maxResults = new Integer(10);
 
   public JiraApiResource(IntegrationBridge integrationBridge,
-      LogMessageSource logMessage, JwtAuthentication jwtAuthentication) {
+      LogMessageSource logMessage, JwtAuthentication jwtAuthentication,
+      UserAssignService userAssignService) {
     this.integrationBridge = integrationBridge;
     this.logMessage = logMessage;
     this.jwtAuthentication = jwtAuthentication;
+    this.userAssignService = userAssignService;
   }
 
   /**
@@ -141,9 +143,18 @@ public class JiraApiResource {
 
   }
 
+  /**
+   * Assigns an specific user to an specific Issue.
+   * @param issueKey Issue identifier
+   * @param username Assignee identifier
+   * @return 200 - Returned if user was successfully assigned or 400 Bad Request - Returned if no
+   * issue key was provided, 401 Unauthorized - Returned if the user is not authenticated ,
+   * 404 Not Found - Returned if the requested user is not found.
+   */
   @PutMapping("/issue/{issueIdOrKey}/assignee")
   public ResponseEntity assignIssueToUser(@RequestParam String issueKey,
-      @RequestParam String username, @PathVariable String configurationId,
+      @RequestParam(value = "username", required = false) String username,
+      @PathVariable String configurationId,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
       @RequestParam(name = "url") String jiraIntegrationURL) throws IOException {
 
