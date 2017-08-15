@@ -1,4 +1,4 @@
-package org.symphonyoss.integration.jira.services;
+package org.symphonyoss.integration.jira.service;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
