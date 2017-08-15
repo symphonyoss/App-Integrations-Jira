@@ -134,15 +134,6 @@ public class JiraApiResource {
           logMessage.getMessage("integration.jira.private.key.validation"), e);
     } catch (MalformedURLException e) {
       throw new RuntimeException("Invalid URL.", e);
-    } catch (OAuth1HttpRequestException e) {
-      ErrorResponse errorResponse = new ErrorResponse();
-      if(e.getCode() == HttpStatus.BAD_REQUEST.value()) {
-        errorResponse.setStatus(e.getCode());
-        errorResponse.setMessage(e.getLocalizedMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-      }
-
-
     }
 
     return ResponseEntity.ok().body(response.parseAsString());
