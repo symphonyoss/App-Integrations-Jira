@@ -21,7 +21,6 @@ import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
 
-import java.io.IOException;
 import java.net.URL;
 
 /**
