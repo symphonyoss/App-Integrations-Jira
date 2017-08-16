@@ -96,7 +96,7 @@ public class JiraApiResource {
   /**
    * Get a list of potential assignable users from a specific issue.
    * @param issueKey Issue identifier
-   * @param username User that made a request from JIRA
+   * @param username The username you want to query from JIRA
    * @return List of potential assigneers users or 400 Bad Request - Returned if no issue key
    * was provided, 401 Unauthorized - Returned if the user is not authenticated ,
    * 404 Not Found - Returned if the requested user is not found.
