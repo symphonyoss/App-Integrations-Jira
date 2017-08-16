@@ -1,6 +1,10 @@
 package org.symphonyoss.integration.jira.properties;
 
+import org.symphonyoss.integration.jira.api.JiraApiResource;
+
 /**
+ * Exception message keys used by the component {@link JiraApiResource}
+ *
  * Created by hamitay on 8/15/17.
  */
 public class ServiceProperties {
