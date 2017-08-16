@@ -142,7 +142,7 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
    */
   @Override
   public boolean isUserAuthorized(String url, Long userId)
-      throws AuthorizationException, OAuth1HttpRequestException {
+      throws AuthorizationException {
     IntegrationSettings settings = getSettings();
     if (settings != null) {
       return authManager.isUserAuthorized(settings, url, userId);
