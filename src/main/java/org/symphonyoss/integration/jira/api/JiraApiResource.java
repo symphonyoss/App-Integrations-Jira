@@ -28,13 +28,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.symphonyoss.integration.Integration;
 import org.symphonyoss.integration.authentication.api.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
-import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
-import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
@@ -112,11 +109,11 @@ public class JiraApiResource {
       throws IOException {
 
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
-    AuthorizedIntegration authIntegration = getAuthorizedIntegration(configurationId);
+    validateIntegrationBootstrap();
 
     String accessToken = null;
     try {
-      accessToken = getAccessToken(authIntegration, jiraIntegrationURL, userId);
+      accessToken = getAccessToken(jiraIntegrationURL, userId);
     } catch (AuthorizationException e) {
       ErrorResponse response = new ErrorResponse(
           HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
@@ -130,7 +127,7 @@ public class JiraApiResource {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL, authIntegration);
+    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
     if (username == null) {
       username = "";
@@ -152,6 +149,9 @@ public class JiraApiResource {
 
   }
 
+  private void validateIntegrationBootstrap() {
+  }
+
   /**
    * Assigns an specific user to an specific Issue.
    * @param issueKey Issue identifier
@@ -170,18 +170,17 @@ public class JiraApiResource {
 
     //AccessToken
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
-    AuthorizedIntegration authIntegration = getAuthorizedIntegration(configurationId);
     String accessToken;
 
     try {
-      accessToken = getAccessToken(authIntegration, jiraIntegrationURL, userId);
+      accessToken = getAccessToken(jiraIntegrationURL, userId);
     } catch (AuthorizationException e) {
       ErrorResponse response = new ErrorResponse(
           HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL, authIntegration);
+    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
     //Build the URL
     URL userAssigneeUrl;
@@ -198,27 +197,10 @@ public class JiraApiResource {
         provider);
   }
 
-  /**
-   * Get an AuthorizedIntegration based on a configuraton ID.
-   * @param configurationId Configuration ID used to retrieve the AuthorizedIntegration.
-   * @return AuthorizedIntegration found or an IntegrationUnavailableException if it was not
-   * found or is invalid.
-   */
-  private AuthorizedIntegration getAuthorizedIntegration(@PathVariable String configurationId) {
-    Integration integration = this.integrationBridge.getIntegrationById(configurationId);
-    if (integration == null) {
-      throw new IntegrationUnavailableException(
-          logMessage.getMessage(INTEGRATION_UNAVAILABLE, configurationId),
-          logMessage.getMessage(INTEGRATION_UNAVAILABLE_SOLUTION));
-    }
-    return (AuthorizedIntegration) integration;
-  }
-
-  public OAuth1Provider getOAuth1Provider(@RequestParam(name = "url") String jiraIntegrationURL,
-      AuthorizedIntegration authIntegration) {
+  public OAuth1Provider getOAuth1Provider(@RequestParam(name = "url") String jiraIntegrationURL) {
     OAuth1Provider provider = null;
     try {
-      provider = authIntegration.getOAuth1Provider(jiraIntegrationURL);
+      provider = jiraWebHookIntegration.getOAuth1Provider(jiraIntegrationURL);
     } catch (OAuth1Exception e) {
       throw new JiraAuthorizationException(COMPONENT,
           logMessage.getMessage(APPLICATION_KEY_ERROR), e);
@@ -227,9 +209,8 @@ public class JiraApiResource {
   }
 
   private String getAccessToken(
-      AuthorizedIntegration authIntegration,
       String jiraIntegrationURL, Long userId) throws AuthorizationException {
-    return authIntegration.getAccessToken(jiraIntegrationURL, userId);
+    return jiraWebHookIntegration.getAccessToken(jiraIntegrationURL, userId);
   }
 
 }
