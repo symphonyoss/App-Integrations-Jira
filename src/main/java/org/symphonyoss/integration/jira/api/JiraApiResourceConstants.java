@@ -22,7 +22,7 @@ package org.symphonyoss.integration.jira.api;
  */
 public class JiraApiResourceConstants {
 
-  public static String ISSUE_KEY = "issueKey";
+  public static final String ISSUE_KEY = "issueKey";
 
-  public static String USERNAME = "username";
+  public static final String USERNAME = "username";
 }
