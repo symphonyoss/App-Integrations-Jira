@@ -85,8 +85,6 @@ public class JiraApiResource {
 
   private final Integer maxResults = new Integer(10);
 
-  private String accessToken;
-
   public JiraApiResource(JiraWebHookIntegration jiraWebHookIntegration,
       LogMessageSource logMessage, JwtAuthentication jwtAuthentication,
       UserAssignService userAssignService,
@@ -116,7 +114,7 @@ public class JiraApiResource {
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
     AuthorizedIntegration authIntegration = getAuthorizedIntegration(configurationId);
 
-
+    String accessToken = null;
     try {
       accessToken = getAccessToken(authIntegration, jiraIntegrationURL, userId);
     } catch (AuthorizationException e) {
