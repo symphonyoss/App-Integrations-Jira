@@ -278,7 +278,7 @@ public class JiraAuthorizationManager {
    * @throws AuthorizationException Thrown in case of error.
    */
   public boolean isUserAuthorized(IntegrationSettings settings, String url, Long userId)
-      throws AuthorizationException, OAuth1HttpRequestException {
+      throws AuthorizationException {
     UserAuthorizationData userAuthorizationData =
         getUserAuthorizationData(settings, url, userId);
 
@@ -300,9 +300,11 @@ public class JiraAuthorizationManager {
       HttpResponse response =
           provider.makeAuthorizedRequest(jiraOAuth1Data.getAccessToken(), myselfUrl,
               HttpMethods.GET, null);
-
       return response.getStatusCode() != HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
     } catch (MalformedURLException e) {
+      throw new JiraOAuth1Exception(logMessage.getMessage("integration.jira.url.api.invalid", url),
+          e, logMessage.getMessage("integration.jira.url.api.invalid.solution"));
+    } catch (OAuth1HttpRequestException e) {
       throw new JiraOAuth1Exception(logMessage.getMessage("integration.jira.url.api.invalid", url),
           e, logMessage.getMessage("integration.jira.url.api.invalid.solution"));
     }
