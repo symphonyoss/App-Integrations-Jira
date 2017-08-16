@@ -8,7 +8,7 @@ import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.NAME_
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.json.JsonHttpContent;
-import com.google.api.client.json.jackson.JacksonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.GenericData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
