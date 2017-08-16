@@ -39,9 +39,9 @@ import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
+import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
-import org.symphonyoss.integration.service.IntegrationBridge;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -73,7 +73,7 @@ public class JiraApiResource {
 
   private static final String COMPONENT = "JIRA API";
 
-  private final IntegrationBridge integrationBridge;
+  private final JiraWebHookIntegration jiraWebHookIntegration;
 
   private final LogMessageSource logMessage;
 
@@ -87,11 +87,11 @@ public class JiraApiResource {
 
   private String accessToken;
 
-  public JiraApiResource(IntegrationBridge integrationBridge,
+  public JiraApiResource(JiraWebHookIntegration jiraWebHookIntegration,
       LogMessageSource logMessage, JwtAuthentication jwtAuthentication,
       UserAssignService userAssignService,
       SearchAssignableUsersService searchAssignableUsersService) {
-    this.integrationBridge = integrationBridge;
+    this.jiraWebHookIntegration = jiraWebHookIntegration;
     this.logMessage = logMessage;
     this.jwtAuthentication = jwtAuthentication;
     this.userAssignService = userAssignService;
