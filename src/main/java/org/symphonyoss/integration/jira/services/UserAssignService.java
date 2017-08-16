@@ -26,6 +26,7 @@ import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.GenericData;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +55,7 @@ public class UserAssignService {
       URL integrationURL, OAuth1Provider provider) {
 
     //Validate input
-    if (issueKey.isEmpty()) {
+    if (StringUtils.isEmpty(issueKey)) {
       ErrorResponse response = new ErrorResponse();
       response.setStatus(HttpStatus.BAD_REQUEST.value());
       response.setMessage(logMessage.getMessage(MISSING_FIELD, ISSUE_KEY));

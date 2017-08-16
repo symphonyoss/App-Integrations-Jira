@@ -17,10 +17,13 @@
 package org.symphonyoss.integration.jira.services;
 
 import static org.symphonyoss.integration.exception.RemoteApiException.COMPONENT;
+import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.ServiceProperties.MISSING_FIELD;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,15 +52,17 @@ public class SearchAssignableUsersService {
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
       URL assignableUserUrl, String component, String issueKey) {
 
-    if (issueKey == null || issueKey.isEmpty()) {
+    if (StringUtils.isEmpty(issueKey)) {
       ErrorResponse response = new ErrorResponse();
       response.setStatus(HttpStatus.BAD_REQUEST.value());
+      response.setMessage(logMessage.getMessage(MISSING_FIELD, ISSUE_KEY));
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     HttpResponse response = null;
     try {
-      response = provider.makeAuthorizedRequest(accessToken, assignableUserUrl, HttpMethods.GET, null);
+      response =
+          provider.makeAuthorizedRequest(accessToken, assignableUserUrl, HttpMethods.GET, null);
     } catch (OAuth1HttpRequestException e) {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
         ErrorResponse errorResponse = new ErrorResponse();
