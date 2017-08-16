@@ -47,7 +47,7 @@ public class SearchAssignableUsersService {
   private LogMessageSource logMessage;
 
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
-      URL myselfUrl, String component, String issueKey) {
+      URL assignableUserUrl, String component, String issueKey) {
 
     if (issueKey == null || issueKey.isEmpty()) {
       ErrorResponse response = new ErrorResponse();
@@ -57,7 +57,7 @@ public class SearchAssignableUsersService {
 
     HttpResponse response = null;
     try {
-      response = provider.makeAuthorizedRequest(accessToken, myselfUrl, HttpMethods.GET, null);
+      response = provider.makeAuthorizedRequest(accessToken, assignableUserUrl, HttpMethods.GET, null);
     } catch (OAuth1HttpRequestException e) {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
         ErrorResponse errorResponse = new ErrorResponse();
