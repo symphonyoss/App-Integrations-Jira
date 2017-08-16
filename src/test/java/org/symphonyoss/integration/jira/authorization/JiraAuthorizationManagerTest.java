@@ -46,7 +46,6 @@ import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
 import org.symphonyoss.integration.authorization.oauth.OAuthRsaSignerFactory;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
-import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
@@ -208,7 +207,7 @@ public class JiraAuthorizationManagerTest {
 
   @Test(expected = NullPointerException.class)
   public void testIsUserAuthorizedException()
-      throws AuthorizationException, URISyntaxException, OAuth1HttpRequestException {
+      throws AuthorizationException, URISyntaxException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
 
@@ -230,8 +229,7 @@ public class JiraAuthorizationManagerTest {
   }
 
   @Test(expected = JiraOAuth1Exception.class)
-  public void testIsUserAuthorizedInvalidURL()
-      throws AuthorizationException, OAuth1HttpRequestException {
+  public void testIsUserAuthorizedInvalidURL() throws AuthorizationException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
 
