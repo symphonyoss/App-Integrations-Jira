@@ -197,9 +197,11 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
   }
 
   /**
-   * @see AuthorizedIntegration#getOAuth1Provider(String)
+   * Get an OAuth1 provider for user to perform calls to an external system resource.
+   * @param url Integration URL.
+   * @return JIRA OAuth1Provider.
+   * @throws OAuth1Exception Thrown in any case of error.
    */
-  @Override
   public OAuth1Provider getOAuth1Provider(String url) throws OAuth1Exception {
     IntegrationSettings settings = getSettings();
 
