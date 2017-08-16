@@ -13,6 +13,7 @@ import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
 
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -25,7 +26,7 @@ public class SearchAssignableUsersService {
   private LogMessageSource logMessage;
 
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
-      URL myselfUrl, String component, String issueKey) {
+      URL myselfUrl, String component, String issueKey) throws IOException {
 
     if (issueKey == null || issueKey.isEmpty()) {
       ErrorResponse response = new ErrorResponse();
@@ -35,8 +36,7 @@ public class SearchAssignableUsersService {
 
     HttpResponse response = null;
     try {
-      provider.makeAuthorizedRequest(accessToken, myselfUrl, HttpMethods.GET, null);
-
+      response = provider.makeAuthorizedRequest(accessToken, myselfUrl, HttpMethods.GET, null);
     } catch (OAuth1HttpRequestException e) {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
         ErrorResponse errorResponse = new ErrorResponse();
@@ -48,6 +48,6 @@ public class SearchAssignableUsersService {
       throw new IntegrationRuntimeException(component,
           logMessage.getMessage("integration.jira.private.key.validation"), e);
     }
-    return ResponseEntity.ok(HttpStatus.OK);
+    return ResponseEntity.ok().body(response.parseAsString());
   }
 }
