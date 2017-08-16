@@ -57,7 +57,7 @@ import javax.ws.rs.core.MediaType;
  * Created by alexandre-silva-daitan on 08/08/17.
  */
 @RestController
-@RequestMapping("/v1/{configurationId}/rest/api")
+@RequestMapping("/v1/jira/rest/api")
 public class JiraApiResource {
 
   private static final String INTEGRATION_UNAVAILABLE = "integration.web.integration.unavailable";
