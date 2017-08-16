@@ -36,7 +36,7 @@ public class UserAssignService {
   private LogMessageSource logMessage;
 
   public ResponseEntity assignUserToIssue(String accessToken, String issueKey, String username,
-      URL integrationURL, OAuth1Provider provider) throws IOException {
+      URL integrationURL, OAuth1Provider provider) {
 
     //Validate input
     if (issueKey.isEmpty()) {

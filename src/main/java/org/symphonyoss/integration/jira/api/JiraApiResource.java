@@ -106,8 +106,7 @@ public class JiraApiResource {
   public ResponseEntity searchAssignableUsers(@RequestParam String issueKey,
       @RequestParam(required = false) String username,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-      @RequestParam(name = "url") String jiraIntegrationURL)
-      throws IOException {
+      @RequestParam(name = "url") String jiraIntegrationURL) {
 
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
 
@@ -167,8 +166,7 @@ public class JiraApiResource {
   public ResponseEntity assignIssueToUser(@RequestParam String issueKey,
       @RequestParam(value = "username", required = false) String username,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-      @RequestParam(name = "url") String jiraIntegrationURL)
-      throws IOException {
+      @RequestParam(name = "url") String jiraIntegrationURL) {
 
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
 

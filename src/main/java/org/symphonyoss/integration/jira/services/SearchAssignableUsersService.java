@@ -1,5 +1,6 @@
 package org.symphonyoss.integration.jira.services;
 
+import static org.symphonyoss.integration.exception.RemoteApiException.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
 
 import com.google.api.client.http.HttpMethods;
@@ -28,7 +29,7 @@ public class SearchAssignableUsersService {
   private LogMessageSource logMessage;
 
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
-      URL myselfUrl, String component, String issueKey) throws IOException {
+      URL myselfUrl, String component, String issueKey) {
 
     if (issueKey == null || issueKey.isEmpty()) {
       ErrorResponse response = new ErrorResponse();
@@ -50,6 +51,11 @@ public class SearchAssignableUsersService {
       throw new JiraAuthorizationException(component,
           logMessage.getMessage(APPLICATION_KEY_ERROR), e);
     }
-    return ResponseEntity.ok().body(response.parseAsString());
+    try {
+      return ResponseEntity.ok().body(response.parseAsString());
+    } catch (IOException e) {
+      throw new JiraAuthorizationException(COMPONENT,
+          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
+    }
   }
 }
