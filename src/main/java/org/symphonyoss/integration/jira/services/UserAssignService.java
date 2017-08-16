@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
-import org.symphonyoss.integration.exception.IntegrationRuntimeException;
+import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
 
@@ -55,10 +55,10 @@ public class UserAssignService {
       provider.makeAuthorizedRequest(accessToken, integrationURL, HttpMethods.PUT, content);
 
     } catch (OAuth1Exception e) {
-      throw new IntegrationRuntimeException(COMPONENT,
+      throw new JiraAuthorizationException(COMPONENT,
           logMessage.getMessage(APPLICATION_KEY_ERROR), e);
     } catch (OAuth1HttpRequestException e) {
-      throw new IntegrationRuntimeException(COMPONENT,
+      throw new JiraAuthorizationException(COMPONENT,
           logMessage.getMessage(APPLICATION_KEY_ERROR), e);
     }
 

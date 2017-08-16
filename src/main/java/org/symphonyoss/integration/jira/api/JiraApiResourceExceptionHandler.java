@@ -5,8 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
+import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
+import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.model.ErrorResponse;
 
 /**
@@ -25,16 +26,16 @@ public class JiraApiResourceExceptionHandler {
   }
 
   @ResponseBody
-  @ExceptionHandler(RuntimeException.class)
-  public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+  @ExceptionHandler(InvalidJiraURLException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidJiraURLException(InvalidJiraURLException ex) {
     ErrorResponse response =
         new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   @ResponseBody
-  @ExceptionHandler(IntegrationRuntimeException.class)
-  public ResponseEntity<ErrorResponse> handleIntegrationRuntimeException(IntegrationRuntimeException ex) {
+  @ExceptionHandler(JiraAuthorizationException.class)
+  public ResponseEntity<ErrorResponse> handleJiraAuthorizationException(JiraAuthorizationException ex) {
     ErrorResponse response =
         new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);

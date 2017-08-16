@@ -1,5 +1,7 @@
 package org.symphonyoss.integration.jira.services;
 
+import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
+
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
-import org.symphonyoss.integration.exception.IntegrationRuntimeException;
+import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
 
@@ -45,8 +47,8 @@ public class SearchAssignableUsersService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
       }
     } catch (OAuth1Exception e) {
-      throw new IntegrationRuntimeException(component,
-          logMessage.getMessage("integration.jira.private.key.validation"), e);
+      throw new JiraAuthorizationException(component,
+          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
     }
     return ResponseEntity.ok().body(response.parseAsString());
   }
