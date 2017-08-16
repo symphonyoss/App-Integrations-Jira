@@ -18,6 +18,8 @@ package org.symphonyoss.integration.jira.api;
 
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.EMPTY_ACCESS_TOKEN;
+import static org.symphonyoss.integration.jira.properties.ServiceProperties
+    .INVALID_BASE_URL_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.INVALID_URL_ERROR;
 
 import org.springframework.http.HttpStatus;
