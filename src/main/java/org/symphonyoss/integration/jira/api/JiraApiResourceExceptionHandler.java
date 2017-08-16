@@ -27,7 +27,7 @@ import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.model.ErrorResponse;
 
 /**
- * Class responsble to handler and treat JiraApiResource Excetions
+ * Class responsble to handler and treat JiraApiResource exceptions
  * Created by hamitay on 8/15/17.
  */
 
