@@ -94,7 +94,7 @@ public class JiraApiResource {
   }
 
   /**
-   * Get a list of potential assigneers users from an especific Issue.
+   * Get a list of potential assignable users from a specific issue.
    * @param issueKey Issue identifier
    * @param username User that made a request from JIRA
    * @return List of potential assigneers users or 400 Bad Request - Returned if no issue key
