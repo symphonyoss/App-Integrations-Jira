@@ -20,6 +20,7 @@ import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPL
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.INVALID_URL_ERROR;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,7 +80,8 @@ public class JiraApiResource {
 
   private final SearchAssignableUsersService searchAssignableUsersService;
 
-  private final Integer maxResults = new Integer(10);
+  @Value("${jira.api.searchUserService.maxNumberOfUsers:10}")
+  private Integer maxResults;
 
   public JiraApiResource(JiraWebHookIntegration jiraWebHookIntegration,
       LogMessageSource logMessage, JwtAuthentication jwtAuthentication,
