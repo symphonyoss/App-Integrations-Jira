@@ -23,4 +23,6 @@ public class ServiceProperties {
 
   public static String ISSUEKEY_NOT_FOUND = "integration.jira.issueKey.not.found";
 
+  public static String COMPONENT = "JIRA API";
+
 }
