@@ -1,9 +1,29 @@
+/**
+ * Copyright 2016-2017 Symphony Integrations - Symphony LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.symphonyoss.integration.jira.services;
 
+import static org.symphonyoss.integration.exception.RemoteApiException.COMPONENT;
+import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.ServiceProperties.MISSING_FIELD;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +39,8 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
+ * Service to get a list of potential assignable users from a specific issue.
+ *
  * Created by alexandre-silva-daitan on 15/08/17.
  */
 @Component
@@ -28,17 +50,19 @@ public class SearchAssignableUsersService {
   private LogMessageSource logMessage;
 
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
-      URL myselfUrl, String component, String issueKey) throws IOException {
+      URL assignableUserUrl, String component, String issueKey) {
 
-    if (issueKey == null || issueKey.isEmpty()) {
+    if (StringUtils.isEmpty(issueKey)) {
       ErrorResponse response = new ErrorResponse();
       response.setStatus(HttpStatus.BAD_REQUEST.value());
+      response.setMessage(logMessage.getMessage(MISSING_FIELD, ISSUE_KEY));
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     HttpResponse response = null;
     try {
-      response = provider.makeAuthorizedRequest(accessToken, myselfUrl, HttpMethods.GET, null);
+      response =
+          provider.makeAuthorizedRequest(accessToken, assignableUserUrl, HttpMethods.GET, null);
     } catch (OAuth1HttpRequestException e) {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
         ErrorResponse errorResponse = new ErrorResponse();
@@ -50,6 +74,11 @@ public class SearchAssignableUsersService {
       throw new JiraAuthorizationException(component,
           logMessage.getMessage(APPLICATION_KEY_ERROR), e);
     }
-    return ResponseEntity.ok().body(response.parseAsString());
+    try {
+      return ResponseEntity.ok().body(response.parseAsString());
+    } catch (IOException e) {
+      throw new JiraAuthorizationException(COMPONENT,
+          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
+    }
   }
 }

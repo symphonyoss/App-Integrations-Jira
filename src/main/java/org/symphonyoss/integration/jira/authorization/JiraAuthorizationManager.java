@@ -300,7 +300,6 @@ public class JiraAuthorizationManager {
       HttpResponse response =
           provider.makeAuthorizedRequest(jiraOAuth1Data.getAccessToken(), myselfUrl,
               HttpMethods.GET, null);
-
       return response.getStatusCode() != HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
     } catch (MalformedURLException e) {
       throw new JiraOAuth1Exception(logMessage.getMessage("integration.jira.url.api.invalid", url),

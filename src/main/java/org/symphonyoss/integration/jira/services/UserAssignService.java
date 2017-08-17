@@ -1,3 +1,19 @@
+/**
+ * Copyright 2016-2017 Symphony Integrations - Symphony LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.symphonyoss.integration.jira.services;
 
 import static org.symphonyoss.integration.exception.RemoteApiException.COMPONENT;
@@ -10,6 +26,7 @@ import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.GenericData;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +38,6 @@ import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.ErrorResponse;
 
-import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -36,10 +52,10 @@ public class UserAssignService {
   private LogMessageSource logMessage;
 
   public ResponseEntity assignUserToIssue(String accessToken, String issueKey, String username,
-      URL integrationURL, OAuth1Provider provider) throws IOException {
+      URL integrationURL, OAuth1Provider provider) {
 
     //Validate input
-    if (issueKey.isEmpty()) {
+    if (StringUtils.isEmpty(issueKey)) {
       ErrorResponse response = new ErrorResponse();
       response.setStatus(HttpStatus.BAD_REQUEST.value());
       response.setMessage(logMessage.getMessage(MISSING_FIELD, ISSUE_KEY));
