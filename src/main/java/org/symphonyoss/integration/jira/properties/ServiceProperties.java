@@ -21,4 +21,6 @@ public class ServiceProperties {
 
   public static String EMPTY_ACCESS_TOKEN = "integration.jira.missing.accessToken";
 
+  public static String ISSUEKEY_NOT_FOUND = "integration.jira.issueKey.not.found";
+
 }

@@ -19,6 +19,7 @@ package org.symphonyoss.integration.jira.services;
 import static org.symphonyoss.integration.exception.RemoteApiException.COMPONENT;
 import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.ServiceProperties.ISSUEKEY_NOT_FOUND;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.MISSING_FIELD;
 
 import com.google.api.client.http.HttpMethods;
@@ -59,26 +60,26 @@ public class SearchAssignableUsersService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    HttpResponse response = null;
     try {
-      response =
+      HttpResponse response =
           provider.makeAuthorizedRequest(accessToken, assignableUserUrl, HttpMethods.GET, null);
+      return ResponseEntity.ok().body(response.parseAsString());
     } catch (OAuth1HttpRequestException e) {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-        errorResponse.setMessage(e.getLocalizedMessage());
+        errorResponse.setMessage(logMessage.getMessage(ISSUEKEY_NOT_FOUND, ISSUE_KEY));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
       }
     } catch (OAuth1Exception e) {
       throw new JiraAuthorizationException(component,
           logMessage.getMessage(APPLICATION_KEY_ERROR), e);
-    }
-    try {
-      return ResponseEntity.ok().body(response.parseAsString());
     } catch (IOException e) {
       throw new JiraAuthorizationException(COMPONENT,
           logMessage.getMessage(APPLICATION_KEY_ERROR), e);
     }
+    return null;
   }
 }
+
+
