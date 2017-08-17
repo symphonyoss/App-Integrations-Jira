@@ -44,7 +44,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
-import org.symphonyoss.integration.authorization.oauth.OAuthRsaSignerFactory;
+import org.symphonyoss.integration.utils.RsaKeyUtils;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
@@ -128,7 +128,7 @@ public class JiraAuthorizationManagerTest {
   private JiraOAuth1Provider jiraOAuth1Provider;
 
   @MockBean
-  private OAuthRsaSignerFactory oAuthRsaSignerFactory;
+  private RsaKeyUtils rsaKeyUtils;
 
   @MockBean
   private AuthorizationRepositoryService authRepoService;
@@ -219,7 +219,7 @@ public class JiraAuthorizationManagerTest {
     String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
     doReturn(certsDirectory).when(utils).getCertsDirectory();
 
-    doReturn(privateKey).when(oAuthRsaSignerFactory).getPrivateKey(anyString());
+    doReturn(privateKey).when(rsaKeyUtils).getPrivateKey(anyString());
 
     doReturn(userData).when(authRepoService).find(anyString(),
         eq(SETTINGS.getConfigurationId()), eq(MOCK_URL), eq(MOCK_USER));
@@ -252,7 +252,7 @@ public class JiraAuthorizationManagerTest {
     String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
     doReturn(certsDirectory).when(utils).getCertsDirectory();
 
-    doReturn(privateKey).when(oAuthRsaSignerFactory).getPrivateKey(anyString());
+    doReturn(privateKey).when(rsaKeyUtils).getPrivateKey(anyString());
 
     doReturn(MOCK_URL).when(jiraOAuth1Provider).requestAuthorizationUrl(anyString());
 
@@ -275,7 +275,7 @@ public class JiraAuthorizationManagerTest {
     String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
     doReturn(certsDirectory).when(utils).getCertsDirectory();
 
-    doReturn(privateKey).when(oAuthRsaSignerFactory).getPrivateKey(anyString());
+    doReturn(privateKey).when(rsaKeyUtils).getPrivateKey(anyString());
 
     List<UserAuthorizationData> listUserData = new ArrayList<>();
     JiraOAuth1Data jiraData = new JiraOAuth1Data(null);
@@ -295,7 +295,7 @@ public class JiraAuthorizationManagerTest {
     String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
     doReturn(certsDirectory).when(utils).getCertsDirectory();
 
-    doReturn(publicKey).when(oAuthRsaSignerFactory).getPublicKey(anyString());
+    doReturn(publicKey).when(rsaKeyUtils).getPublicKey(anyString());
 
     AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
     validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
