@@ -51,9 +51,9 @@ public class SearchAssignableUsersService {
   private LogMessageSource logMessage;
 
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
-      URL assignableUserUrl) {
+      URL assignableUserUrl, String issueKey) {
 
-    if (StringUtils.isEmpty(ISSUE_KEY)) {
+    if (StringUtils.isEmpty(issueKey)) {
       ErrorResponse response = new ErrorResponse();
       response.setStatus(HttpStatus.BAD_REQUEST.value());
       response.setMessage(logMessage.getMessage(MISSING_FIELD, ISSUE_KEY));

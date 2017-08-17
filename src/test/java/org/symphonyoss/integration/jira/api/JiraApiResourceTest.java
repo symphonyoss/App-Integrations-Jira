@@ -16,6 +16,8 @@ import org.symphonyoss.integration.Integration;
 import org.symphonyoss.integration.authentication.api.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
+import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
@@ -77,17 +79,17 @@ public class JiraApiResourceTest {
 
     searchAssignableUsersService = Mockito.mock(SearchAssignableUsersService.class);
 
-    jiraApiResource = new JiraApiResource(integrationBridge, logMessageSource, jwtAuthentication,
+    jiraApiResource = new JiraApiResource(jiraWebHookIntegration, logMessageSource, jwtAuthentication,
         userAssignService, searchAssignableUsersService);
   }
 
-  @Test
+  @Test(expected = InvalidJiraURLException.class)
   public void testSearchAssignableUser() throws IOException {
 
     ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
     ResponseEntity responseEntity =
         jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, CONFIGURATION_ID,
-            AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+            AUTHORIZATION_HEADER);
 
   }
 

@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -136,7 +137,7 @@ public class JiraApiResource {
       username = StringUtils.EMPTY;
     }
 
-    String pathApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, ISSUE_KEY, username,
+    String pathApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username,
         maxResults);
 
     try {
@@ -144,7 +145,7 @@ public class JiraApiResource {
       URL assignableUserUrl = new URL(jiraBaseUrl, pathApiJiraUsersSearch);
 
       return searchAssignableUsersService.searchAssingablesUsers(accessToken, provider,
-          assignableUserUrl);
+          assignableUserUrl, issueKey);
     } catch (MalformedURLException e) {
       String errorMessage = logMessage.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
       throw new InvalidJiraURLException(errorMessage, e);
@@ -163,8 +164,8 @@ public class JiraApiResource {
    * issue key was provided, 401 Unauthorized - Returned if the user is not authenticated ,
    * 404 Not Found - Returned if the requested user is not found.
    */
-  @PutMapping("/issue/{issueIdOrKey}/assignee")
-  public ResponseEntity assignIssueToUser(@RequestParam String issueKey,
+  @PutMapping("/issue/{issueKey}/assignee")
+  public ResponseEntity assignIssueToUser(@PathVariable String issueKey,
       @RequestParam(value = "username", required = false) String username,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
       @RequestParam(name = "url") String jiraIntegrationURL) {
