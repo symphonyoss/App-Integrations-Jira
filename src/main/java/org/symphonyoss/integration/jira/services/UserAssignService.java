@@ -46,7 +46,6 @@ import java.net.URL;
  * Service that handles the assign user to issue on the JIRA API
  * Created by hamitay on 8/15/17.
  */
-
 @Component
 public class UserAssignService {
 

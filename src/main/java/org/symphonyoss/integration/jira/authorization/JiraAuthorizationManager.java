@@ -402,7 +402,7 @@ public class JiraAuthorizationManager {
     return jiraOAuth1Data.getAccessToken();
   }
 
-  public JiraOAuth1Data getJiraOAuth1Data(UserAuthorizationData userAuthorizationData)
+  private JiraOAuth1Data getJiraOAuth1Data(UserAuthorizationData userAuthorizationData)
       throws AuthorizationException {
     JiraOAuth1Data jiraOAuth1Data;
 

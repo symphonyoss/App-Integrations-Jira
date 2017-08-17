@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
+import org.symphonyoss.integration.jira.exception.JiraUnexpectedAuthorizationException;
 import org.symphonyoss.integration.model.ErrorResponse;
 
 /**
@@ -31,17 +32,8 @@ import org.symphonyoss.integration.model.ErrorResponse;
  *
  * Created by hamitay on 8/15/17.
  */
-
 @ControllerAdvice
 public class JiraApiResourceExceptionHandler {
-
-  @ResponseBody
-  @ExceptionHandler(IntegrationUnavailableException.class)
-  public ResponseEntity<ErrorResponse> handleIntegrationUnavailableException(IntegrationUnavailableException ex) {
-    ErrorResponse response =
-        new ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), ex.getMessage());
-    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
-  }
 
   @ResponseBody
   @ExceptionHandler(InvalidJiraURLException.class)
@@ -59,6 +51,12 @@ public class JiraApiResourceExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
   }
 
-
+  @ResponseBody
+  @ExceptionHandler(JiraUnexpectedAuthorizationException.class)
+  public ResponseEntity<ErrorResponse> handleJiraUnexpectedAuthorizationException(JiraAuthorizationException ex) {
+    ErrorResponse response =
+        new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+  }
 }
 

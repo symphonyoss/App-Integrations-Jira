@@ -9,6 +9,10 @@ import org.symphonyoss.integration.exception.IntegrationRuntimeException;
  */
 public class JiraAuthorizationException extends IntegrationRuntimeException {
 
+  public JiraAuthorizationException(String component, String message) {
+    super(component, message);
+  }
+
   public JiraAuthorizationException(String component, String message, Throwable cause) {
     super(component, message, cause);
   }

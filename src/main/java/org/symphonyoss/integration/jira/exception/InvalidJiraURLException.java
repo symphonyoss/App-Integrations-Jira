@@ -9,10 +9,8 @@ import org.symphonyoss.integration.exception.IntegrationRuntimeException;
  */
 public class InvalidJiraURLException extends IntegrationRuntimeException {
 
-  public static final String COMPONET = "Invalid Jira URL";
-
-  public InvalidJiraURLException(String message, Throwable cause) {
-    super(COMPONET, message, cause);
+  public InvalidJiraURLException(String component, String message, Throwable cause) {
+    super(component, message, cause);
   }
 
 }
