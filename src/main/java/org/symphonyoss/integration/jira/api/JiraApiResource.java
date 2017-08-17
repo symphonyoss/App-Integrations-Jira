@@ -114,7 +114,7 @@ public class JiraApiResource {
 
     validateIntegrationBootstrap();
 
-    String accessToken;
+    String accessToken = null;
 
     try {
       accessToken = jiraWebHookIntegration.getAccessToken(jiraIntegrationURL, userId);
@@ -124,12 +124,8 @@ public class JiraApiResource {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
-    if (accessToken == null || accessToken.isEmpty()) {
-      ErrorResponse response = new ErrorResponse();
-      response.setStatus(HttpStatus.UNAUTHORIZED.value());
-      response.setMessage(logMessage.getMessage(INVALID_BASE_URL, jiraIntegrationURL));
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }
+    ResponseEntity response = verifyAccessToken(jiraIntegrationURL, accessToken);
+    if (response != null) return response;
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
@@ -172,7 +168,7 @@ public class JiraApiResource {
 
     Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
 
-    String accessToken;
+    String accessToken = null;
 
     try {
       accessToken = jiraWebHookIntegration.getAccessToken(jiraIntegrationURL, userId);
@@ -181,6 +177,9 @@ public class JiraApiResource {
           HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
+    ResponseEntity response = verifyAccessToken(jiraIntegrationURL, accessToken);
+    if (response != null) return response;
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
@@ -194,6 +193,17 @@ public class JiraApiResource {
       String errorMessage = logMessage.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
       throw new InvalidJiraURLException(errorMessage, e);
     }
+  }
+
+  public ResponseEntity verifyAccessToken(@RequestParam(name = "url") String jiraIntegrationURL,
+      String accessToken) {
+    if (accessToken == null || accessToken.isEmpty()) {
+      ErrorResponse response = new ErrorResponse();
+      response.setStatus(HttpStatus.UNAUTHORIZED.value());
+      response.setMessage(logMessage.getMessage(INVALID_BASE_URL, jiraIntegrationURL));
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+    return null;
   }
 
   public OAuth1Provider getOAuth1Provider(@RequestParam(name = "url") String jiraIntegrationURL) {
