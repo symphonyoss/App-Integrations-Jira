@@ -80,7 +80,7 @@ public class JiraApiResource {
 
   private final SearchAssignableUsersService searchAssignableUsersService;
 
-  @Value("${jira.api.searchUserService.maxNumberOfUsers:10}")
+  @Value("${applications.jira.api.maxNumberOfResults:10}")
   private Integer maxResults;
 
   public JiraApiResource(JiraWebHookIntegration jiraWebHookIntegration,
