@@ -16,7 +16,10 @@
 
 package org.symphonyoss.integration.jira.api;
 
+import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
+import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.USERNAME;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.ServiceProperties.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.ServiceProperties.INVALID_URL_ERROR;
 
 import org.apache.commons.lang3.StringUtils;
@@ -67,8 +70,6 @@ public class JiraApiResource {
 
   private static final String PATH_JIRA_API_ASSIGN_ISSUE =
       "/rest/api/latest/issue/%s/assignee";
-
-  private static final String COMPONENT = "JIRA API";
 
   private final JiraWebHookIntegration jiraWebHookIntegration;
 
@@ -135,7 +136,7 @@ public class JiraApiResource {
       username = StringUtils.EMPTY;
     }
 
-    String pathApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username,
+    String pathApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, ISSUE_KEY, username,
         maxResults);
 
     try {
@@ -143,7 +144,7 @@ public class JiraApiResource {
       URL assignableUserUrl = new URL(jiraBaseUrl, pathApiJiraUsersSearch);
 
       return searchAssignableUsersService.searchAssingablesUsers(accessToken, provider,
-          assignableUserUrl, COMPONENT, issueKey);
+          assignableUserUrl);
     } catch (MalformedURLException e) {
       String errorMessage = logMessage.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
       throw new InvalidJiraURLException(errorMessage, e);
