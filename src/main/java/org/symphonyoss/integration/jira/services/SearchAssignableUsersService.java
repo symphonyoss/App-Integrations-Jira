@@ -16,11 +16,11 @@
 
 package org.symphonyoss.integration.jira.services;
 
-import static org.symphonyoss.integration.jira.properties.ServiceProperties.COMPONENT;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
-import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
-import static org.symphonyoss.integration.jira.properties.ServiceProperties.ISSUEKEY_NOT_FOUND;
-import static org.symphonyoss.integration.jira.properties.ServiceProperties.MISSING_FIELD;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MISSING_FIELD;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;

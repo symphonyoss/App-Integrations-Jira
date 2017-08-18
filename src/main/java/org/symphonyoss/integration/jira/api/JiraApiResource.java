@@ -16,9 +16,14 @@
 
 package org.symphonyoss.integration.jira.api;
 
-import static org.symphonyoss.integration.jira.properties.ServiceProperties.APPLICATION_KEY_ERROR;
-import static org.symphonyoss.integration.jira.properties.ServiceProperties.COMPONENT;
-import static org.symphonyoss.integration.jira.properties.ServiceProperties.INVALID_URL_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .INTEGRATION_UNAVAILABLE;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .INTEGRATION_UNAVAILABLE_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INVALID_URL_ERROR;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,15 +65,6 @@ public class JiraApiResource {
   private static final String BUNDLE_FILENAME = "integration-jira-log-messages";
 
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
-
-  private static final String APP_ID = "jira";
-
-  private static final String INTEGRATION_UNAVAILABLE = "integration.web.integration.unavailable";
-
-  private static final String INTEGRATION_UNAVAILABLE_SOLUTION =
-      INTEGRATION_UNAVAILABLE + ".solution";
-
-  private static final String EMPTY_ACCESS_TOKEN = "integration.jira.access.empty";
 
   private static final String PATH_JIRA_API_SEARCH_USERS =
       "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
@@ -172,7 +168,7 @@ public class JiraApiResource {
   private void validateIntegrationBootstrap() {
     if (jiraWebHookIntegration.getSettings() == null) {
       throw new IntegrationUnavailableException(
-          MSG.getMessage(INTEGRATION_UNAVAILABLE, APP_ID),
+          MSG.getMessage(INTEGRATION_UNAVAILABLE),
           MSG.getMessage(INTEGRATION_UNAVAILABLE_SOLUTION));
     }
   }
