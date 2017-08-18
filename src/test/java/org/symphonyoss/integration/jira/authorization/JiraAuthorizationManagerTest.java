@@ -83,6 +83,8 @@ public class JiraAuthorizationManagerTest {
 
   private static final String JIRA_APP_TYPE = "jiraWebHookIntegration";
 
+  private static final String JIRA_APP_ID = "5810d1cee4b0f884b709cc9b";
+
   private static final String CONSUMER_KEY = "consumerKey";
 
   private static final String CONSUMER_NAME = "consumerName";
@@ -115,6 +117,8 @@ public class JiraAuthorizationManagerTest {
 
   private static final Long MOCK_USER = 0L;
 
+  private static final String MOCK_ACCESS_TOKEN = "accessToken";
+
   private static final IntegrationSettings SETTINGS = new IntegrationSettings();
 
   @Autowired
@@ -144,6 +148,7 @@ public class JiraAuthorizationManagerTest {
   @BeforeClass
   public static void startup() {
     SETTINGS.setType(JIRA_APP_TYPE);
+    SETTINGS.setConfigurationId(JIRA_APP_ID);
   }
 
   @Test
@@ -313,5 +318,49 @@ public class JiraAuthorizationManagerTest {
 
     assertEquals(DEFAULT_CONSUMER_KEY, consumerKey);
     assertEquals(DEFAULT_CONSUMER_NAME, consumerName);
+  }
+
+  @Test
+  public void testGetAccessTokenNullValue() throws AuthorizationException {
+    String accessToken = authManager.getAccessToken(new IntegrationSettings(), MOCK_URL, MOCK_USER);
+    assertNull(accessToken);
+  }
+
+  @Test
+  public void testGetAccessTokenEmptyValue() throws AuthorizationException {
+    doReturn(new UserAuthorizationData()).when(authRepoService).find(JIRA_APP_TYPE, JIRA_APP_ID,
+        MOCK_URL, MOCK_USER);
+
+    String accessToken = authManager.getAccessToken(SETTINGS, MOCK_URL, MOCK_USER);
+    assertNull(accessToken);
+  }
+
+  @Test
+  public void testGetAccessTokenNotFound() throws AuthorizationException {
+    JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data();
+
+    UserAuthorizationData authorizationData = new UserAuthorizationData();
+    authorizationData.setData(jiraOAuth1Data);
+
+    doReturn(authorizationData).when(authRepoService).find(JIRA_APP_TYPE, JIRA_APP_ID,
+        MOCK_URL, MOCK_USER);
+
+    String accessToken = authManager.getAccessToken(SETTINGS, MOCK_URL, MOCK_USER);
+    assertNull(accessToken);
+  }
+
+  @Test
+  public void testGetAccessToken() throws AuthorizationException {
+    JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data();
+    jiraOAuth1Data.setAccessToken(MOCK_ACCESS_TOKEN);
+
+    UserAuthorizationData authorizationData = new UserAuthorizationData();
+    authorizationData.setData(jiraOAuth1Data);
+
+    doReturn(authorizationData).when(authRepoService).find(JIRA_APP_TYPE, JIRA_APP_ID,
+        MOCK_URL, MOCK_USER);
+
+    String accessToken = authManager.getAccessToken(SETTINGS, MOCK_URL, MOCK_USER);
+    assertEquals(MOCK_ACCESS_TOKEN, accessToken);
   }
 }
