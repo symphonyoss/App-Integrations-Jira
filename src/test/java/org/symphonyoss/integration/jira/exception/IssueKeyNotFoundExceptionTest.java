@@ -18,7 +18,7 @@ public class IssueKeyNotFoundExceptionTest {
       "No solution has been cataloged for troubleshooting this problem.";
 
   @Test
-  public void IssueKeyNotFoundExceptionTest() {
+  public void testIssueKeyNotFoundExceptionTest() {
     IssueKeyNotFoundException exception =
         new IssueKeyNotFoundException(COMPONENT, MESSAGE, NO_SOLUTION);
     String resultMessage = exception.getMessage();
