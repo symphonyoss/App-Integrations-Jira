@@ -16,7 +16,7 @@
 
 package org.symphonyoss.integration.jira.services;
 
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
+import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .APPLICATION_KEY_ERROR;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
@@ -24,7 +24,6 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.I
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,7 @@ import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
-import org.symphonyoss.integration.logging.LogMessageSource;
+import org.symphonyoss.integration.logging.MessageUtils;
 import org.symphonyoss.integration.model.ErrorResponse;
 
 import java.io.IOException;
@@ -48,8 +47,7 @@ public class SearchAssignableUsersService extends CommonJiraService {
 
   private static final String SERVICE_NAME = "Search Assignable Users Service";
 
-  @Autowired
-  private LogMessageSource logMessage;
+  private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
       URL assignableUserUrl, String issueKey) {
@@ -64,15 +62,15 @@ public class SearchAssignableUsersService extends CommonJiraService {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-        errorResponse.setMessage(logMessage.getMessage(ISSUEKEY_NOT_FOUND, ISSUE_KEY));
+        errorResponse.setMessage(MSG.getMessage(ISSUEKEY_NOT_FOUND, issueKey));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
       }
     } catch (OAuth1Exception e) {
       throw new JiraAuthorizationException(COMPONENT,
-          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
+          MSG.getMessage(APPLICATION_KEY_ERROR), e);
     } catch (IOException e) {
       throw new JiraAuthorizationException(COMPONENT,
-          logMessage.getMessage(APPLICATION_KEY_ERROR), e);
+          MSG.getMessage(APPLICATION_KEY_ERROR), e);
     }
     return null;
   }

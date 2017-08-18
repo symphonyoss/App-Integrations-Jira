@@ -16,10 +16,13 @@
 
 package org.symphonyoss.integration.jira.api;
 
+import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .APPLICATION_KEY_ERROR;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .EMPTY_ACCESS_TOKEN_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .INTEGRATION_UNAVAILABLE;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
@@ -112,7 +115,7 @@ public class JiraApiResource {
       username = StringUtils.EMPTY;
     }
 
-    String accessToken = getAccessToken(jiraIntegrationURL, userId);
+    String accessToken = getAccessToken(jiraIntegrationURL, userId, authorizationHeader);
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
@@ -148,7 +151,7 @@ public class JiraApiResource {
 
     validateIntegrationBootstrap();
 
-    String accessToken = getAccessToken(jiraIntegrationURL, userId);
+    String accessToken = getAccessToken(jiraIntegrationURL, userId, authorizationHeader);
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
@@ -172,12 +175,13 @@ public class JiraApiResource {
     }
   }
 
-  private String getAccessToken(String jiraIntegrationURL, Long userId) {
+  private String getAccessToken(String jiraIntegrationURL, Long userId,
+      String authorizationHeader) {
     try {
       String accessToken = jiraWebHookIntegration.getAccessToken(jiraIntegrationURL, userId);
 
       if (accessToken == null || accessToken.isEmpty()) {
-        throw new JiraAuthorizationException(COMPONENT, MSG.getMessage(EMPTY_ACCESS_TOKEN, jiraIntegrationURL));
+        throw new JiraAuthorizationException(COMPONENT, MSG.getMessage(EMPTY_ACCESS_TOKEN), MSG.getMessage(EMPTY_ACCESS_TOKEN_SOLUTION, jiraIntegrationURL, authorizationHeader));
       }
 
       return accessToken;

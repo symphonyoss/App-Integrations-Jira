@@ -19,6 +19,8 @@ public class JiraErrorMessageKeys {
 
   public static String EMPTY_ACCESS_TOKEN = "integration.jira.missing.accessToken";
 
+  public static String EMPTY_ACCESS_TOKEN_SOLUTION = EMPTY_ACCESS_TOKEN + ".solution";
+
   public static String ISSUEKEY_NOT_FOUND = "integration.jira.issueKey.not.found";
 
   public static String USERNAME_INVALID = "integration.jira.username.invalid";

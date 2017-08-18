@@ -12,12 +12,10 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.symphonyoss.integration.Integration;
 import org.symphonyoss.integration.authentication.api.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
-import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
+import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
@@ -71,7 +69,7 @@ public class JiraApiResourceTest {
   public void prepareMockResource() throws AuthorizationException {
 
     jiraWebHookIntegration = Mockito.mock(JiraWebHookIntegration.class);
-    when(jiraWebHookIntegration.getAccessToken(anyString(),anyLong())).thenReturn(ACCESS_TOKEN);
+    when(jiraWebHookIntegration.getAccessToken(anyString(), anyLong())).thenReturn(ACCESS_TOKEN);
     when(jiraWebHookIntegration.getOAuth1Provider(JIRA_INTEGRATION_URL)).thenReturn(provider);
 
     integrationBridge = Mockito.mock(IntegrationBridge.class);
@@ -79,11 +77,11 @@ public class JiraApiResourceTest {
 
     searchAssignableUsersService = Mockito.mock(SearchAssignableUsersService.class);
 
-    jiraApiResource = new JiraApiResource(jiraWebHookIntegration, logMessageSource, jwtAuthentication,
+    jiraApiResource = new JiraApiResource(jiraWebHookIntegration, jwtAuthentication,
         userAssignService, searchAssignableUsersService);
   }
 
-  @Test(expected = InvalidJiraURLException.class)
+  @Test(expected = IntegrationUnavailableException.class)
   public void testSearchAssignableUser() throws IOException {
 
     ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);

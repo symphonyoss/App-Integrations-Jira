@@ -32,4 +32,8 @@ public class JiraAuthorizationException extends IntegrationRuntimeException {
   public JiraAuthorizationException(String component, String message, Throwable cause) {
     super(component, message, cause);
   }
+
+  public JiraAuthorizationException(String component, String message, String solution) {
+    super(component, message, solution);
+  }
 }
