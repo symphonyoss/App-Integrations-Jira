@@ -23,7 +23,11 @@ public class JiraErrorMessageKeys {
 
   public static String ISSUEKEY_NOT_FOUND = "integration.jira.issueKey.not.found";
 
+  public static String ISSUEKEY_NOT_FOUND_SOLUTION = ISSUEKEY_NOT_FOUND + ".solution";
+
   public static String USERNAME_INVALID = "integration.jira.username.invalid";
+
+  public static String USERNAME_INVALID_SOLUTION = USERNAME_INVALID + ".solution";
 
   public static final String INTEGRATION_UNAVAILABLE = "integration.jira.unavailable";
 

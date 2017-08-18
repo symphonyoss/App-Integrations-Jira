@@ -18,12 +18,19 @@ package org.symphonyoss.integration.jira.services;
 
 import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .ISSUEKEY_NOT_FOUND_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MISSING_FIELD;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .MISSING_FIELD_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.USERNAME_INVALID;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .USERNAME_INVALID_SOLUTION;
 
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
+import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
 import org.symphonyoss.integration.logging.MessageUtils;
 
 /**
@@ -46,6 +53,28 @@ public abstract class CommonJiraService {
 
       throw new IssueKeyNotFoundException(getServiceName(), message, solution);
     }
+  }
+
+  /**
+   * Thrown {@link IssueKeyNotFoundException} exception
+   * @param issueKey Issue key
+   */
+  public void handleIssueNotFound(String issueKey) {
+    String message = MSG.getMessage(ISSUEKEY_NOT_FOUND, issueKey);
+    String solution = MSG.getMessage(ISSUEKEY_NOT_FOUND_SOLUTION, issueKey);
+
+    throw new IssueKeyNotFoundException(getServiceName(), message, solution);
+  }
+
+  /**
+   * Thrown {@link JiraUserNotFoundException} exception
+   * @param username Username
+   */
+  public void handleUserNotFound(String username) {
+    String message = MSG.getMessage(USERNAME_INVALID, username);
+    String solution = MSG.getMessage(USERNAME_INVALID_SOLUTION, username);
+
+    throw new JiraUserNotFoundException(getServiceName(), message, solution);
   }
 
   /**

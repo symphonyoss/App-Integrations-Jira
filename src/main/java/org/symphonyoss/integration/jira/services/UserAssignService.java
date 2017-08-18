@@ -20,8 +20,6 @@ import static org.symphonyoss.integration.exception.RemoteApiException.COMPONENT
 import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .APPLICATION_KEY_ERROR;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.USERNAME_INVALID;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.NAME_PATH;
 
 import com.google.api.client.http.HttpMethods;
@@ -36,7 +34,6 @@ import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestExcep
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.logging.MessageUtils;
-import org.symphonyoss.integration.model.ErrorResponse;
 
 import java.net.URL;
 
@@ -56,26 +53,19 @@ public class UserAssignService extends CommonJiraService {
 
     validateIssueKeyParameter(issueKey);
 
-    //Jira requisition
     try {
-
       GenericData data = new GenericData();
       data.put(NAME_PATH, username);
       JsonHttpContent content = new JsonHttpContent(new JacksonFactory(), data);
-      provider.makeAuthorizedRequest(accessToken, integrationURL, HttpMethods.PUT, content);
 
+      provider.makeAuthorizedRequest(accessToken, integrationURL, HttpMethods.PUT, content);
     } catch (OAuth1HttpRequestException e) {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-        errorResponse.setMessage(MSG.getMessage(ISSUEKEY_NOT_FOUND, issueKey));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        handleIssueNotFound(issueKey);
       }
+
       if (e.getCode() == HttpStatus.BAD_REQUEST.value()) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-        errorResponse.setMessage(MSG.getMessage(USERNAME_INVALID, username));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        handleUserNotFound(username);
       }
     } catch (OAuth1Exception e) {
       throw new JiraAuthorizationException(COMPONENT,
