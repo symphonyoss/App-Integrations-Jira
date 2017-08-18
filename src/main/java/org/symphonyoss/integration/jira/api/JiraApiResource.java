@@ -115,7 +115,7 @@ public class JiraApiResource {
       username = StringUtils.EMPTY;
     }
 
-    String accessToken = getAccessToken(jiraIntegrationURL, userId, authorizationHeader);
+    String accessToken = getAccessToken(jiraIntegrationURL, userId);
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
@@ -151,7 +151,7 @@ public class JiraApiResource {
 
     validateIntegrationBootstrap();
 
-    String accessToken = getAccessToken(jiraIntegrationURL, userId, authorizationHeader);
+    String accessToken = getAccessToken(jiraIntegrationURL, userId);
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
@@ -175,13 +175,12 @@ public class JiraApiResource {
     }
   }
 
-  private String getAccessToken(String jiraIntegrationURL, Long userId,
-      String authorizationHeader) {
+  private String getAccessToken(String jiraIntegrationURL, Long userId) {
     try {
       String accessToken = jiraWebHookIntegration.getAccessToken(jiraIntegrationURL, userId);
 
       if (accessToken == null || accessToken.isEmpty()) {
-        throw new JiraAuthorizationException(COMPONENT, MSG.getMessage(EMPTY_ACCESS_TOKEN), MSG.getMessage(EMPTY_ACCESS_TOKEN_SOLUTION, jiraIntegrationURL, authorizationHeader));
+        throw new JiraAuthorizationException(COMPONENT, MSG.getMessage(EMPTY_ACCESS_TOKEN), MSG.getMessage(EMPTY_ACCESS_TOKEN_SOLUTION, jiraIntegrationURL));
       }
 
       return accessToken;
