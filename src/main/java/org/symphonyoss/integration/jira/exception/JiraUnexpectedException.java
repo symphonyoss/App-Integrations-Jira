@@ -19,14 +19,14 @@ package org.symphonyoss.integration.jira.exception;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 
 /**
- * Unchecked exception thrown to indicate that JIRA authorization was failed caused by an
+ * Unchecked exception thrown to indicate that JIRA API class was failed caused by an
  * unexpected error.
  *
  * Created by rsanchez on 17/08/17.
  */
-public class JiraUnexpectedAuthorizationException extends IntegrationRuntimeException {
+public class JiraUnexpectedException extends IntegrationRuntimeException {
 
-  public JiraUnexpectedAuthorizationException(String component, String message, Throwable cause) {
+  public JiraUnexpectedException(String component, String message, Throwable cause) {
     super(component, message, cause);
   }
 

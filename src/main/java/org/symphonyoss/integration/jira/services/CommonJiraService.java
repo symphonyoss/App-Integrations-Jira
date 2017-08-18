@@ -18,6 +18,10 @@ package org.symphonyoss.integration.jira.services;
 
 import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .INTEGRATION_UNAUTHORIZED;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .INTEGRATION_UNAUTHORIZED_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .ISSUEKEY_NOT_FOUND_SOLUTION;
@@ -30,6 +34,7 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
 
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
+import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
 import org.symphonyoss.integration.logging.MessageUtils;
 
@@ -75,6 +80,16 @@ public abstract class CommonJiraService {
     String solution = MSG.getMessage(USERNAME_INVALID_SOLUTION, username);
 
     throw new JiraUserNotFoundException(getServiceName(), message, solution);
+  }
+
+  /**
+   * Thrown {@link JiraAuthorizationException} exception
+   */
+  public void handleUserUnauthorized() {
+    String message = MSG.getMessage(INTEGRATION_UNAUTHORIZED);
+    String solution = MSG.getMessage(INTEGRATION_UNAUTHORIZED_SOLUTION);
+
+    throw new JiraAuthorizationException(getServiceName(), message, solution);
   }
 
   /**

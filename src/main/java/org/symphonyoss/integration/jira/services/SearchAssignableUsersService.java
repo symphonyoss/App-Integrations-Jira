@@ -16,11 +16,6 @@
 
 package org.symphonyoss.integration.jira.services;
 
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .APPLICATION_KEY_ERROR;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
-
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
 import org.springframework.http.HttpStatus;
@@ -29,8 +24,7 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
-import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
-import org.symphonyoss.integration.logging.MessageUtils;
+import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
 
 import java.io.IOException;
 import java.net.URL;
@@ -45,8 +39,6 @@ public class SearchAssignableUsersService extends CommonJiraService {
 
   private static final String SERVICE_NAME = "Search Assignable Users Service";
 
-  private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
-
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
       URL assignableUserUrl, String issueKey) {
 
@@ -60,15 +52,15 @@ public class SearchAssignableUsersService extends CommonJiraService {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
         handleIssueNotFound(issueKey);
       }
-    } catch (OAuth1Exception e) {
-      throw new JiraAuthorizationException(COMPONENT,
-          MSG.getMessage(APPLICATION_KEY_ERROR), e);
-    } catch (IOException e) {
-      throw new JiraAuthorizationException(COMPONENT,
-          MSG.getMessage(APPLICATION_KEY_ERROR), e);
-    }
 
-    return null;
+      if (e.getCode() == HttpStatus.UNAUTHORIZED.value()) {
+        handleUserUnauthorized();
+      }
+
+      throw new JiraUnexpectedException(SERVICE_NAME, e.getMessage(), e);
+    } catch (OAuth1Exception | IOException e) {
+      throw new JiraUnexpectedException(SERVICE_NAME, e.getMessage(), e);
+    }
   }
 
   @Override

@@ -46,7 +46,7 @@ import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
-import org.symphonyoss.integration.jira.exception.JiraUnexpectedAuthorizationException;
+import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
@@ -185,7 +185,7 @@ public class JiraApiResource {
 
       return accessToken;
     } catch (AuthorizationException e) {
-      throw new JiraUnexpectedAuthorizationException(COMPONENT, e.getMessage(), e);
+      throw new JiraUnexpectedException(COMPONENT, e.getMessage(), e);
     }
   }
 

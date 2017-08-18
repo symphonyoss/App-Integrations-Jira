@@ -16,10 +16,6 @@
 
 package org.symphonyoss.integration.jira.services;
 
-import static org.symphonyoss.integration.exception.RemoteApiException.COMPONENT;
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .APPLICATION_KEY_ERROR;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.NAME_PATH;
 
 import com.google.api.client.http.HttpMethods;
@@ -32,8 +28,7 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
-import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
-import org.symphonyoss.integration.logging.MessageUtils;
+import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
 
 import java.net.URL;
 
@@ -45,8 +40,6 @@ import java.net.URL;
 public class UserAssignService extends CommonJiraService {
 
   private static final String SERVICE_NAME = "User Assign Service";
-
-  private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   public ResponseEntity assignUserToIssue(String accessToken, String issueKey, String username,
       URL integrationURL, OAuth1Provider provider) {
@@ -67,9 +60,14 @@ public class UserAssignService extends CommonJiraService {
       if (e.getCode() == HttpStatus.BAD_REQUEST.value()) {
         handleUserNotFound(username);
       }
+
+      if (e.getCode() == HttpStatus.UNAUTHORIZED.value()) {
+        handleUserUnauthorized();
+      }
+
+      throw new JiraUnexpectedException(SERVICE_NAME, e.getMessage(), e);
     } catch (OAuth1Exception e) {
-      throw new JiraAuthorizationException(COMPONENT,
-          MSG.getMessage(APPLICATION_KEY_ERROR), e);
+      throw new JiraUnexpectedException(SERVICE_NAME, e.getMessage(), e);
     }
 
     return ResponseEntity.ok(HttpStatus.OK);

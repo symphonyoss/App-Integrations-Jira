@@ -33,6 +33,10 @@ public class JiraErrorMessageKeys {
 
   public static final String INTEGRATION_UNAVAILABLE_SOLUTION = INTEGRATION_UNAVAILABLE + ".solution";
 
+  public static final String INTEGRATION_UNAUTHORIZED = "integration.jira.unauthorized";
+
+  public static final String INTEGRATION_UNAUTHORIZED_SOLUTION = INTEGRATION_UNAUTHORIZED + ".solution";
+
   public static String COMPONENT = "JIRA API";
 
 }

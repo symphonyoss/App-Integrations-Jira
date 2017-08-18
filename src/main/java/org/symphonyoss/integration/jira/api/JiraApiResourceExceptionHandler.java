@@ -22,11 +22,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
-import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
-import org.symphonyoss.integration.jira.exception.JiraUnexpectedAuthorizationException;
+import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
 import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
 import org.symphonyoss.integration.model.ErrorResponse;
 
@@ -63,8 +62,8 @@ public class JiraApiResourceExceptionHandler {
   }
 
   @ResponseBody
-  @ExceptionHandler(JiraUnexpectedAuthorizationException.class)
-  public ResponseEntity<ErrorResponse> handleInternalServerError(JiraAuthorizationException ex) {
+  @ExceptionHandler(JiraUnexpectedException.class)
+  public ResponseEntity<ErrorResponse> handleInternalServerError(JiraUnexpectedException ex) {
     ErrorResponse response =
         new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
