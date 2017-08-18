@@ -12,7 +12,7 @@ import org.junit.Test;
 public class IssueKeyNotFoundExceptionTest {
 
   private static final String COMPONENT = "JIRA API";
-  private static final String MESSAGE = "JiraAuthorizationException";
+  private static final String MESSAGE = "IssueKeyNotFoundException";
   private static final Throwable CAUSE = new Throwable();
   private static final String NO_SOLUTION =
       "No solution has been cataloged for troubleshooting this problem.";
@@ -24,7 +24,7 @@ public class IssueKeyNotFoundExceptionTest {
     String resultMessage = exception.getMessage();
     String expectedMessage = "\n"
         + "Component: JIRA API\n"
-        + "Message: JiraAuthorizationException\n"
+        + "Message: IssueKeyNotFoundException\n"
         + "Solutions: \n"
         + "No solution has been cataloged for troubleshooting this problem.\n";
 
