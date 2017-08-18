@@ -26,7 +26,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.FileUtils;
@@ -47,8 +46,6 @@ import org.symphonyoss.integration.jira.webhook.parser.v1.CommentJiraParser;
 import org.symphonyoss.integration.jira.webhook.parser.v1.IssueCreatedJiraParser;
 import org.symphonyoss.integration.jira.webhook.parser.v1.IssueUpdatedJiraParser;
 import org.symphonyoss.integration.json.JsonUtils;
-import org.symphonyoss.integration.logging.LogMessageSource;
-import org.symphonyoss.integration.logging.MessageUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;

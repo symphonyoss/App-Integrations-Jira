@@ -18,16 +18,11 @@ package org.symphonyoss.integration.jira.authorization.oauth.v1;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.integration.logging.LogMessageSource;
-import org.symphonyoss.integration.logging.MessageUtils;
 
 /**
  * Unit tests for {@link JiraOAuth1Provider}.
