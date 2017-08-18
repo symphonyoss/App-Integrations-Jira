@@ -21,10 +21,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
+import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedAuthorizationException;
+import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
 import org.symphonyoss.integration.model.ErrorResponse;
 
 /**
@@ -36,16 +39,24 @@ import org.symphonyoss.integration.model.ErrorResponse;
 public class JiraApiResourceExceptionHandler {
 
   @ResponseBody
-  @ExceptionHandler(InvalidJiraURLException.class)
-  public ResponseEntity<ErrorResponse> handleInvalidJiraURLException(InvalidJiraURLException ex) {
+  @ExceptionHandler({ InvalidJiraURLException.class, JiraUserNotFoundException.class })
+  public ResponseEntity<ErrorResponse> handleBadRequest(IntegrationRuntimeException ex) {
     ErrorResponse response =
         new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   @ResponseBody
+  @ExceptionHandler({IssueKeyNotFoundException.class})
+  public ResponseEntity<ErrorResponse> handleNotFound(InvalidJiraURLException ex) {
+    ErrorResponse response =
+        new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ResponseBody
   @ExceptionHandler(JiraAuthorizationException.class)
-  public ResponseEntity<ErrorResponse> handleJiraAuthorizationException(JiraAuthorizationException ex) {
+  public ResponseEntity<ErrorResponse> handleUnauthorized(JiraAuthorizationException ex) {
     ErrorResponse response =
         new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -53,10 +64,11 @@ public class JiraApiResourceExceptionHandler {
 
   @ResponseBody
   @ExceptionHandler(JiraUnexpectedAuthorizationException.class)
-  public ResponseEntity<ErrorResponse> handleJiraUnexpectedAuthorizationException(JiraAuthorizationException ex) {
+  public ResponseEntity<ErrorResponse> handleInternalServerError(JiraAuthorizationException ex) {
     ErrorResponse response =
         new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
+
 }
 
