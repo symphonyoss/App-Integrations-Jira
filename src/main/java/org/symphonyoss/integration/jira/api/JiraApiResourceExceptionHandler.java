@@ -47,7 +47,7 @@ public class JiraApiResourceExceptionHandler {
 
   @ResponseBody
   @ExceptionHandler({IssueKeyNotFoundException.class})
-  public ResponseEntity<ErrorResponse> handleNotFound(InvalidJiraURLException ex) {
+  public ResponseEntity<ErrorResponse> handleNotFound(IssueKeyNotFoundException ex) {
     ErrorResponse response =
         new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
