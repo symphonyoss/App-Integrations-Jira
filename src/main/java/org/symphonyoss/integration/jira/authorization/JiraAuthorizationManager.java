@@ -385,6 +385,14 @@ public class JiraAuthorizationManager {
     return provider;
   }
 
+  /**
+   * Get an access token for user to perform calls to an external system resource.
+   * @param settings Integration settings
+   * @param url Integration URL.
+   * @param userId User id.
+   * @return An access token.
+   * @throws AuthorizationException Invalid JIRA authorization data or failure to read authorization data
+   */
   public String getAccessToken(IntegrationSettings settings, String url, Long userId)
       throws AuthorizationException {
     UserAuthorizationData userAuthorizationData = getUserAuthorizationData(settings, url, userId);
@@ -402,6 +410,13 @@ public class JiraAuthorizationManager {
     return jiraOAuth1Data.getAccessToken();
   }
 
+  /**
+   * Retrieves the specific JIRA authorization data.
+   *
+   * @param userAuthorizationData User authorization data
+   * @return JIRA authorization data
+   * @throws AuthorizationException Invalid JIRA authorization data
+   */
   private JiraOAuth1Data getJiraOAuth1Data(UserAuthorizationData userAuthorizationData)
       throws AuthorizationException {
     JiraOAuth1Data jiraOAuth1Data;
@@ -414,6 +429,14 @@ public class JiraAuthorizationManager {
     return jiraOAuth1Data;
   }
 
+  /**
+   * Find a user authorization data that matches with the given url and userId
+   * @param settings Integration settings
+   * @param url Third-party integration url.
+   * @param userId User id.
+   * @return Data found or null otherwise.
+   * @throws AuthorizationException Failure to read authorization data
+   */
   public UserAuthorizationData getUserAuthorizationData(IntegrationSettings settings, String url,
       Long userId) throws AuthorizationException {
     return authRepoService.find(settings.getType(), settings.getConfigurationId(), url, userId);
