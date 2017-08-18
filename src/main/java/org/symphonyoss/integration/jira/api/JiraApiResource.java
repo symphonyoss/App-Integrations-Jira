@@ -16,7 +16,8 @@
 
 package org.symphonyoss.integration.jira.api;
 
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .APPLICATION_KEY_ERROR;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
@@ -167,7 +168,7 @@ public class JiraApiResource {
 
   private void validateIntegrationBootstrap() {
     if (jiraWebHookIntegration.getSettings() == null) {
-      throw new IntegrationUnavailableException(
+      throw new IntegrationUnavailableException(COMPONENT,
           MSG.getMessage(INTEGRATION_UNAVAILABLE),
           MSG.getMessage(INTEGRATION_UNAVAILABLE_SOLUTION));
     }
