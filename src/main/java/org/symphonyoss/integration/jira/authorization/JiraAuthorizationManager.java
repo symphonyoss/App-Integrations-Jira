@@ -16,6 +16,8 @@
 
 package org.symphonyoss.integration.jira.authorization;
 
+import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
+
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpStatusCodes;
@@ -37,6 +39,7 @@ import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Excepti
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.logging.LogMessageSource;
+import org.symphonyoss.integration.logging.MessageUtils;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
@@ -97,7 +100,7 @@ public class JiraAuthorizationManager {
   private static final String PATH_JIRA_API_MY_SELF = "/rest/api/2/myself";
 
   @Autowired
-  private LogMessageSource logMessage;
+  private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   @Autowired
   private IntegrationProperties properties;
@@ -157,7 +160,7 @@ public class JiraAuthorizationManager {
       }
     } catch (OAuth1Exception e) {
       throw new IntegrationRuntimeException(COMPONENT,
-          logMessage.getMessage("integration.jira.public.key.validation"), e);
+          MSG.getMessage("integration.jira.public.key.validation"), e);
     }
 
     LOGGER.warn("Application public key is invalid, please check the file {}", filename);
@@ -208,7 +211,7 @@ public class JiraAuthorizationManager {
       }
     } catch (OAuth1Exception e) {
       throw new IntegrationRuntimeException(COMPONENT,
-          logMessage.getMessage("integration.jira.private.key.validation"), e);
+          MSG.getMessage("integration.jira.private.key.validation"), e);
     }
 
     LOGGER.warn("Application private key is invalid, please check the file {}", filename);
@@ -302,11 +305,11 @@ public class JiraAuthorizationManager {
               HttpMethods.GET, null);
       return response.getStatusCode() != HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
     } catch (MalformedURLException e) {
-      throw new JiraOAuth1Exception(logMessage.getMessage("integration.jira.url.api.invalid", url),
-          e, logMessage.getMessage("integration.jira.url.api.invalid.solution"));
+      throw new JiraOAuth1Exception(MSG.getMessage("integration.jira.url.api.invalid", url),
+          e, MSG.getMessage("integration.jira.url.api.invalid.solution"));
     } catch (OAuth1HttpRequestException e) {
-      throw new JiraOAuth1Exception(logMessage.getMessage("integration.jira.url.api.invalid", url),
-          e, logMessage.getMessage("integration.jira.url.api.invalid.solution"));
+      throw new JiraOAuth1Exception(MSG.getMessage("integration.jira.url.api.invalid", url),
+          e, MSG.getMessage("integration.jira.url.api.invalid.solution"));
     }
   }
 
@@ -351,8 +354,8 @@ public class JiraAuthorizationManager {
 
     if (result.isEmpty()) {
       throw new JiraOAuth1Exception(
-          logMessage.getMessage("integration.jira.auth.user.data.not.found", temporaryToken),
-          logMessage.getMessage("integration.jira.auth.user.data.not.found.solution"));
+          MSG.getMessage("integration.jira.auth.user.data.not.found", temporaryToken),
+          MSG.getMessage("integration.jira.auth.user.data.not.found.solution"));
     }
     UserAuthorizationData userAuthData = result.get(0);
     String url = userAuthData.getUrl();

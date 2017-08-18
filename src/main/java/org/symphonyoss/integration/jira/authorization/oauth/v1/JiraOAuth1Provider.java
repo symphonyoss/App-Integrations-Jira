@@ -16,12 +16,15 @@
 
 package org.symphonyoss.integration.jira.authorization.oauth.v1;
 
+import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.logging.LogMessageSource;
+import org.symphonyoss.integration.logging.MessageUtils;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 
 import java.net.MalformedURLException;
@@ -54,7 +57,7 @@ public class JiraOAuth1Provider extends OAuth1Provider {
   private URL requestAccessTokenUrl;
 
   @Autowired
-  private LogMessageSource logMessage;
+  private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   /**
    * Initialize this provider with the required parameters. This method MUST be called before any
@@ -79,16 +82,16 @@ public class JiraOAuth1Provider extends OAuth1Provider {
       authorizeTemporaryTokenUrl = new URL(this.baseUrl, AUTHORIZE_TEMPORARY_TOKEN_PATH);
       requestAccessTokenUrl = new URL(this.baseUrl, REQUEST_ACCESS_TOKEN_PATH);
     } catch (MalformedURLException e) {
-      throw new JiraOAuth1Exception(logMessage.getMessage(INVALID_BASE_URL, baseUrl),
-          e, logMessage.getMessage(INVALID_BASE_URL_SOLUTION));
+      throw new JiraOAuth1Exception(MSG.getMessage(INVALID_BASE_URL, baseUrl),
+          e, MSG.getMessage(INVALID_BASE_URL_SOLUTION));
     }
 
     try {
       this.authorizationCallbackUrl = new URL(authorizationCallbackUrl);
     } catch (MalformedURLException e) {
       throw new JiraOAuth1Exception(
-          logMessage.getMessage(INVALID_CALLBACK_URL, authorizationCallbackUrl),
-          e, logMessage.getMessage(INVALID_CALLBACK_URL_SOLUTION));
+          MSG.getMessage(INVALID_CALLBACK_URL, authorizationCallbackUrl),
+          e, MSG.getMessage(INVALID_CALLBACK_URL_SOLUTION));
     }
     this.configured = true;
   }

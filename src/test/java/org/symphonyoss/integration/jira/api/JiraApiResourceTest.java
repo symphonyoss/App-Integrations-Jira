@@ -20,6 +20,7 @@ import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
 import org.symphonyoss.integration.logging.LogMessageSource;
+import org.symphonyoss.integration.logging.MessageUtils;
 import org.symphonyoss.integration.service.IntegrationBridge;
 
 import java.io.IOException;
@@ -45,12 +46,6 @@ public class JiraApiResourceTest {
   private JiraApiResource jiraApiResource;
 
   @Mock
-  private IntegrationBridge integrationBridge;
-
-  @Mock
-  private LogMessageSource logMessageSource;
-
-  @Mock
   private JwtAuthentication jwtAuthentication;
 
   @Mock
@@ -71,9 +66,6 @@ public class JiraApiResourceTest {
     jiraWebHookIntegration = Mockito.mock(JiraWebHookIntegration.class);
     when(jiraWebHookIntegration.getAccessToken(anyString(), anyLong())).thenReturn(ACCESS_TOKEN);
     when(jiraWebHookIntegration.getOAuth1Provider(JIRA_INTEGRATION_URL)).thenReturn(provider);
-
-    integrationBridge = Mockito.mock(IntegrationBridge.class);
-    when(integrationBridge.getIntegrationById(anyString())).thenReturn(jiraWebHookIntegration);
 
     searchAssignableUsersService = Mockito.mock(SearchAssignableUsersService.class);
 

@@ -16,6 +16,8 @@
 
 package org.symphonyoss.integration.jira.webhook;
 
+import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,6 +32,7 @@ import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Excepti
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.logging.LogMessageSource;
+import org.symphonyoss.integration.logging.MessageUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
@@ -72,7 +75,7 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
   public static final String OAUTH_VERIFIER = "oauth_verifier";
 
   @Autowired
-  private LogMessageSource logMessage;
+  private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   @Autowired
   private JiraParserResolver parserResolver;
@@ -171,14 +174,14 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
     String verificationCode = authorizationPayload.getParameters().get(OAUTH_VERIFIER);
 
     if (StringUtils.isBlank(temporaryToken) || StringUtils.isBlank(verificationCode)) {
-      throw new JiraOAuth1Exception(logMessage.getMessage(MSG_INSUFFICIENT_PARAMS),
-          logMessage.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
+      throw new JiraOAuth1Exception(MSG.getMessage(MSG_INSUFFICIENT_PARAMS),
+          MSG.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
     }
 
     IntegrationSettings settings = getSettings();
     if (settings == null) {
-      throw new JiraOAuth1Exception(logMessage.getMessage(MSG_NO_INTEGRATION_FOUND),
-          logMessage.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
+      throw new JiraOAuth1Exception(MSG.getMessage(MSG_NO_INTEGRATION_FOUND),
+          MSG.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
     }
 
     authManager.authorizeTemporaryToken(settings, temporaryToken, verificationCode);
