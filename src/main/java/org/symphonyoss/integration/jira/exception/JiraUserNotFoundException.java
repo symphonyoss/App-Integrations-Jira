@@ -25,8 +25,8 @@ import org.symphonyoss.integration.exception.IntegrationRuntimeException;
  */
 public class JiraUserNotFoundException extends IntegrationRuntimeException {
 
-  public JiraUserNotFoundException(String component, String message, Throwable cause) {
-    super(component, message, cause);
+  public JiraUserNotFoundException(String component, String message, String... solutions) {
+    super(component, message, solutions);
   }
 
 }

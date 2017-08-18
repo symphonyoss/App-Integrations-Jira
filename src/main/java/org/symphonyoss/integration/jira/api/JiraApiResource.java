@@ -63,8 +63,6 @@ import javax.ws.rs.core.MediaType;
 @RequestMapping("/v1/jira/rest/api")
 public class JiraApiResource {
 
-  private static final String BUNDLE_FILENAME = "integration-jira-log-messages";
-
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   private static final String PATH_JIRA_API_SEARCH_USERS =

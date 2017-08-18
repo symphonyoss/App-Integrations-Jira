@@ -15,6 +15,8 @@ public class JiraErrorMessageKeys {
 
   public static String MISSING_FIELD = "integration.jira.missing.field";
 
+  public static String MISSING_FIELD_SOLUTION = MISSING_FIELD + ".solution";
+
   public static String EMPTY_ACCESS_TOKEN = "integration.jira.missing.accessToken";
 
   public static String ISSUEKEY_NOT_FOUND = "integration.jira.issueKey.not.found";

@@ -22,6 +22,8 @@ package org.symphonyoss.integration.jira.api;
  */
 public class JiraApiResourceConstants {
 
+  public static final String BUNDLE_FILENAME = "integration-jira-log-messages";
+
   public static final String ISSUE_KEY = "issueKey";
 
   public static final String USERNAME = "username";

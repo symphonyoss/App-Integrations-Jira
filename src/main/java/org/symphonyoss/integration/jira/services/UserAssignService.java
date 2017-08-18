@@ -17,10 +17,9 @@
 package org.symphonyoss.integration.jira.services;
 
 import static org.symphonyoss.integration.exception.RemoteApiException.COMPONENT;
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .APPLICATION_KEY_ERROR;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MISSING_FIELD;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.USERNAME_INVALID;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.NAME_PATH;
 
@@ -28,7 +27,6 @@ import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.GenericData;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +45,9 @@ import java.net.URL;
  * Created by hamitay on 8/15/17.
  */
 @Component
-public class UserAssignService {
+public class UserAssignService extends CommonJiraService {
+
+  private static final String SERVICE_NAME = "User Assign Service";
 
   @Autowired
   private LogMessageSource logMessage;
@@ -55,13 +55,7 @@ public class UserAssignService {
   public ResponseEntity assignUserToIssue(String accessToken, String issueKey, String username,
       URL integrationURL, OAuth1Provider provider) {
 
-    //Validate input
-    if (StringUtils.isEmpty(issueKey)) {
-      ErrorResponse response = new ErrorResponse();
-      response.setStatus(HttpStatus.BAD_REQUEST.value());
-      response.setMessage(logMessage.getMessage(MISSING_FIELD, ISSUE_KEY));
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
+    validateIssueKeyParameter(issueKey);
 
     //Jira requisition
     try {
@@ -90,6 +84,11 @@ public class UserAssignService {
     }
 
     return ResponseEntity.ok(HttpStatus.OK);
+  }
+
+  @Override
+  protected String getServiceName() {
+    return SERVICE_NAME;
   }
 
 }

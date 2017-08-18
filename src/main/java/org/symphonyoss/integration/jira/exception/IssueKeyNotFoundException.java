@@ -25,8 +25,8 @@ import org.symphonyoss.integration.exception.IntegrationRuntimeException;
  */
 public class IssueKeyNotFoundException extends IntegrationRuntimeException {
 
-  public IssueKeyNotFoundException(String component, String message, Throwable cause) {
-    super(component, message, cause);
+  public IssueKeyNotFoundException(String component, String message, String... solutions) {
+    super(component, message, solutions);
   }
 
 }

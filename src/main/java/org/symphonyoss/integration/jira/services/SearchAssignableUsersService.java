@@ -16,15 +16,14 @@
 
 package org.symphonyoss.integration.jira.services;
 
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MISSING_FIELD;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +44,9 @@ import java.net.URL;
  * Created by alexandre-silva-daitan on 15/08/17.
  */
 @Component
-public class SearchAssignableUsersService {
+public class SearchAssignableUsersService extends CommonJiraService {
+
+  private static final String SERVICE_NAME = "Search Assignable Users Service";
 
   @Autowired
   private LogMessageSource logMessage;
@@ -53,12 +54,7 @@ public class SearchAssignableUsersService {
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
       URL assignableUserUrl, String issueKey) {
 
-    if (StringUtils.isEmpty(issueKey)) {
-      ErrorResponse response = new ErrorResponse();
-      response.setStatus(HttpStatus.BAD_REQUEST.value());
-      response.setMessage(logMessage.getMessage(MISSING_FIELD, ISSUE_KEY));
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
+    validateIssueKeyParameter(issueKey);
 
     try {
       HttpResponse response =
@@ -79,6 +75,11 @@ public class SearchAssignableUsersService {
           logMessage.getMessage(APPLICATION_KEY_ERROR), e);
     }
     return null;
+  }
+
+  @Override
+  protected String getServiceName() {
+    return SERVICE_NAME;
   }
 }
 
