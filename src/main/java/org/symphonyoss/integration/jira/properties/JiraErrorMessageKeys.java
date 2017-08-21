@@ -39,4 +39,6 @@ public class JiraErrorMessageKeys {
 
   public static String COMPONENT = "JIRA API";
 
+  public static final String BUNDLE_FILENAME = "integration-jira-log-messages";
+
 }

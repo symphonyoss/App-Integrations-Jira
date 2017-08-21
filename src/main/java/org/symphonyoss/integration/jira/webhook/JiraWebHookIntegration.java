@@ -16,7 +16,7 @@
 
 package org.symphonyoss.integration.jira.webhook;
 
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,11 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationPayload;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
-import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
-import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.logging.MessageUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;

@@ -16,7 +16,7 @@
 
 package org.symphonyoss.integration.jira.authorization;
 
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
@@ -38,7 +38,6 @@ import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.json.JsonUtils;
-import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.logging.MessageUtils;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;

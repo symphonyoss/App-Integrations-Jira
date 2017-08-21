@@ -16,21 +16,15 @@
 
 package org.symphonyoss.integration.jira.services;
 
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.ISSUE_KEY;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .INTEGRATION_UNAUTHORIZED;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .INTEGRATION_UNAUTHORIZED_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INTEGRATION_UNAUTHORIZED;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INTEGRATION_UNAUTHORIZED_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .ISSUEKEY_NOT_FOUND_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MISSING_FIELD;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .MISSING_FIELD_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MISSING_FIELD_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.USERNAME_INVALID;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .USERNAME_INVALID_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.USERNAME_INVALID_SOLUTION;
 
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
@@ -46,6 +40,8 @@ import org.symphonyoss.integration.logging.MessageUtils;
 public abstract class CommonJiraService {
 
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
+
+  private static final String ISSUE_KEY = "issueKey";
 
   /**
    * Validate the issue key parameter.

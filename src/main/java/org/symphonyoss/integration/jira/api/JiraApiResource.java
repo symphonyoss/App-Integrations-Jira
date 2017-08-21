@@ -16,17 +16,13 @@
 
 package org.symphonyoss.integration.jira.api;
 
-import static org.symphonyoss.integration.jira.api.JiraApiResourceConstants.BUNDLE_FILENAME;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .EMPTY_ACCESS_TOKEN_SOLUTION;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .INTEGRATION_UNAVAILABLE;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .INTEGRATION_UNAVAILABLE_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INTEGRATION_UNAVAILABLE;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INTEGRATION_UNAVAILABLE_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INVALID_URL_ERROR;
 
 import org.apache.commons.lang3.StringUtils;
