@@ -117,6 +117,16 @@ public class JiraAuthorizationManager {
   private ApplicationContext context;
 
   /**
+   * Application public key cache
+   */
+  private String publicKey;
+
+  /**
+   * Application private key cache
+   */
+  private String privateKey;
+
+  /**
    * Provide the authorization properties for JIRA application.
    *
    * @param settings Integration settings
@@ -142,6 +152,10 @@ public class JiraAuthorizationManager {
    * @return Application public key
    */
   private String getPublicKey(AppAuthorizationModel authModel, Application application) {
+    if (StringUtils.isNotEmpty(publicKey)) {
+      return publicKey;
+    }
+
     String filename = getPublicKeyFilename(authModel, application);
     String publicKey = readKey(filename);
 
@@ -154,7 +168,10 @@ public class JiraAuthorizationManager {
 
     try {
       PublicKey pk = oAuthRsaSignerFactory.getPublicKey(pkAsString);
+
       if (pk != null) {
+        this.publicKey = pkAsString;
+
         return pkAsString;
       }
     } catch (OAuth1Exception e) {
@@ -189,6 +206,10 @@ public class JiraAuthorizationManager {
    * @return Application private key
    */
   private String getPrivateKey(IntegrationSettings settings) {
+    if (StringUtils.isNotEmpty(privateKey)) {
+      return privateKey;
+    }
+
     String appType = settings.getType();
     Application application = properties.getApplication(appType);
     AppAuthorizationModel authModel = application.getAuthorization();
@@ -205,7 +226,10 @@ public class JiraAuthorizationManager {
 
     try {
       PrivateKey pk = oAuthRsaSignerFactory.getPrivateKey(pkAsString);
+
       if (pk != null) {
+        this.privateKey = pkAsString;
+
         return pkAsString;
       }
     } catch (OAuth1Exception e) {

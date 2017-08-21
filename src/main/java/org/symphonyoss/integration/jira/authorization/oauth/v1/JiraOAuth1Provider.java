@@ -54,7 +54,6 @@ public class JiraOAuth1Provider extends OAuth1Provider {
   private URL authorizeTemporaryTokenUrl;
   private URL requestAccessTokenUrl;
 
-  @Autowired
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   /**
