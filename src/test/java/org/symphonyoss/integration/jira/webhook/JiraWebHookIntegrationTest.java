@@ -17,8 +17,10 @@
 package org.symphonyoss.integration.jira.webhook;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -36,8 +38,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.integration.authorization.AuthorizationException;
+import org.symphonyoss.integration.authorization.AuthorizationPayload;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.jira.webhook.parser.JiraWebHookParserAdapter;
@@ -58,7 +65,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
@@ -92,6 +101,10 @@ public class JiraWebHookIntegrationTest {
 
   private static final String COMMENT_DELETED_FILENAME =
       "parser/commentJiraParser/jiraCallbackSampleCommentDeleted.json";
+  public static final String MOCK_URL = "www.test.com";
+  private static final String ACCESS_TOKEN = "ACCESS TOKEN";
+  private static final String TEMPORARY_TOKEN = "oauth_token";
+  private static final String VERIFICATION_CODE = "oauth_verifier";
 
   @Spy
   private List<JiraParserFactory> factories = new ArrayList<>();
@@ -122,6 +135,7 @@ public class JiraWebHookIntegrationTest {
 
   @InjectMocks
   private IssueUpdatedJiraParser issueUpdatedJiraParser = new IssueUpdatedJiraParser();
+  private String authorizationURL = "www.authorizantionURL.com";
 
   @Before
   public void setup() {
@@ -209,12 +223,7 @@ public class JiraWebHookIntegrationTest {
   public void testCommentAddedWithMention() throws IOException, WebHookParseException {
     String body = getBody(COMMENT_ADDED_WITH_MENTION_FILENAME);
 
-    User user = new User();
-    user.setEmailAddress("integrationuser@symphony.com");
-    user.setId(123L);
-    user.setUserName("integrationuser");
-    user.setDisplayName("Integration User");
-    when(userService.getUserByUserName(anyString(), eq("integrationuser"))).thenReturn(user);
+    createNewUser();
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
 
@@ -252,12 +261,7 @@ public class JiraWebHookIntegrationTest {
   public void testCommentUpdatedWithMention() throws IOException, WebHookParseException {
     String body = getBody(COMMENT_UPDATED_WITH_MENTION_FILENAME);
 
-    User user = new User();
-    user.setEmailAddress("integrationuser@symphony.com");
-    user.setId(123L);
-    user.setUserName("integrationuser");
-    user.setDisplayName("Integration User");
-    when(userService.getUserByUserName(anyString(), eq("integrationuser"))).thenReturn(user);
+    User user1 = createNewUser();
 
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
 
@@ -271,6 +275,16 @@ public class JiraWebHookIntegrationTest {
     String expected = readFile("parser/commentJiraParser/jiraMessageMLIssueCommentUpdatedWithMention.xml");
 
     assertEquals(expected, result.getMessage());
+  }
+
+  public User createNewUser() {
+    User user = new User();
+    user.setEmailAddress("integrationuser@symphony.com");
+    user.setId(123L);
+    user.setUserName("integrationuser");
+    user.setDisplayName("Integration User");
+    when(userService.getUserByUserName(anyString(), eq("integrationuser"))).thenReturn(user);
+    return user;
   }
 
   @Test
@@ -328,6 +342,116 @@ public class JiraWebHookIntegrationTest {
     AppAuthorizationModel result = jiraWhi.getAuthorizationModel();
     assertEquals(authenticationModel, result);
   }
+
+  @Test
+  public void testIsUserAuthorized() throws AuthorizationException {
+    IntegrationSettings settings = new IntegrationSettings();
+    jiraWhi.onConfigChange(settings);
+    User user = createNewUser();
+    doReturn(true).when(authManager).isUserAuthorized(settings, MOCK_URL, user.getId());
+    boolean result = jiraWhi.isUserAuthorized(MOCK_URL, user.getId());
+    assertTrue(result);
+  }
+
+  @Test
+  public void testIsUserAuthorizedSettingsNull() throws AuthorizationException {
+    User user = createNewUser();
+    doReturn(true).when(authManager).isUserAuthorized(null, MOCK_URL, user.getId());
+    boolean result = jiraWhi.isUserAuthorized(MOCK_URL, user.getId());
+    assertFalse(result);
+  }
+
+  @Test
+  public void testGetAuthorizationUrl() throws AuthorizationException {
+    IntegrationSettings settings = new IntegrationSettings();
+    jiraWhi.onConfigChange(settings);
+    User user = createNewUser();
+    doReturn(authorizationURL).when(authManager).getAuthorizationUrl(settings, MOCK_URL, user.getId());
+    String result = jiraWhi.getAuthorizationUrl(MOCK_URL, user.getId());
+    assertEquals(authorizationURL, result);
+  }
+
+  @Test
+  public void testGetAuthorizationUrlSettingsNull() throws AuthorizationException {
+    User user = createNewUser();
+    doReturn(null).when(authManager).getAuthorizationUrl(null, MOCK_URL, user.getId());
+    String result = jiraWhi.getAuthorizationUrl(MOCK_URL, user.getId());
+    assertNull(result);
+  }
+
+  @Test
+  public void testGetAccessToken() throws AuthorizationException {
+    IntegrationSettings settings = new IntegrationSettings();
+    jiraWhi.onConfigChange(settings);
+    User user = createNewUser();
+    doReturn(ACCESS_TOKEN).when(authManager).getAccessToken(settings, MOCK_URL, user.getId());
+    String result = jiraWhi.getAccessToken(MOCK_URL, user.getId());
+    assertEquals(result, ACCESS_TOKEN);
+  }
+
+  @Test
+  public void testGetAccessTokenSettingsNull() throws AuthorizationException {
+    User user = createNewUser();
+    doReturn(null).when(authManager).getAccessToken(null, MOCK_URL, user.getId());
+    String result = jiraWhi.getAccessToken(MOCK_URL, user.getId());
+    assertNull(result);
+  }
+
+  @Test
+  public void testGetOAuth1Provider() throws AuthorizationException {
+    IntegrationSettings settings = new IntegrationSettings();
+    jiraWhi.onConfigChange(settings);
+    JiraOAuth1Provider provider = new JiraOAuth1Provider();
+    doReturn(provider).when(authManager).getJiraOAuth1Provider(settings, MOCK_URL);
+    OAuth1Provider result = jiraWhi.getOAuth1Provider(MOCK_URL);
+    assertEquals(result, provider);
+  }
+
+  @Test
+  public void testGetOAuth1ProviderSettingsNull() throws AuthorizationException {
+    JiraOAuth1Provider provider = new JiraOAuth1Provider();
+    doReturn(null).when(authManager).getJiraOAuth1Provider(null, MOCK_URL);
+    OAuth1Provider result = jiraWhi.getOAuth1Provider(MOCK_URL);
+    assertNull(result);
+  }
+
+  @Test(expected = JiraOAuth1Exception.class)
+  public void testAuthorizeTemporaryTokenBlank() throws AuthorizationException {
+    AuthorizationPayload payload = new AuthorizationPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), "body");
+    jiraWhi.authorize(payload);
+  }
+
+  @Test(expected = JiraOAuth1Exception.class)
+  public void testAuthorizeVerificationCodeBlank() throws AuthorizationException {
+    User user = createNewUser();
+    Map<String, String> params = new HashMap<>();
+    params.put(TEMPORARY_TOKEN, TEMPORARY_TOKEN);
+    AuthorizationPayload payload = new AuthorizationPayload(params, Collections.<String, String>emptyMap(), "body");
+    jiraWhi.authorize(payload);
+  }
+
+  @Test(expected = JiraOAuth1Exception.class)
+  public void testAuthorizeVerificationSettingsNull() throws AuthorizationException {
+    Map<String, String> params = new HashMap<>();
+    params.put(TEMPORARY_TOKEN, TEMPORARY_TOKEN);
+    params.put(VERIFICATION_CODE, VERIFICATION_CODE);
+    AuthorizationPayload payload = new AuthorizationPayload(params, Collections.<String, String>emptyMap(), "body");
+    jiraWhi.authorize(payload);
+  }
+
+  @Test
+  public void testAuthorize() throws AuthorizationException {
+    IntegrationSettings settings = new IntegrationSettings();
+    jiraWhi.onConfigChange(settings);
+    Map<String, String> params = new HashMap<>();
+    params.put(TEMPORARY_TOKEN, TEMPORARY_TOKEN);
+    params.put(VERIFICATION_CODE, VERIFICATION_CODE);
+    AuthorizationPayload payload = new AuthorizationPayload(params, Collections.<String, String>emptyMap(), "body");
+    jiraWhi.authorize(payload);
+    verify(authManager,times(1)).authorizeTemporaryToken(settings, payload.getParameters().get(TEMPORARY_TOKEN), payload.getParameters().get(VERIFICATION_CODE));
+
+  }
+
 
   private String getBody(String filename) throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
