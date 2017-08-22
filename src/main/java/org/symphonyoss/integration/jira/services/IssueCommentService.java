@@ -46,6 +46,7 @@ public class IssueCommentService extends CommonJiraService {
       URL commentIssueUrl,
       OAuth1Provider provider, String body) {
 
+    validateIssueKeyParameter(issueKey);
 
     try {
       GenericData data = new GenericData();

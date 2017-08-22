@@ -36,7 +36,7 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .USERNAME_INVALID_SOLUTION;
 
 import org.apache.commons.lang3.StringUtils;
-import org.symphonyoss.integration.jira.exception.BodyContentNoFoundException;
+import org.symphonyoss.integration.jira.exception.BodyContentNotFoundException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
@@ -99,12 +99,12 @@ public abstract class CommonJiraService {
   }
 
   /**
-   * Thrown {@link BodyContentNoFoundException} exception
+   * Thrown {@link BodyContentNotFoundException} exception
    */
   public void handleCommentNotFound() {
       String message = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND);
       String solution = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND_SOLUTION);
-      throw new BodyContentNoFoundException(getServiceName(), message, solution);
+      throw new BodyContentNotFoundException(getServiceName(), message, solution);
   }
 
   /**

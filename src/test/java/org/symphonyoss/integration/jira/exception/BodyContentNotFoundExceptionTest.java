@@ -21,28 +21,29 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
- * Unit test for {@link JiraUnexpectedException}
+ * Unit test for {@link BodyContentNotFoundException}
  *
- * Created by alexandre-silva-daitan on 18/08/17.
+ * Created by alexandre-silva-daitan on 22/08/17.
  */
-public class JiraUnexpectedExceptionTest {
+public class BodyContentNotFoundExceptionTest {
 
   private static final String COMPONENT = "JIRA API";
-  private static final String MESSAGE = "Jira unexpected exception";
-  private static final Throwable CAUSE = new Throwable();
+  private static final String MESSAGE = "BodyContentNotFoundException";
+  private static final String NO_SOLUTION =
+      "No solution has been cataloged for troubleshooting this problem.";
 
   @Test
-  public void testJiraUnexpectedExceptionTest() {
-    JiraUnexpectedException exception = new JiraUnexpectedException(COMPONENT, MESSAGE, CAUSE.getCause());
+  public void testBodyContentNotFoundException() {
+    BodyContentNotFoundException exception =
+        new BodyContentNotFoundException(COMPONENT, MESSAGE, NO_SOLUTION);
     String resultMessage = exception.getMessage();
     String expectedMessage = "\n"
         + "Component: JIRA API\n"
-        + "Message: Jira unexpected exception\n"
+        + "Message: BodyContentNotFoundException\n"
         + "Solutions: \n"
         + "No solution has been cataloged for troubleshooting this problem.\n";
 
-    assertEquals(expectedMessage,resultMessage);
+    assertEquals(expectedMessage, resultMessage);
   }
-
 
 }
