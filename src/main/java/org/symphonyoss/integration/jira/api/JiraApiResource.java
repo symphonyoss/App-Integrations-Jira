@@ -55,7 +55,7 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
-import org.symphonyoss.integration.jira.exception.BodyContentNoFoundException;
+import org.symphonyoss.integration.jira.exception.BodyContentNotFoundException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
@@ -245,7 +245,7 @@ public class JiraApiResource {
   private void malformedCommentExcpetion() {
     String message = MSG.getMessage(MALFORMED_COMMENT);
     String solution = MSG.getMessage(MALFORMED_COMMENT_SOLUTION);
-    throw new BodyContentNoFoundException(COMPONENT, message, solution);
+    throw new BodyContentNotFoundException(COMPONENT, message, solution);
   }
 
   private void validateIntegrationBootstrap() {
@@ -284,7 +284,7 @@ public class JiraApiResource {
       String message = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND);
       String solution = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND_SOLUTION);
 
-      throw new BodyContentNoFoundException(COMPONENT, message, solution);
+      throw new BodyContentNotFoundException(COMPONENT, message, solution);
     }
   }
 

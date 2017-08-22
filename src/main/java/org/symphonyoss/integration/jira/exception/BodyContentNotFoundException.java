@@ -22,9 +22,9 @@ import org.symphonyoss.integration.exception.IntegrationRuntimeException;
  *
  * Created by alexandre-silva-daitan on 22/08/17.
  */
-public class BodyContentNoFoundException extends IntegrationRuntimeException {
+public class BodyContentNotFoundException extends IntegrationRuntimeException {
 
-  public BodyContentNoFoundException(String serviceName, String message, String solution) {
+  public BodyContentNotFoundException(String serviceName, String message, String solution) {
     super(serviceName, message, solution);
   }
 }
