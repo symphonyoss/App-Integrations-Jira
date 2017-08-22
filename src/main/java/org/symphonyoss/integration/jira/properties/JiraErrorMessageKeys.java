@@ -41,4 +41,13 @@ public class JiraErrorMessageKeys {
 
   public static final String BUNDLE_FILENAME = "integration-jira-log-messages";
 
+  public static final String BODY_PATH_CONTENT_NOT_FOUND = "integration.jira.comment.body.path.not.found";
+
+  public static final String BODY_PATH_CONTENT_NOT_FOUND_SOLUTION = BODY_PATH_CONTENT_NOT_FOUND + ".solution";
+
+  public static final String MALFORMED_COMMENT = "integration.jira.comment.body.path.malformed";
+
+  public static final String MALFORMED_COMMENT_SOLUTION = MALFORMED_COMMENT + ".solution";
+
+
 }

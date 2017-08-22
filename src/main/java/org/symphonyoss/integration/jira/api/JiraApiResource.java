@@ -18,6 +18,10 @@ package org.symphonyoss.integration.jira.api;
 
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .BODY_PATH_CONTENT_NOT_FOUND;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .BODY_PATH_CONTENT_NOT_FOUND_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN;
@@ -28,7 +32,12 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .INTEGRATION_UNAVAILABLE_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INVALID_URL_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MALFORMED_COMMENT;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .MALFORMED_COMMENT_SOLUTION;
+import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.BODY_PATH;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +55,7 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
+import org.symphonyoss.integration.jira.exception.BodyContentNoFoundException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
@@ -53,8 +63,10 @@ import org.symphonyoss.integration.jira.services.IssueCommentService;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
+import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.logging.MessageUtils;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -187,7 +199,7 @@ public class JiraApiResource {
    * found.
    */
   @PostMapping(value = "/issue/{issueKey}/comment")
-  public ResponseEntity addCommnetToAnIssue(@RequestBody String comment,
+  public ResponseEntity addCommentToAnIssue(@RequestBody(required = false) String comment,
       @PathVariable String issueKey,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
       @RequestParam(name = "url") String jiraIntegrationURL) {
@@ -198,17 +210,36 @@ public class JiraApiResource {
     String accessToken = getAccessToken(jiraIntegrationURL, userId);
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
+
+    validateComment(comment);
+
+    JsonNode nodeComment = null;
+    try {
+      nodeComment = JsonUtils.readTree(comment);
+    } catch (IOException e) {
+      malformedCommentExcpetion();
+    }
+
+    String body = nodeComment.path(BODY_PATH).asText();
+    validateComment(body);
+
     try {
       URL jiraBaseUrl = new URL(jiraIntegrationURL);
       URL commentIssueUrl =
           new URL(jiraBaseUrl, String.format(PATH_JIRA_API_COMMENT_ISSUE, issueKey));
 
       return issueCommentService.addCommentToAnIssue(accessToken, issueKey, commentIssueUrl,
-          provider, comment);
+          provider, body);
     } catch (MalformedURLException e) {
       String errorMessage = MSG.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
       throw new InvalidJiraURLException(COMPONENT, errorMessage, e);
     }
+  }
+
+  private void malformedCommentExcpetion() {
+    String message = MSG.getMessage(MALFORMED_COMMENT);
+    String solution = MSG.getMessage(MALFORMED_COMMENT_SOLUTION);
+    throw new BodyContentNoFoundException(COMPONENT, message, solution);
   }
 
   private void validateIntegrationBootstrap() {
@@ -239,6 +270,15 @@ public class JiraApiResource {
       return jiraWebHookIntegration.getOAuth1Provider(jiraIntegrationURL);
     } catch (OAuth1Exception e) {
       throw new JiraAuthorizationException(COMPONENT, MSG.getMessage(APPLICATION_KEY_ERROR), e);
+    }
+  }
+
+  private void validateComment(String bodyPath) {
+    if (StringUtils.isEmpty(bodyPath)) {
+      String message = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND);
+      String solution = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND_SOLUTION);
+
+      throw new BodyContentNoFoundException(COMPONENT, message, solution);
     }
   }
 
