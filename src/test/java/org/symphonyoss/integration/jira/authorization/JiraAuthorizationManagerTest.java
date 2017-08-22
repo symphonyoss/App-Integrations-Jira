@@ -17,6 +17,7 @@
 package org.symphonyoss.integration.jira.authorization;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
@@ -30,6 +31,7 @@ import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationMa
     .PUBLIC_KEY_FILENAME;
 
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,16 +43,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
+import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.utils.RsaKeyUtils;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
-import org.symphonyoss.integration.logging.LogMessageSource;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.model.yaml.Application;
@@ -84,6 +87,8 @@ public class JiraAuthorizationManagerTest {
 
   private static final String JIRA_APP_TYPE = "jiraWebHookIntegration";
 
+  private static final String JIRA_APP_ID = "5810d1cee4b0f884b709cc9b";
+
   private static final String CONSUMER_KEY = "consumerKey";
 
   private static final String CONSUMER_NAME = "consumerName";
@@ -102,6 +107,22 @@ public class JiraAuthorizationManagerTest {
       + "GJCLCFoW64tKyFhxcVZ7lU43Unhji50S0Bb3reniB0ophJ8UEOjH2qiy3hOTtUNF\n"
       + "JynqT6wBqrpTGodBmwIDAQAB\n";
 
+  private static final String EXPECTED_PRIVATE_KEY =
+      "MIICeQIBADANBgkqhkiG9w0BAQEFAASCAmMwggJfAgEAAoGBAN8wcSF5AE7sL30p\n"
+      + "2mnM0X3T1OZy4BDfxucZTYdYmg99vqv6uVQyjc4zKOHRiwnCh2GwatT4jBfoQfWx\n"
+      + "6VUmvcxKHuZwcVCHF/u/Vw85wsMDpD4pBglpX1GsFlfSQe1E115X7mHD7tHlkQHv\n"
+      + "tVplf5BmYxM6G2EljBmiRRQq4OLbAgMBAAECgYEAxu54h6tAWRgvo9IgOVk0CIE9\n"
+      + "LEKL8L5knStybQbOGqyrvMJ3WdLNjlMPR2fsE8DtxmbmcfkvdUexMvtmzF0BoWDv\n"
+      + "JgqnGaUr9l0gZfGCR0ir2PBJ7V9OOJz5ug4ExLz6S9WNV6RdtXOSXSbNG3/L+56t\n"
+      + "ocA05JpZrZaUfK43V0ECQQDyjkokOrk54DwdnSH86V2bXn+RlzAyumhfGKJpC7pb\n"
+      + "eZgcSJtkbV9RslEr+TcVuuJyHZGeWtPEStl1BaKnvRLxAkEA649aVUD1b9Cly+Q2\n"
+      + "l7KbgDjny5k/Ezw7JK3hjYEKQrHjgkMejOuKSkeRz2imWD8PLoJ01GgMXLIiu+F1\n"
+      + "lb06iwJBAI7NJuldiV+BnOLyd+gmnG20nPZiRIYZKQmTv0qJFRZ16A/+zz25Br1a\n"
+      + "dl+lQcERXfBBaFIKt1KBnrU+tBx9PIECQQCLquG6rttXwvSrIdMkuufsbNEzLNfz\n"
+      + "RcEjjF2yExLMXMEymS1iDL5gMHNJ8RjANhOAViWDU3YQ+CYUFCgt8pblAkEAhM5k\n"
+      + "y54f3UViEO29UyWv2ZNaZPd17bSr8HAo/lxXyju4TRNRB3vIq79lMNalX5HKHlI9\n"
+      + "EST7xXLh110xXRH9/Q==\n";
+
   private static final String INVALID_PUBLIC_KEY = "invalid_app_pub.pem";
 
   private static final String MOCK_PUBLIC_KEY = "jira_app_pub.pem";
@@ -116,13 +137,12 @@ public class JiraAuthorizationManagerTest {
 
   private static final Long MOCK_USER = 0L;
 
+  private static final String MOCK_ACCESS_TOKEN = "accessToken";
+
   private static final IntegrationSettings SETTINGS = new IntegrationSettings();
 
   @Autowired
   private IntegrationProperties properties;
-
-  @MockBean
-  private LogMessageSource logMessage;
 
   @MockBean
   private JiraOAuth1Provider jiraOAuth1Provider;
@@ -148,6 +168,13 @@ public class JiraAuthorizationManagerTest {
   @BeforeClass
   public static void startup() {
     SETTINGS.setType(JIRA_APP_TYPE);
+    SETTINGS.setConfigurationId(JIRA_APP_ID);
+  }
+
+  @Before
+  public void init() {
+    ReflectionTestUtils.setField(authManager, "publicKey", null);
+    ReflectionTestUtils.setField(authManager, "privateKey", null);
   }
 
   @Test
@@ -206,7 +233,8 @@ public class JiraAuthorizationManagerTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void testIsUserAuthorizedException() throws AuthorizationException, URISyntaxException {
+  public void testIsUserAuthorizedException()
+      throws AuthorizationException, URISyntaxException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
 
@@ -252,6 +280,7 @@ public class JiraAuthorizationManagerTest {
     String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
     doReturn(certsDirectory).when(utils).getCertsDirectory();
 
+    doReturn(EXPECTED_PRIVATE_KEY).when(rsaKeyUtils).trimPrivateKey(anyString());
     doReturn(privateKey).when(rsaKeyUtils).getPrivateKey(anyString());
 
     doReturn(MOCK_URL).when(jiraOAuth1Provider).requestAuthorizationUrl(anyString());
@@ -295,6 +324,7 @@ public class JiraAuthorizationManagerTest {
     String certsDirectory = pkPath.getParent().toAbsolutePath() + File.separator;
     doReturn(certsDirectory).when(utils).getCertsDirectory();
 
+    doReturn(EXPECTED_PUBLIC_KEY).when(rsaKeyUtils).trimPublicKey(anyString());
     doReturn(publicKey).when(rsaKeyUtils).getPublicKey(anyString());
 
     AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
@@ -316,5 +346,64 @@ public class JiraAuthorizationManagerTest {
 
     assertEquals(DEFAULT_CONSUMER_KEY, consumerKey);
     assertEquals(DEFAULT_CONSUMER_NAME, consumerName);
+  }
+
+  @Test
+  public void testGetAccessTokenNullValue() throws AuthorizationException {
+    String accessToken = authManager.getAccessToken(new IntegrationSettings(), MOCK_URL, MOCK_USER);
+    assertNull(accessToken);
+  }
+
+  @Test
+  public void testGetAccessTokenEmptyValue() throws AuthorizationException {
+    doReturn(new UserAuthorizationData()).when(authRepoService).find(JIRA_APP_TYPE, JIRA_APP_ID,
+        MOCK_URL, MOCK_USER);
+
+    String accessToken = authManager.getAccessToken(SETTINGS, MOCK_URL, MOCK_USER);
+    assertNull(accessToken);
+  }
+
+  @Test
+  public void testGetAccessTokenNotFound() throws AuthorizationException {
+    JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data();
+
+    UserAuthorizationData authorizationData = new UserAuthorizationData();
+    authorizationData.setData(jiraOAuth1Data);
+
+    doReturn(authorizationData).when(authRepoService).find(JIRA_APP_TYPE, JIRA_APP_ID,
+        MOCK_URL, MOCK_USER);
+
+    String accessToken = authManager.getAccessToken(SETTINGS, MOCK_URL, MOCK_USER);
+    assertNull(accessToken);
+  }
+
+  @Test
+  public void testGetAccessToken() throws AuthorizationException {
+    JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data();
+    jiraOAuth1Data.setAccessToken(MOCK_ACCESS_TOKEN);
+
+    UserAuthorizationData authorizationData = new UserAuthorizationData();
+    authorizationData.setData(jiraOAuth1Data);
+
+    doReturn(authorizationData).when(authRepoService).find(JIRA_APP_TYPE, JIRA_APP_ID,
+        MOCK_URL, MOCK_USER);
+
+    String accessToken = authManager.getAccessToken(SETTINGS, MOCK_URL, MOCK_USER);
+    assertEquals(MOCK_ACCESS_TOKEN, accessToken);
+  }
+
+  @Test
+  public void testKeysCache() throws URISyntaxException, AuthorizationException {
+    testAuthorizationModel();
+    testGetAuthorizationUrl();
+
+    Object publicKey = ReflectionTestUtils.getField(authManager, JiraAuthorizationManager.class, "publicKey");
+    Object privateKey = ReflectionTestUtils.getField(authManager, JiraAuthorizationManager.class, "privateKey");
+
+    assertNotNull(publicKey);
+    assertNotNull(privateKey);
+
+    assertEquals(EXPECTED_PUBLIC_KEY, publicKey.toString());
+    assertEquals(EXPECTED_PRIVATE_KEY, privateKey.toString());
   }
 }
