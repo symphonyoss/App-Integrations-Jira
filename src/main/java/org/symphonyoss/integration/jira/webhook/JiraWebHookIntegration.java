@@ -16,17 +16,21 @@
 
 package org.symphonyoss.integration.jira.webhook;
 
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationPayload;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
-import org.symphonyoss.integration.logging.LogMessageSource;
+import org.symphonyoss.integration.logging.MessageUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
@@ -69,7 +73,7 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
   public static final String OAUTH_VERIFIER = "oauth_verifier";
 
   @Autowired
-  private LogMessageSource logMessage;
+  private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   @Autowired
   private JiraParserResolver parserResolver;
@@ -138,7 +142,8 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
    * @see AuthorizedIntegration#isUserAuthorized(String, Long)
    */
   @Override
-  public boolean isUserAuthorized(String url, Long userId) throws AuthorizationException {
+  public boolean isUserAuthorized(String url, Long userId)
+      throws AuthorizationException {
     IntegrationSettings settings = getSettings();
     if (settings != null) {
       return authManager.isUserAuthorized(settings, url, userId);
@@ -167,17 +172,46 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
     String verificationCode = authorizationPayload.getParameters().get(OAUTH_VERIFIER);
 
     if (StringUtils.isBlank(temporaryToken) || StringUtils.isBlank(verificationCode)) {
-      throw new JiraOAuth1Exception(logMessage.getMessage(MSG_INSUFFICIENT_PARAMS),
-          logMessage.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
+      throw new JiraOAuth1Exception(MSG.getMessage(MSG_INSUFFICIENT_PARAMS),
+          MSG.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
     }
 
     IntegrationSettings settings = getSettings();
     if (settings == null) {
-      throw new JiraOAuth1Exception(logMessage.getMessage(MSG_NO_INTEGRATION_FOUND),
-          logMessage.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
+      throw new JiraOAuth1Exception(MSG.getMessage(MSG_NO_INTEGRATION_FOUND),
+          MSG.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
     }
 
     authManager.authorizeTemporaryToken(settings, temporaryToken, verificationCode);
   }
+
+  /**
+   * @see AuthorizedIntegration#getAccessToken(String, Long)
+   */
+  @Override
+  public String getAccessToken(String url, Long userId) throws AuthorizationException {
+    IntegrationSettings settings = getSettings();
+    if (settings != null) {
+      return authManager.getAccessToken(settings, url, userId);
+    }
+    return null;
+  }
+
+  /**
+   * Get an OAuth1 provider for user to perform calls to an external system resource.
+   * @param url Integration URL.
+   * @return JIRA OAuth1Provider.
+   * @throws OAuth1Exception Thrown in any case of error.
+   */
+  public OAuth1Provider getOAuth1Provider(String url) throws OAuth1Exception {
+    IntegrationSettings settings = getSettings();
+
+    if (settings != null) {
+      return authManager.getJiraOAuth1Provider(settings, url);
+    }
+
+    return null;
+  }
+
 }
 
