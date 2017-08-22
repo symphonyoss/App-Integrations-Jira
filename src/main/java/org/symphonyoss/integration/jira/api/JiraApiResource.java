@@ -16,13 +16,17 @@
 
 package org.symphonyoss.integration.jira.api;
 
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.APPLICATION_KEY_ERROR;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .APPLICATION_KEY_ERROR;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN_SOLUTION;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INTEGRATION_UNAVAILABLE;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INTEGRATION_UNAVAILABLE_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .EMPTY_ACCESS_TOKEN_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .INTEGRATION_UNAVAILABLE;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .INTEGRATION_UNAVAILABLE_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INVALID_URL_ERROR;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +34,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +49,7 @@ import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
+import org.symphonyoss.integration.jira.services.IssueCommentService;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
@@ -70,6 +77,9 @@ public class JiraApiResource {
   private static final String PATH_JIRA_API_ASSIGN_ISSUE =
       "/rest/api/latest/issue/%s/assignee";
 
+  private static final String PATH_JIRA_API_COMMENT_ISSUE =
+      "/rest/api/latest/issue/%s/comment";
+
   private final JiraWebHookIntegration jiraWebHookIntegration;
 
   private final JwtAuthentication jwtAuthentication;
@@ -78,16 +88,20 @@ public class JiraApiResource {
 
   private final SearchAssignableUsersService searchAssignableUsersService;
 
+  private final IssueCommentService issueCommentService;
+
   @Value("${applications.jira.api.maxNumberOfResults:10}")
   private Integer maxResults;
 
   public JiraApiResource(JiraWebHookIntegration jiraWebHookIntegration,
       JwtAuthentication jwtAuthentication, UserAssignService userAssignService,
-      SearchAssignableUsersService searchAssignableUsersService) {
+      SearchAssignableUsersService searchAssignableUsersService,
+      IssueCommentService issueCommentService) {
     this.jiraWebHookIntegration = jiraWebHookIntegration;
     this.jwtAuthentication = jwtAuthentication;
     this.userAssignService = userAssignService;
     this.searchAssignableUsersService = searchAssignableUsersService;
+    this.issueCommentService = issueCommentService;
   }
 
   /**
@@ -159,10 +173,44 @@ public class JiraApiResource {
 
     try {
       URL jiraBaseUrl = new URL(jiraIntegrationURL);
-      URL userAssigneeUrl = new URL(jiraBaseUrl, String.format(PATH_JIRA_API_ASSIGN_ISSUE, issueKey));
+      URL userAssigneeUrl =
+          new URL(jiraBaseUrl, String.format(PATH_JIRA_API_ASSIGN_ISSUE, issueKey));
 
       return userAssignService.assignUserToIssue(accessToken, issueKey, username, userAssigneeUrl,
           provider);
+    } catch (MalformedURLException e) {
+      String errorMessage = MSG.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
+      throw new InvalidJiraURLException(COMPONENT, errorMessage, e);
+    }
+  }
+
+  /**
+   * Adds new comments on issue.
+   * @param issueKey Issue identifier
+   * @return 201 Created - Returned if add was successful or 400 Bad Request - Returned if the input
+   * is invalid (e.g. missing required fields, invalid values, and so forth), 401 Unauthorized -
+   * Returned if the user is not authenticated, 404 Not Found - Returned if the issue key is not
+   * found.
+   */
+  @PostMapping(value = "/issue/{issueKey}/comment")
+  public ResponseEntity addCommnetToAnIssue(@RequestBody String comment,
+      @PathVariable String issueKey,
+      @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+      @RequestParam(name = "url") String jiraIntegrationURL) {
+    Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
+
+    validateIntegrationBootstrap();
+
+    String accessToken = getAccessToken(jiraIntegrationURL, userId);
+
+    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
+    try {
+      URL jiraBaseUrl = new URL(jiraIntegrationURL);
+      URL commentIssueUrl =
+          new URL(jiraBaseUrl, String.format(PATH_JIRA_API_COMMENT_ISSUE, issueKey));
+
+      return issueCommentService.addCommentToAnIssue(accessToken, issueKey, commentIssueUrl,
+          provider, comment);
     } catch (MalformedURLException e) {
       String errorMessage = MSG.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
       throw new InvalidJiraURLException(COMPONENT, errorMessage, e);
@@ -182,7 +230,8 @@ public class JiraApiResource {
       String accessToken = jiraWebHookIntegration.getAccessToken(jiraIntegrationURL, userId);
 
       if (accessToken == null || accessToken.isEmpty()) {
-        throw new JiraAuthorizationException(COMPONENT, MSG.getMessage(EMPTY_ACCESS_TOKEN), MSG.getMessage(EMPTY_ACCESS_TOKEN_SOLUTION, jiraIntegrationURL));
+        throw new JiraAuthorizationException(COMPONENT, MSG.getMessage(EMPTY_ACCESS_TOKEN),
+            MSG.getMessage(EMPTY_ACCESS_TOKEN_SOLUTION, jiraIntegrationURL));
       }
 
       return accessToken;
