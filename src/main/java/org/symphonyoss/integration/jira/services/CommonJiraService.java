@@ -16,10 +16,6 @@
 
 package org.symphonyoss.integration.jira.services;
 
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .BODY_PATH_CONTENT_NOT_FOUND;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .BODY_PATH_CONTENT_NOT_FOUND_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .INTEGRATION_UNAUTHORIZED;
@@ -36,7 +32,6 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .USERNAME_INVALID_SOLUTION;
 
 import org.apache.commons.lang3.StringUtils;
-import org.symphonyoss.integration.jira.exception.BodyContentNotFoundException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
