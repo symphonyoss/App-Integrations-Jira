@@ -99,15 +99,6 @@ public abstract class CommonJiraService {
   }
 
   /**
-   * Thrown {@link BodyContentNotFoundException} exception
-   */
-  public void handleCommentNotFound() {
-      String message = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND);
-      String solution = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND_SOLUTION);
-      throw new BodyContentNotFoundException(getServiceName(), message, solution);
-  }
-
-  /**
    * Retrieves the service name
    * @return Service name
    */
