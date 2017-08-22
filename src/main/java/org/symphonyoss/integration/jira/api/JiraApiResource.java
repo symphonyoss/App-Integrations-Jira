@@ -35,6 +35,12 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.I
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MALFORMED_COMMENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .MALFORMED_COMMENT_SOLUTION;
+import static org.symphonyoss.integration.jira.services.IssueCommentService
+    .PATH_JIRA_API_COMMENT_ISSUE;
+import static org.symphonyoss.integration.jira.services.SearchAssignableUsersService
+    .PATH_JIRA_API_SEARCH_USERS;
+import static org.symphonyoss.integration.jira.services.UserAssignService
+    .PATH_JIRA_API_ASSIGN_ISSUE;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.BODY_PATH;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -82,15 +88,6 @@ import javax.ws.rs.core.MediaType;
 public class JiraApiResource {
 
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
-
-  private static final String PATH_JIRA_API_SEARCH_USERS =
-      "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
-
-  private static final String PATH_JIRA_API_ASSIGN_ISSUE =
-      "/rest/api/latest/issue/%s/assignee";
-
-  private static final String PATH_JIRA_API_COMMENT_ISSUE =
-      "/rest/api/latest/issue/%s/comment";
 
   private final JiraWebHookIntegration jiraWebHookIntegration;
 

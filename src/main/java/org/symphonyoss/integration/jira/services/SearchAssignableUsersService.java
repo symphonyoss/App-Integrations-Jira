@@ -39,6 +39,9 @@ public class SearchAssignableUsersService extends CommonJiraService {
 
   private static final String SERVICE_NAME = "Search Assignable Users Service";
 
+  public static final String PATH_JIRA_API_SEARCH_USERS =
+      "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
+
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
       URL assignableUserUrl, String issueKey) {
 

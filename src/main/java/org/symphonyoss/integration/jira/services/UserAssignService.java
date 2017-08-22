@@ -41,6 +41,9 @@ public class UserAssignService extends CommonJiraService {
 
   private static final String SERVICE_NAME = "User Assign Service";
 
+  public static final String PATH_JIRA_API_ASSIGN_ISSUE =
+      "/rest/api/latest/issue/%s/assignee";
+
   public ResponseEntity assignUserToIssue(String accessToken, String issueKey, String username,
       URL integrationURL, OAuth1Provider provider) {
 

@@ -42,6 +42,9 @@ public class IssueCommentService extends CommonJiraService {
 
   private static final String SERVICE_NAME = "Issue Comment Service";
 
+  public static final String PATH_JIRA_API_COMMENT_ISSUE =
+      "/rest/api/latest/issue/%s/comment";
+
   public ResponseEntity addCommentToAnIssue(String accessToken, String issueKey,
       URL commentIssueUrl,
       OAuth1Provider provider, String body) {
