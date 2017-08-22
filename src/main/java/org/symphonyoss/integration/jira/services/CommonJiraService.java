@@ -16,17 +16,27 @@
 
 package org.symphonyoss.integration.jira.services;
 
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .BODY_PATH_CONTENT_NOT_FOUND;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .BODY_PATH_CONTENT_NOT_FOUND_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INTEGRATION_UNAUTHORIZED;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INTEGRATION_UNAUTHORIZED_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .INTEGRATION_UNAUTHORIZED;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .INTEGRATION_UNAUTHORIZED_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .ISSUEKEY_NOT_FOUND_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MISSING_FIELD;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MISSING_FIELD_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .MISSING_FIELD_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.USERNAME_INVALID;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.USERNAME_INVALID_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .USERNAME_INVALID_SOLUTION;
 
 import org.apache.commons.lang3.StringUtils;
+import org.symphonyoss.integration.jira.exception.BodyContentNoFoundException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
@@ -86,6 +96,15 @@ public abstract class CommonJiraService {
     String solution = MSG.getMessage(INTEGRATION_UNAUTHORIZED_SOLUTION);
 
     throw new JiraAuthorizationException(getServiceName(), message, solution);
+  }
+
+  /**
+   * Thrown {@link BodyContentNoFoundException} exception
+   */
+  public void handleCommentNotFound() {
+      String message = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND);
+      String solution = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND_SOLUTION);
+      throw new BodyContentNoFoundException(getServiceName(), message, solution);
   }
 
   /**

@@ -18,12 +18,10 @@ package org.symphonyoss.integration.jira.services;
 
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.BODY_PATH;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.GenericData;
-import com.google.api.client.util.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -31,9 +29,7 @@ import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
-import org.symphonyoss.integration.json.JsonUtils;
 
-import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -48,21 +44,8 @@ public class IssueCommentService extends CommonJiraService {
 
   public ResponseEntity addCommentToAnIssue(String accessToken, String issueKey,
       URL commentIssueUrl,
-      OAuth1Provider provider, String comment) {
+      OAuth1Provider provider, String body) {
 
-    validateIssueKeyParameter(issueKey);
-
-    JsonNode nodeComment = null;
-    try {
-      nodeComment = JsonUtils.readTree(comment);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    String body = nodeComment.path(BODY_PATH).asText();
-    if(body.isEmpty()) {
-      validateIssueKeyParameter(issueKey);
-    }
 
     try {
       GenericData data = new GenericData();
@@ -73,10 +56,6 @@ public class IssueCommentService extends CommonJiraService {
     } catch (OAuth1HttpRequestException e) {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
         handleIssueNotFound(issueKey);
-      }
-
-      if (e.getCode() == HttpStatus.BAD_REQUEST.value()) {
-        validateIssueKeyParameter(issueKey);
       }
 
       if (e.getCode() == HttpStatus.UNAUTHORIZED.value()) {
