@@ -32,6 +32,7 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
+import org.symphonyoss.integration.jira.exception.InvalidJiraPayloadException;
 import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
@@ -102,9 +103,6 @@ public class JiraApiResourceTest {
   @Mock
   private OAuth1Provider provider;
 
-  @Mock
-  private IntegrationSettings mockSettings;
-
   @Before
   public void prepareMockResource() throws AuthorizationException, MalformedURLException {
     URL jiraBaseUrl = new URL(JIRA_INTEGRATION_URL);
@@ -117,11 +115,17 @@ public class JiraApiResourceTest {
     URL issueCommentUrl =
         new URL(jiraBaseUrl, String.format(PATH_JIRA_API_COMMENT_ISSUE, ISSUE_KEY));
 
+    IntegrationSettings settings = new IntegrationSettings();
+    settings.setConfigurationId(CONFIGURATION_ID);
+
+    doReturn(settings).when(jiraWebHookIntegration).getSettings();
+
     doReturn(USER_ID).when(jwtAuthentication)
         .getUserIdFromAuthorizationHeader(CONFIGURATION_ID, AUTHORIZATION_HEADER);
-    doReturn(new IntegrationSettings()).when(jiraWebHookIntegration).getSettings();
+
     doReturn(ACCESS_TOKEN).when(jiraWebHookIntegration)
         .getAccessToken(JIRA_INTEGRATION_URL, USER_ID);
+
     doReturn(provider).when(jiraWebHookIntegration).getOAuth1Provider(JIRA_INTEGRATION_URL);
 
     doReturn(new ResponseEntity(HttpStatus.OK)).when(searchAssignableUsersService)
@@ -297,7 +301,7 @@ public class JiraApiResourceTest {
             JIRA_INTEGRATION_URL);
   }
 
-  @Test(expected = MissingRequiredPayloadException.class)
+  @Test(expected = InvalidJiraPayloadException.class)
   public void addAnInvalidCommentToAnIssue() throws IOException {
     ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
 
@@ -308,6 +312,7 @@ public class JiraApiResourceTest {
 
   @Test
   public void addCommentToAnIssue() throws IOException {
+
     ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
 
     ResponseEntity responseEntity =

@@ -286,7 +286,6 @@ public class JiraApiResource {
     if (StringUtils.isEmpty(bodyPath)) {
       String message = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND);
       String solution = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND_SOLUTION);
-
       throw new MissingRequiredPayloadException(COMPONENT, message, solution);
     }
   }
