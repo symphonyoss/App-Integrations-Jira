@@ -16,7 +16,8 @@
 
 package org.symphonyoss.integration.jira.exception;
 
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -33,7 +34,8 @@ public class JiraUnexpectedExceptionTest {
 
   @Test
   public void testJiraUnexpectedExceptionTest() {
-    JiraUnexpectedException exception = new JiraUnexpectedException(COMPONENT, MESSAGE, CAUSE.getCause());
+    JiraUnexpectedException exception =
+        new JiraUnexpectedException(COMPONENT, MESSAGE, CAUSE.getCause());
     String resultMessage = exception.getMessage();
     String expectedMessage = "\n"
         + "Component: JIRA API\n"
@@ -41,7 +43,7 @@ public class JiraUnexpectedExceptionTest {
         + "Solutions: \n"
         + "No solution has been cataloged for troubleshooting this problem.\n";
 
-    assertEquals(expectedMessage,resultMessage);
+    assertEquals(expectedMessage, resultMessage);
   }
 
 

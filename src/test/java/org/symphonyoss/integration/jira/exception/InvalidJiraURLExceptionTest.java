@@ -16,9 +16,10 @@
 
 package org.symphonyoss.integration.jira.exception;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+
 
 /**
  * Unit test for {@link InvalidJiraURLException}
