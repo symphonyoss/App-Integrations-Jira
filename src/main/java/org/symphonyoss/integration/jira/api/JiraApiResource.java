@@ -103,9 +103,12 @@ public class JiraApiResource {
       @RequestParam(required = false) String username,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
       @RequestParam(name = "url") String jiraIntegrationURL) {
-    Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
 
     validateIntegrationBootstrap();
+
+    String configurationId = jiraWebHookIntegration.getSettings().getConfigurationId();
+    Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(
+        configurationId, authorizationHeader);
 
     if (username == null) {
       username = StringUtils.EMPTY;
@@ -143,9 +146,12 @@ public class JiraApiResource {
       @RequestParam(value = "username", required = false) String username,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
       @RequestParam(name = "url") String jiraIntegrationURL) {
-    Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(authorizationHeader);
 
     validateIntegrationBootstrap();
+
+    String configurationId = jiraWebHookIntegration.getSettings().getConfigurationId();
+    Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(configurationId,
+        authorizationHeader);
 
     String accessToken = getAccessToken(jiraIntegrationURL, userId);
 

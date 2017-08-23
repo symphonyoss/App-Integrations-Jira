@@ -30,21 +30,20 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
-import org.symphonyoss.integration.authorization.oauth.OAuthRsaSignerFactory;
-import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
+import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.logging.MessageUtils;
-import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
-import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
+import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.model.yaml.Application;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.utils.IntegrationUtils;
+import org.symphonyoss.integration.utils.RsaKeyUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -86,14 +85,6 @@ public class JiraAuthorizationManager {
 
   public static final String CONSUMER_KEY = "consumerKey";
 
-  private static final String PUBLIC_KEY_PREFIX = "-----BEGIN PUBLIC KEY-----\n";
-
-  private static final String PUBLIC_KEY_SUFFIX = "-----END PUBLIC KEY-----\n";
-
-  private static final String PRIVATE_KEY_PREFIX = "-----BEGIN PRIVATE KEY-----\n";
-
-  private static final String PRIVATE_KEY_SUFFIX = "-----END PRIVATE KEY-----\n";
-
   private static final String AUTH_CALLBACK_PATH = "/v1/application/%s/authorization/authorize";
 
   private static final String PATH_JIRA_API_MY_SELF = "/rest/api/2/myself";
@@ -108,7 +99,7 @@ public class JiraAuthorizationManager {
   private IntegrationUtils utils;
 
   @Autowired
-  private OAuthRsaSignerFactory oAuthRsaSignerFactory;
+  private RsaKeyUtils rsaKeyUtils;
 
   @Autowired
   private AuthorizationRepositoryService authRepoService;
@@ -163,18 +154,16 @@ public class JiraAuthorizationManager {
       return null;
     }
 
-    String pkAsString = publicKey.replace(PUBLIC_KEY_PREFIX, StringUtils.EMPTY)
-        .replace(PUBLIC_KEY_SUFFIX, StringUtils.EMPTY);
+    String pkAsString = rsaKeyUtils.trimPublicKey(publicKey);
 
     try {
-      PublicKey pk = oAuthRsaSignerFactory.getPublicKey(pkAsString);
-
+      PublicKey pk = rsaKeyUtils.getPublicKey(pkAsString);
       if (pk != null) {
         this.publicKey = pkAsString;
 
         return pkAsString;
       }
-    } catch (OAuth1Exception e) {
+    } catch (Exception e) {
       throw new IntegrationRuntimeException(COMPONENT,
           MSG.getMessage("integration.jira.public.key.validation"), e);
     }
@@ -221,18 +210,16 @@ public class JiraAuthorizationManager {
       return null;
     }
 
-    String pkAsString = privateKey.replace(PRIVATE_KEY_PREFIX, StringUtils.EMPTY)
-        .replace(PRIVATE_KEY_SUFFIX, StringUtils.EMPTY);
+    String pkAsString = rsaKeyUtils.trimPrivateKey(privateKey);
 
     try {
-      PrivateKey pk = oAuthRsaSignerFactory.getPrivateKey(pkAsString);
-
+      PrivateKey pk = rsaKeyUtils.getPrivateKey(pkAsString);
       if (pk != null) {
         this.privateKey = pkAsString;
 
         return pkAsString;
       }
-    } catch (OAuth1Exception e) {
+    } catch (Exception e) {
       throw new IntegrationRuntimeException(COMPONENT,
           MSG.getMessage("integration.jira.private.key.validation"), e);
     }
@@ -326,6 +313,7 @@ public class JiraAuthorizationManager {
       HttpResponse response =
           provider.makeAuthorizedRequest(jiraOAuth1Data.getAccessToken(), myselfUrl,
               HttpMethods.GET, null);
+
       return response.getStatusCode() != HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
     } catch (MalformedURLException e) {
       throw new JiraOAuth1Exception(MSG.getMessage("integration.jira.url.api.invalid", url),

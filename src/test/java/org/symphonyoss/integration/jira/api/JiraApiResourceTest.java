@@ -71,6 +71,9 @@ public class JiraApiResourceTest {
   @Mock
   private OAuth1Provider provider;
 
+  @Mock
+  private IntegrationSettings mockSettings;
+
   @Before
   public void prepareMockResource() throws AuthorizationException, MalformedURLException {
     String pathApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, ISSUE_KEY,
@@ -79,11 +82,15 @@ public class JiraApiResourceTest {
     URL jiraBaseUrl = new URL(JIRA_INTEGRATION_URL);
 
     URL assignableUserUrl = new URL(jiraBaseUrl, pathApiJiraUsersSearch);
-    URL userAssigneeUrl = new URL(jiraBaseUrl, String.format(PATH_JIRA_API_ASSIGN_ISSUE, ISSUE_KEY));
+    URL userAssigneeUrl =
+        new URL(jiraBaseUrl, String.format(PATH_JIRA_API_ASSIGN_ISSUE, ISSUE_KEY));
 
-    doReturn(USER_ID).when(jwtAuthentication).getUserIdFromAuthorizationHeader(AUTHORIZATION_HEADER);
-    doReturn(new IntegrationSettings()).when(jiraWebHookIntegration).getSettings();
-    doReturn(ACCESS_TOKEN).when(jiraWebHookIntegration).getAccessToken(JIRA_INTEGRATION_URL, USER_ID);
+    doReturn(USER_ID).when(jwtAuthentication)
+        .getUserIdFromAuthorizationHeader(CONFIGURATION_ID, AUTHORIZATION_HEADER);
+    doReturn(mockSettings).when(jiraWebHookIntegration).getSettings();
+    doReturn(CONFIGURATION_ID).when(mockSettings).getConfigurationId();
+    doReturn(ACCESS_TOKEN).when(jiraWebHookIntegration)
+        .getAccessToken(JIRA_INTEGRATION_URL, USER_ID);
     doReturn(provider).when(jiraWebHookIntegration).getOAuth1Provider(JIRA_INTEGRATION_URL);
 
     doReturn(new ResponseEntity(HttpStatus.OK)).when(searchAssignableUsersService)
@@ -100,25 +107,33 @@ public class JiraApiResourceTest {
   public void testSearchAssignableUserUnavailable() throws IOException {
     doReturn(null).when(jiraWebHookIntegration).getSettings();
 
-    jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+    jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
+        JIRA_INTEGRATION_URL);
   }
 
   @Test(expected = JiraAuthorizationException.class)
   public void testSearchAssignableUserNullAccessToken() throws IOException {
-    doReturn(0L).when(jwtAuthentication).getUserIdFromAuthorizationHeader(AUTHORIZATION_HEADER);
-    jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+    doReturn(0L).when(jwtAuthentication)
+        .getUserIdFromAuthorizationHeader(CONFIGURATION_ID, AUTHORIZATION_HEADER);
+    jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
+        JIRA_INTEGRATION_URL);
   }
 
   @Test(expected = JiraUnexpectedException.class)
-  public void testSearchAssignableUserAccessTokenFailed() throws IOException, AuthorizationException {
-    doThrow(AuthorizationException.class).when(jiraWebHookIntegration).getAccessToken(JIRA_INTEGRATION_URL, USER_ID);
-    jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+  public void testSearchAssignableUserAccessTokenFailed()
+      throws IOException, AuthorizationException {
+    doThrow(AuthorizationException.class).when(jiraWebHookIntegration)
+        .getAccessToken(JIRA_INTEGRATION_URL, USER_ID);
+    jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
+        JIRA_INTEGRATION_URL);
   }
 
   @Test(expected = JiraAuthorizationException.class)
   public void testSearchAssignableUserProviderFailed() throws IOException, AuthorizationException {
-    doThrow(OAuth1Exception.class).when(jiraWebHookIntegration).getOAuth1Provider(JIRA_INTEGRATION_URL);
-    jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+    doThrow(OAuth1Exception.class).when(jiraWebHookIntegration)
+        .getOAuth1Provider(JIRA_INTEGRATION_URL);
+    jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
+        JIRA_INTEGRATION_URL);
   }
 
   @Test(expected = InvalidJiraURLException.class)
@@ -146,25 +161,32 @@ public class JiraApiResourceTest {
   public void testAssignIssueUnavailable() throws IOException {
     doReturn(null).when(jiraWebHookIntegration).getSettings();
 
-    jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+    jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
+        JIRA_INTEGRATION_URL);
   }
 
   @Test(expected = JiraAuthorizationException.class)
   public void testAssignIssueNullAccessToken() throws IOException {
-    doReturn(0L).when(jwtAuthentication).getUserIdFromAuthorizationHeader(AUTHORIZATION_HEADER);
-    jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+    doReturn(0L).when(jwtAuthentication)
+        .getUserIdFromAuthorizationHeader(CONFIGURATION_ID, AUTHORIZATION_HEADER);
+    jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
+        JIRA_INTEGRATION_URL);
   }
 
   @Test(expected = JiraUnexpectedException.class)
   public void testAssignIssueAccessTokenFailed() throws IOException, AuthorizationException {
-    doThrow(AuthorizationException.class).when(jiraWebHookIntegration).getAccessToken(JIRA_INTEGRATION_URL, USER_ID);
-    jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+    doThrow(AuthorizationException.class).when(jiraWebHookIntegration)
+        .getAccessToken(JIRA_INTEGRATION_URL, USER_ID);
+    jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
+        JIRA_INTEGRATION_URL);
   }
 
   @Test(expected = JiraAuthorizationException.class)
   public void testAssignIssueProviderFailed() throws IOException, AuthorizationException {
-    doThrow(OAuth1Exception.class).when(jiraWebHookIntegration).getOAuth1Provider(JIRA_INTEGRATION_URL);
-    jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+    doThrow(OAuth1Exception.class).when(jiraWebHookIntegration)
+        .getOAuth1Provider(JIRA_INTEGRATION_URL);
+    jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
+        JIRA_INTEGRATION_URL);
   }
 
   @Test(expected = InvalidJiraURLException.class)
