@@ -55,8 +55,6 @@ import java.net.URL;
 @RunWith(MockitoJUnitRunner.class)
 public class JiraApiResourceTest {
 
-  private static String BODY = "this is a comment";
-
   private static String COMMENT = "{\"body\":\"this is a comment\"}";
 
   private static String ISSUE_KEY = "issueKey";
@@ -72,16 +70,6 @@ public class JiraApiResourceTest {
   private static String ACCESS_TOKEN = "accessToken";
 
   private static final Long USER_ID = 10L;
-
-  private static final String PATH_JIRA_API_SEARCH_USERS =
-      "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
-
-  private static final String PATH_JIRA_API_ASSIGN_ISSUE =
-      "/rest/api/latest/issue/%s/assignee";
-
-  private static final String PATH_JIRA_API_COMMENT_ISSUE =
-      "/rest/api/latest/issue/%s/comment";
-
 
   private JiraApiResource jiraApiResource;
 
@@ -104,17 +92,7 @@ public class JiraApiResourceTest {
   private OAuth1Provider provider;
 
   @Before
-  public void prepareMockResource() throws AuthorizationException, MalformedURLException {
-    URL jiraBaseUrl = new URL(JIRA_INTEGRATION_URL);
-
-    URL assignableUserUrl =
-        new URL(jiraBaseUrl, String.format(PATH_JIRA_API_SEARCH_USERS, ISSUE_KEY,
-            USERNAME, null));
-    URL userAssigneeUrl =
-        new URL(jiraBaseUrl, String.format(PATH_JIRA_API_ASSIGN_ISSUE, ISSUE_KEY));
-    URL issueCommentUrl =
-        new URL(jiraBaseUrl, String.format(PATH_JIRA_API_COMMENT_ISSUE, ISSUE_KEY));
-
+  public void prepareMockResource() throws AuthorizationException {
     IntegrationSettings settings = new IntegrationSettings();
     settings.setConfigurationId(CONFIGURATION_ID);
 
@@ -129,14 +107,13 @@ public class JiraApiResourceTest {
     doReturn(provider).when(jiraWebHookIntegration).getOAuth1Provider(JIRA_INTEGRATION_URL);
 
     doReturn(new ResponseEntity(HttpStatus.OK)).when(searchAssignableUsersService)
-        .searchAssingablesUsers(ACCESS_TOKEN, provider, assignableUserUrl, ISSUE_KEY);
+        .searchAssingablesUsers(ACCESS_TOKEN, provider, JIRA_INTEGRATION_URL, ISSUE_KEY, USERNAME);
 
     doReturn(new ResponseEntity(HttpStatus.OK)).when(userAssignService)
-        .assignUserToIssue(ACCESS_TOKEN, ISSUE_KEY, USERNAME, userAssigneeUrl, provider);
+        .assignUserToIssue(ACCESS_TOKEN, ISSUE_KEY, USERNAME, JIRA_INTEGRATION_URL, provider);
 
     doReturn(new ResponseEntity(HttpStatus.OK)).when(issueCommentService)
-        .addCommentToAnIssue(ACCESS_TOKEN, ISSUE_KEY, issueCommentUrl, provider,
-            BODY);
+        .addCommentToAnIssue(ACCESS_TOKEN, ISSUE_KEY, JIRA_INTEGRATION_URL, provider, COMMENT);
 
     jiraApiResource = new JiraApiResource(jiraWebHookIntegration, jwtAuthentication,
         userAssignService, searchAssignableUsersService, issueCommentService);
@@ -173,16 +150,6 @@ public class JiraApiResourceTest {
         .getOAuth1Provider(JIRA_INTEGRATION_URL);
     jiraApiResource.searchAssignableUsers(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
         JIRA_INTEGRATION_URL);
-  }
-
-  @Test(expected = InvalidJiraURLException.class)
-  public void testSearchAssignableUserInvalidUrl() throws IOException, AuthorizationException {
-    String url = "test";
-
-    doReturn(ACCESS_TOKEN).when(jiraWebHookIntegration).getAccessToken(url, USER_ID);
-    doReturn(provider).when(jiraWebHookIntegration).getOAuth1Provider(url);
-
-    jiraApiResource.searchAssignableUsers(ISSUE_KEY, null, AUTHORIZATION_HEADER, url);
   }
 
   @Test
@@ -226,16 +193,6 @@ public class JiraApiResourceTest {
         .getOAuth1Provider(JIRA_INTEGRATION_URL);
     jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER,
         JIRA_INTEGRATION_URL);
-  }
-
-  @Test(expected = InvalidJiraURLException.class)
-  public void testAssignIssueInvalidUrl() throws IOException, AuthorizationException {
-    String url = "test";
-
-    doReturn(ACCESS_TOKEN).when(jiraWebHookIntegration).getAccessToken(url, USER_ID);
-    doReturn(provider).when(jiraWebHookIntegration).getOAuth1Provider(url);
-
-    jiraApiResource.assignIssueToUser(ISSUE_KEY, USERNAME, AUTHORIZATION_HEADER, url);
   }
 
   @Test
@@ -282,37 +239,13 @@ public class JiraApiResourceTest {
         JIRA_INTEGRATION_URL);
   }
 
-  @Test(expected = InvalidJiraURLException.class)
-  public void testAddCommentToAnIssueInvalidUrl() throws IOException, AuthorizationException {
-    String url = "test";
-
-    doReturn(ACCESS_TOKEN).when(jiraWebHookIntegration).getAccessToken(url, USER_ID);
-    doReturn(provider).when(jiraWebHookIntegration).getOAuth1Provider(url);
-
-    jiraApiResource.addCommentToAnIssue(COMMENT, ISSUE_KEY, AUTHORIZATION_HEADER, url);
-  }
-
   @Test(expected = MissingRequiredPayloadException.class)
   public void addAnEmptyCommentToAnIssue() throws IOException {
-    ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
-
-    ResponseEntity responseEntity =
-        jiraApiResource.addCommentToAnIssue("", ISSUE_KEY, AUTHORIZATION_HEADER,
-            JIRA_INTEGRATION_URL);
-  }
-
-  @Test(expected = InvalidJiraPayloadException.class)
-  public void addAnInvalidCommentToAnIssue() throws IOException {
-    ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
-
-    ResponseEntity responseEntity =
-        jiraApiResource.addCommentToAnIssue("body", ISSUE_KEY, AUTHORIZATION_HEADER,
-            JIRA_INTEGRATION_URL);
+    jiraApiResource.addCommentToAnIssue("", ISSUE_KEY, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
   }
 
   @Test
   public void addCommentToAnIssue() throws IOException {
-
     ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
 
     ResponseEntity responseEntity =

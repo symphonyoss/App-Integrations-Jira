@@ -18,10 +18,6 @@ package org.symphonyoss.integration.jira.api;
 
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .APPLICATION_KEY_ERROR;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .REQUIRED_PAYLOAD_NOT_FOUND;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .REQUIRED_PAYLOAD_NOT_FOUND_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN;
@@ -31,21 +27,12 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .INTEGRATION_UNAVAILABLE;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .INTEGRATION_UNAVAILABLE_SOLUTION;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INVALID_URL_ERROR;
-import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MALFORMED_COMMENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .MALFORMED_COMMENT_SOLUTION;
-import static org.symphonyoss.integration.jira.services.IssueCommentService
-    .PATH_JIRA_API_COMMENT_ISSUE;
-import static org.symphonyoss.integration.jira.services.SearchAssignableUsersService
-    .PATH_JIRA_API_SEARCH_USERS;
-import static org.symphonyoss.integration.jira.services.UserAssignService
-    .PATH_JIRA_API_ASSIGN_ISSUE;
-import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.BODY_PATH;
+    .REQUIRED_PAYLOAD_NOT_FOUND;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .REQUIRED_PAYLOAD_NOT_FOUND_SOLUTION;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,21 +48,14 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
-import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
-import org.symphonyoss.integration.jira.exception.InvalidJiraPayloadException;
-import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
+import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
 import org.symphonyoss.integration.jira.services.IssueCommentService;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
-import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.logging.MessageUtils;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.ws.rs.core.MediaType;
 
@@ -99,9 +79,6 @@ public class JiraApiResource {
   private final SearchAssignableUsersService searchAssignableUsersService;
 
   private final IssueCommentService issueCommentService;
-
-  @Value("${applications.jira.api.maxNumberOfResults:10}")
-  private Integer maxResults;
 
   public JiraApiResource(JiraWebHookIntegration jiraWebHookIntegration,
       JwtAuthentication jwtAuthentication, UserAssignService userAssignService,
@@ -127,12 +104,10 @@ public class JiraApiResource {
       @RequestParam(required = false) String username,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
       @RequestParam(name = "url") String jiraIntegrationURL) {
-
     validateIntegrationBootstrap();
 
     String configurationId = jiraWebHookIntegration.getSettings().getConfigurationId();
-    Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(
-        configurationId, authorizationHeader);
+    Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(configurationId, authorizationHeader);
 
     if (username == null) {
       username = StringUtils.EMPTY;
@@ -142,19 +117,8 @@ public class JiraApiResource {
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
-    String pathApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username,
-        maxResults);
-
-    try {
-      URL jiraBaseUrl = new URL(jiraIntegrationURL);
-      URL assignableUserUrl = new URL(jiraBaseUrl, pathApiJiraUsersSearch);
-
-      return searchAssignableUsersService.searchAssingablesUsers(accessToken, provider,
-          assignableUserUrl, issueKey);
-    } catch (MalformedURLException e) {
-      String errorMessage = MSG.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
-      throw new InvalidJiraURLException(COMPONENT, errorMessage, e);
-    }
+    return searchAssignableUsersService.searchAssingablesUsers(accessToken, provider,
+        jiraIntegrationURL, issueKey, username);
   }
 
   /**
@@ -181,21 +145,12 @@ public class JiraApiResource {
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
-    try {
-      URL jiraBaseUrl = new URL(jiraIntegrationURL);
-      URL userAssigneeUrl =
-          new URL(jiraBaseUrl, String.format(PATH_JIRA_API_ASSIGN_ISSUE, issueKey));
-
-      return userAssignService.assignUserToIssue(accessToken, issueKey, username, userAssigneeUrl,
-          provider);
-    } catch (MalformedURLException e) {
-      String errorMessage = MSG.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
-      throw new InvalidJiraURLException(COMPONENT, errorMessage, e);
-    }
+    return userAssignService.assignUserToIssue(accessToken, issueKey, username, jiraIntegrationURL, provider);
   }
 
   /**
    * Adds new comments on issue.
+   *
    * @param issueKey Issue identifier
    * @return 200 OK - Returned if add was successful or 400 Bad Request - Returned if the input
    * is invalid (e.g. missing required fields, invalid values, and so forth), 401 Unauthorized -
@@ -207,7 +162,6 @@ public class JiraApiResource {
       @PathVariable String issueKey,
       @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
       @RequestParam(name = "url") String jiraIntegrationURL) {
-
     validateIntegrationBootstrap();
 
     String configurationId = jiraWebHookIntegration.getSettings().getConfigurationId();
@@ -218,39 +172,15 @@ public class JiraApiResource {
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
-    String body = unmarshallingComment(comment);
+    validateRequiredPayload(comment);
 
-    try {
-      URL jiraBaseUrl = new URL(jiraIntegrationURL);
-      URL commentIssueUrl =
-          new URL(jiraBaseUrl, String.format(PATH_JIRA_API_COMMENT_ISSUE, issueKey));
-
-      return issueCommentService.addCommentToAnIssue(accessToken, issueKey, commentIssueUrl,
-          provider, body);
-    } catch (MalformedURLException e) {
-      String errorMessage = MSG.getMessage(INVALID_URL_ERROR, jiraIntegrationURL);
-      throw new InvalidJiraURLException(COMPONENT, errorMessage, e);
-    }
+    return issueCommentService.addCommentToAnIssue(accessToken, issueKey, jiraIntegrationURL,
+        provider, comment);
   }
 
-  private String unmarshallingComment(String comment) {
-    validateRequiredParameter(comment);
-    JsonNode nodeComment = null;
-    try {
-      nodeComment = JsonUtils.readTree(comment);
-    } catch (IOException e) {
-      invalidJiraPayloadException();
-    }
-
-    return nodeComment.path(BODY_PATH).asText();
-  }
-
-  private void invalidJiraPayloadException() {
-    String message = MSG.getMessage(MALFORMED_COMMENT);
-    String solution = MSG.getMessage(MALFORMED_COMMENT_SOLUTION);
-    throw new InvalidJiraPayloadException(COMPONENT, message, solution);
-  }
-
+  /**
+   * Check if the integration have already bootstrapped successfully.
+   */
   private void validateIntegrationBootstrap() {
     if (jiraWebHookIntegration.getSettings() == null) {
       throw new IntegrationUnavailableException(COMPONENT,
@@ -259,13 +189,20 @@ public class JiraApiResource {
     }
   }
 
-  private String getAccessToken(String jiraIntegrationURL, Long userId) {
+  /**
+   * Retrieves user access token.
+   *
+   * @param baseURL JIRA base URL
+   * @param userId User identifier
+   * @return User access token
+   */
+  private String getAccessToken(String baseURL, Long userId) {
     try {
-      String accessToken = jiraWebHookIntegration.getAccessToken(jiraIntegrationURL, userId);
+      String accessToken = jiraWebHookIntegration.getAccessToken(baseURL, userId);
 
       if (accessToken == null || accessToken.isEmpty()) {
         throw new JiraAuthorizationException(COMPONENT, MSG.getMessage(EMPTY_ACCESS_TOKEN),
-            MSG.getMessage(EMPTY_ACCESS_TOKEN_SOLUTION, jiraIntegrationURL));
+            MSG.getMessage(EMPTY_ACCESS_TOKEN_SOLUTION, baseURL));
       }
 
       return accessToken;
@@ -274,6 +211,9 @@ public class JiraApiResource {
     }
   }
 
+  /**
+   * Retrieves authentication provider
+   */
   private OAuth1Provider getOAuth1Provider(String jiraIntegrationURL) {
     try {
       return jiraWebHookIntegration.getOAuth1Provider(jiraIntegrationURL);
@@ -282,8 +222,13 @@ public class JiraApiResource {
     }
   }
 
-  public void validateRequiredParameter(String requiredParameter) {
-    if (requiredParameter == null || StringUtils.isEmpty(requiredParameter)) {
+  /**
+   * Validate the required payload.
+   *
+   * @param payload Payload to be analyzed
+   */
+  private void validateRequiredPayload(String payload) {
+    if (StringUtils.isEmpty(payload)) {
       String message = MSG.getMessage(REQUIRED_PAYLOAD_NOT_FOUND);
       String solution = MSG.getMessage(REQUIRED_PAYLOAD_NOT_FOUND_SOLUTION);
 

@@ -16,8 +16,13 @@
 
 package org.symphonyoss.integration.jira.services;
 
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.MALFORMED_COMMENT;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .MALFORMED_COMMENT_SOLUTION;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.BODY_PATH;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -28,8 +33,11 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
+import org.symphonyoss.integration.jira.exception.InvalidJiraPayloadException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
+import org.symphonyoss.integration.json.JsonUtils;
 
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -42,20 +50,31 @@ public class IssueCommentService extends CommonJiraService {
 
   private static final String SERVICE_NAME = "Issue Comment Service";
 
-  public static final String PATH_JIRA_API_COMMENT_ISSUE =
-      "/rest/api/latest/issue/%s/comment";
+  private static final String PATH_JIRA_API_COMMENT_ISSUE = "/rest/api/latest/issue/%s/comment";
 
+  /**
+   * Add a new comment to an issue.
+   *
+   * @param accessToken User access token
+   * @param issueKey Issue key
+   * @param baseUrl JIRA base URL
+   * @param provider OAuth provider
+   * @param comment Comment text
+   * @return
+   */
   public ResponseEntity addCommentToAnIssue(String accessToken, String issueKey,
-      URL commentIssueUrl,
-      OAuth1Provider provider, String body) {
-
+      String baseUrl, OAuth1Provider provider, String comment) {
     validateIssueKeyParameter(issueKey);
 
-    validateComment(body);
+    String commentBody = retrieveComment(comment);
+
+    validateComment(commentBody);
+
+    URL commentIssueUrl = getServiceUrl(baseUrl, String.format(PATH_JIRA_API_COMMENT_ISSUE, issueKey));
 
     try {
       GenericData data = new GenericData();
-      data.put(BODY_PATH, body);
+      data.put(BODY_PATH, commentBody);
       JsonHttpContent content = new JsonHttpContent(new JacksonFactory(), data);
 
       provider.makeAuthorizedRequest(accessToken, commentIssueUrl, HttpMethods.POST, content);
@@ -74,6 +93,18 @@ public class IssueCommentService extends CommonJiraService {
     }
 
     return ResponseEntity.ok(HttpStatus.OK);
+  }
+
+  private String retrieveComment(String comment) {
+    try {
+      JsonNode nodeComment = JsonUtils.readTree(comment);
+      return nodeComment.path(BODY_PATH).asText();
+    } catch (IOException e) {
+      String message = MSG.getMessage(MALFORMED_COMMENT);
+      String solution = MSG.getMessage(MALFORMED_COMMENT_SOLUTION);
+
+      throw new InvalidJiraPayloadException(COMPONENT, message, solution);
+    }
   }
 
   @Override

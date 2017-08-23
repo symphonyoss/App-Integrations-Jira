@@ -34,6 +34,7 @@ import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.exception.InvalidJiraCommentException;
+import org.symphonyoss.integration.jira.exception.InvalidJiraPayloadException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
@@ -50,13 +51,17 @@ import java.net.URL;
 @RunWith(MockitoJUnitRunner.class)
 public class IssueCommentServiceTest {
 
+  private static final String PATH_JIRA_API_COMMENT_ISSUE = "/rest/api/latest/issue/%s/comment";
+
   private static final String MOCK_ACCESS_TOKEN = "as4e435tdfst4302ds8dfs9883249328dsf9";
 
   private static final String ISSUE_KEY = "key";
 
-  private static final String COMMENT = "this is a comment";
+  private static final String COMMENT = "{ \"body\": \"this is a comment\" }";
 
-  private static URL MOCK_URL;
+  private static final String MOCK_URL = "https://test.symphony.com";
+
+  private static URL EXPECTED_URL;
 
   @Mock
   private OAuth1Provider provider;
@@ -65,7 +70,9 @@ public class IssueCommentServiceTest {
 
   @BeforeClass
   public static void init() throws MalformedURLException {
-    MOCK_URL = new URL("https://test.symphony.com");
+    String path = String.format(PATH_JIRA_API_COMMENT_ISSUE, ISSUE_KEY);
+
+    EXPECTED_URL = new URL(new URL(MOCK_URL), path);
   }
 
   @Test(expected = IssueKeyNotFoundException.class)
@@ -78,7 +85,7 @@ public class IssueCommentServiceTest {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("Issue not found", 404);
 
     doThrow(e).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.POST),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
             any(JsonHttpContent.class));
 
     service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
@@ -89,7 +96,7 @@ public class IssueCommentServiceTest {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("User unauthorized", 401);
 
     doThrow(e).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.POST),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
             any(JsonHttpContent.class));
 
     service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
@@ -100,7 +107,7 @@ public class IssueCommentServiceTest {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("Unexpected error", 500);
 
     doThrow(e).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.POST),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
             any(JsonHttpContent.class));
 
     service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
@@ -109,19 +116,28 @@ public class IssueCommentServiceTest {
   @Test(expected = JiraUnexpectedException.class)
   public void testUnexpectedException() throws OAuth1Exception, OAuth1HttpRequestException {
     doThrow(OAuth1Exception.class).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.POST),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
             any(JsonHttpContent.class));
 
     service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
   }
 
-  @Test(expected = InvalidJiraCommentException.class)
+  @Test(expected = InvalidJiraPayloadException.class)
   public void testInvalidJiraCommentException() throws OAuth1Exception, OAuth1HttpRequestException {
     doThrow(OAuth1Exception.class).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.POST),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
             any(JsonHttpContent.class));
 
     service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, "");
+  }
+
+  @Test(expected = InvalidJiraCommentException.class)
+  public void testEmptyJiraCommentException() throws OAuth1Exception, OAuth1HttpRequestException {
+    doThrow(OAuth1Exception.class).when(provider)
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
+            any(JsonHttpContent.class));
+
+    service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, "{}");
   }
 
   @Test

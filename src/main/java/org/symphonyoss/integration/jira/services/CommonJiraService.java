@@ -25,6 +25,7 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INVALID_COMMENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .INVALID_COMMENT_SOLUTION;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.INVALID_URL_ERROR;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.ISSUEKEY_NOT_FOUND;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .ISSUEKEY_NOT_FOUND_SOLUTION;
@@ -37,10 +38,14 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
 
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.integration.jira.exception.InvalidJiraCommentException;
+import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
 import org.symphonyoss.integration.logging.MessageUtils;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Common service class to interact with the JIRA API's.
@@ -49,7 +54,7 @@ import org.symphonyoss.integration.logging.MessageUtils;
  */
 public abstract class CommonJiraService {
 
-  private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
+  public static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   private static final String ISSUE_KEY = "issueKey";
 
@@ -105,7 +110,25 @@ public abstract class CommonJiraService {
     if (StringUtils.isEmpty(comment)) {
       String message = MSG.getMessage(INVALID_COMMENT);
       String solution = MSG.getMessage(INVALID_COMMENT_SOLUTION);
+
       throw new InvalidJiraCommentException(COMPONENT, message, solution);
+    }
+  }
+
+  /**
+   * Retrieves service URL.
+   *
+   * @param baseUrl Base URL
+   * @param path Service path
+   * @return Service URL
+   */
+  protected URL getServiceUrl(String baseUrl, String path) {
+    try {
+      URL jiraBaseUrl = new URL(baseUrl);
+      return new URL(jiraBaseUrl, path);
+    } catch (MalformedURLException e) {
+      String errorMessage = MSG.getMessage(INVALID_URL_ERROR, baseUrl);
+      throw new InvalidJiraURLException(COMPONENT, errorMessage, e);
     }
   }
 
