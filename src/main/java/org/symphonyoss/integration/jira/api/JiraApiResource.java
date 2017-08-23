@@ -19,9 +19,9 @@ package org.symphonyoss.integration.jira.api;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .APPLICATION_KEY_ERROR;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .BODY_PATH_CONTENT_NOT_FOUND;
+    .REQUIRED_PAYLOAD_NOT_FOUND;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
-    .BODY_PATH_CONTENT_NOT_FOUND_SOLUTION;
+    .REQUIRED_PAYLOAD_NOT_FOUND_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.EMPTY_ACCESS_TOKEN;
@@ -234,7 +234,7 @@ public class JiraApiResource {
   }
 
   private String unmarshallingComment(String comment) {
-    validateComment(comment);
+    validateRequiredParameter(comment);
     JsonNode nodeComment = null;
     try {
       nodeComment = JsonUtils.readTree(comment);
@@ -282,10 +282,11 @@ public class JiraApiResource {
     }
   }
 
-  private void validateComment(String bodyPath) {
-    if (StringUtils.isEmpty(bodyPath)) {
-      String message = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND);
-      String solution = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND_SOLUTION);
+  public void validateRequiredParameter(String requiredParameter) {
+    if (requiredParameter == null || StringUtils.isEmpty(requiredParameter)) {
+      String message = MSG.getMessage(REQUIRED_PAYLOAD_NOT_FOUND);
+      String solution = MSG.getMessage(REQUIRED_PAYLOAD_NOT_FOUND_SOLUTION);
+
       throw new MissingRequiredPayloadException(COMPONENT, message, solution);
     }
   }

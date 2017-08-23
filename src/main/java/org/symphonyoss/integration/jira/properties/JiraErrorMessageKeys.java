@@ -31,23 +31,31 @@ public class JiraErrorMessageKeys {
 
   public static final String INTEGRATION_UNAVAILABLE = "integration.jira.unavailable";
 
-  public static final String INTEGRATION_UNAVAILABLE_SOLUTION = INTEGRATION_UNAVAILABLE + ".solution";
+  public static final String INTEGRATION_UNAVAILABLE_SOLUTION =
+      INTEGRATION_UNAVAILABLE + ".solution";
 
   public static final String INTEGRATION_UNAUTHORIZED = "integration.jira.unauthorized";
 
-  public static final String INTEGRATION_UNAUTHORIZED_SOLUTION = INTEGRATION_UNAUTHORIZED + ".solution";
+  public static final String INTEGRATION_UNAUTHORIZED_SOLUTION =
+      INTEGRATION_UNAUTHORIZED + ".solution";
 
   public static final String COMPONENT = "JIRA API";
 
   public static final String BUNDLE_FILENAME = "integration-jira-log-messages";
 
-  public static final String BODY_PATH_CONTENT_NOT_FOUND = "integration.jira.comment.body.path.not.found";
+  public static final String REQUIRED_PAYLOAD_NOT_FOUND =
+      "integration.jira.required.payload.not.found";
 
-  public static final String BODY_PATH_CONTENT_NOT_FOUND_SOLUTION = BODY_PATH_CONTENT_NOT_FOUND + ".solution";
+  public static final String REQUIRED_PAYLOAD_NOT_FOUND_SOLUTION =
+      REQUIRED_PAYLOAD_NOT_FOUND + ".solution";
 
   public static final String MALFORMED_COMMENT = "integration.jira.comment.body.path.malformed";
 
   public static final String MALFORMED_COMMENT_SOLUTION = MALFORMED_COMMENT + ".solution";
+
+  public static final String INVALID_COMMENT = "integration.jira.invalid.comment";
+
+  public static final String INVALID_COMMENT_SOLUTION = INVALID_COMMENT + ".solution";
 
 
 }

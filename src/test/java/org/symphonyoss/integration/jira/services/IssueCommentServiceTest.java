@@ -33,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
+import org.symphonyoss.integration.jira.exception.InvalidJiraCommentException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
@@ -112,6 +113,15 @@ public class IssueCommentServiceTest {
             any(JsonHttpContent.class));
 
     service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
+  }
+
+  @Test(expected = InvalidJiraCommentException.class)
+  public void testInvalidJiraCommentException() throws OAuth1Exception, OAuth1HttpRequestException {
+    doThrow(OAuth1Exception.class).when(provider)
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.POST),
+            any(JsonHttpContent.class));
+
+    service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, "");
   }
 
   @Test
