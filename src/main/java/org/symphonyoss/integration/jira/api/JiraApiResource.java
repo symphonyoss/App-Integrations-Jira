@@ -190,7 +190,7 @@ public class JiraApiResource {
   /**
    * Adds new comments on issue.
    * @param issueKey Issue identifier
-   * @return 201 Created - Returned if add was successful or 400 Bad Request - Returned if the input
+   * @return 200 OK - Returned if add was successful or 400 Bad Request - Returned if the input
    * is invalid (e.g. missing required fields, invalid values, and so forth), 401 Unauthorized -
    * Returned if the user is not authenticated, 404 Not Found - Returned if the issue key is not
    * found.
