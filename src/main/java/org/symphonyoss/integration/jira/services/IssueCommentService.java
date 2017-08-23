@@ -51,6 +51,8 @@ public class IssueCommentService extends CommonJiraService {
 
     validateIssueKeyParameter(issueKey);
 
+    validateCommentParameter(body);
+
     try {
       GenericData data = new GenericData();
       data.put(BODY_PATH, body);

@@ -21,25 +21,25 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
- * Unit test for {@link BodyContentNotFoundException}
+ * Unit test for {@link MissingRequiredPayloadException}
  *
  * Created by alexandre-silva-daitan on 22/08/17.
  */
-public class BodyContentNotFoundExceptionTest {
+public class MissingRequiredPayloadExceptionTest {
 
   private static final String COMPONENT = "JIRA API";
-  private static final String MESSAGE = "BodyContentNotFoundException";
+  private static final String MESSAGE = "MissingRequiredPayloadException";
   private static final String NO_SOLUTION =
       "No solution has been cataloged for troubleshooting this problem.";
 
   @Test
   public void testBodyContentNotFoundException() {
-    BodyContentNotFoundException exception =
-        new BodyContentNotFoundException(COMPONENT, MESSAGE, NO_SOLUTION);
+    MissingRequiredPayloadException exception =
+        new MissingRequiredPayloadException(COMPONENT, MESSAGE, NO_SOLUTION);
     String resultMessage = exception.getMessage();
     String expectedMessage = "\n"
         + "Component: JIRA API\n"
-        + "Message: BodyContentNotFoundException\n"
+        + "Message: MissingRequiredPayloadException\n"
         + "Solutions: \n"
         + "No solution has been cataloged for troubleshooting this problem.\n";
 

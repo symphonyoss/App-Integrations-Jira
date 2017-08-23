@@ -32,7 +32,7 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
-import org.symphonyoss.integration.jira.exception.BodyContentNotFoundException;
+import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
@@ -288,7 +288,7 @@ public class JiraApiResourceTest {
     jiraApiResource.addCommentToAnIssue(COMMENT, ISSUE_KEY, AUTHORIZATION_HEADER, url);
   }
 
-  @Test(expected = BodyContentNotFoundException.class)
+  @Test(expected = MissingRequiredPayloadException.class)
   public void addAnEmptyCommentToAnIssue() throws IOException {
     ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
 
@@ -297,7 +297,7 @@ public class JiraApiResourceTest {
             JIRA_INTEGRATION_URL);
   }
 
-  @Test(expected = BodyContentNotFoundException.class)
+  @Test(expected = MissingRequiredPayloadException.class)
   public void addAnInvalidCommentToAnIssue() throws IOException {
     ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
 

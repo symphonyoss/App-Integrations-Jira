@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.symphonyoss.integration.jira.exception;
 
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 
 /**
- * Unchecked exception thrown to indicate the body path content was not found.
+ * Unchecked exception to reports invalid request payload.
  *
- * Created by alexandre-silva-daitan on 22/08/17.
+ * Created by alexandre-silva-daitan on 23/08/17.
  */
-public class BodyContentNotFoundException extends IntegrationRuntimeException {
+public class InvalidJiraPayloadException extends IntegrationRuntimeException {
 
-  public BodyContentNotFoundException(String serviceName, String message, String solution) {
-    super(serviceName, message, solution);
+  public InvalidJiraPayloadException(String component, String message, String... solutions) {
+    super(component, message, solutions);
   }
 }

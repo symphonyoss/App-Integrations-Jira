@@ -16,7 +16,12 @@
 
 package org.symphonyoss.integration.jira.services;
 
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .BODY_PATH_CONTENT_NOT_FOUND;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
+    .BODY_PATH_CONTENT_NOT_FOUND_SOLUTION;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
+import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.COMPONENT;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
     .INTEGRATION_UNAUTHORIZED;
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys
@@ -35,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
+import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
 import org.symphonyoss.integration.logging.MessageUtils;
 
 /**
@@ -91,6 +97,18 @@ public abstract class CommonJiraService {
     String solution = MSG.getMessage(INTEGRATION_UNAUTHORIZED_SOLUTION);
 
     throw new JiraAuthorizationException(getServiceName(), message, solution);
+  }
+
+  /**
+   * Thrown {@link MissingRequiredPayloadException} exception
+   */
+  public void validateCommentParameter(String body) {
+    if (body == null || StringUtils.isEmpty(body)) {
+      String message = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND);
+      String solution = MSG.getMessage(BODY_PATH_CONTENT_NOT_FOUND_SOLUTION);
+
+      throw new MissingRequiredPayloadException(COMPONENT, message, solution);
+    }
   }
 
   /**
