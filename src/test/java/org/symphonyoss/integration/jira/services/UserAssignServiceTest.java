@@ -33,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
+import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
@@ -48,13 +49,17 @@ import java.net.URL;
 @RunWith(MockitoJUnitRunner.class)
 public class UserAssignServiceTest {
 
+  private static final String PATH_JIRA_API_ASSIGN_ISSUE = "/rest/api/latest/issue/%s/assignee";
+
   private static final String MOCK_ACCESS_TOKEN = "as4e435tdfst4302ds8dfs9883249328dsf9";
 
   private static final String ISSUE_KEY = "key";
 
   private static final String USERNAME = "username";
 
-  private static URL MOCK_URL;
+  private static final String MOCK_URL = "https://test.symphony.com";
+
+  private static URL EXPECTED_URL;
 
   @Mock
   private OAuth1Provider provider;
@@ -63,7 +68,8 @@ public class UserAssignServiceTest {
 
   @BeforeClass
   public static void init() throws MalformedURLException {
-    MOCK_URL = new URL("https://test.symphony.com");
+    String path = String.format(PATH_JIRA_API_ASSIGN_ISSUE, ISSUE_KEY);
+    EXPECTED_URL = new URL(new URL(MOCK_URL), path);
   }
 
   @Test(expected = IssueKeyNotFoundException.class)
@@ -71,12 +77,17 @@ public class UserAssignServiceTest {
     service.assignUserToIssue(MOCK_ACCESS_TOKEN, null, USERNAME, MOCK_URL, provider);
   }
 
+  @Test(expected = InvalidJiraURLException.class)
+  public void testInvalidBaseURL() {
+    service.assignUserToIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, USERNAME, "", provider);
+  }
+
   @Test(expected = IssueKeyNotFoundException.class)
   public void testIssueKeyNotFound() throws OAuth1Exception, OAuth1HttpRequestException {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("Issue not found", 404);
 
     doThrow(e).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.PUT),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.PUT),
             any(JsonHttpContent.class));
 
     service.assignUserToIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, USERNAME, MOCK_URL, provider);
@@ -87,7 +98,7 @@ public class UserAssignServiceTest {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("User not found", 400);
 
     doThrow(e).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.PUT),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.PUT),
             any(JsonHttpContent.class));
 
     service.assignUserToIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, USERNAME, MOCK_URL, provider);
@@ -98,7 +109,7 @@ public class UserAssignServiceTest {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("User unauthorized", 401);
 
     doThrow(e).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.PUT),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.PUT),
             any(JsonHttpContent.class));
 
     service.assignUserToIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, USERNAME, MOCK_URL, provider);
@@ -109,7 +120,7 @@ public class UserAssignServiceTest {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("Unexpected error", 500);
 
     doThrow(e).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.PUT),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.PUT),
             any(JsonHttpContent.class));
 
     service.assignUserToIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, USERNAME, MOCK_URL, provider);
@@ -118,7 +129,7 @@ public class UserAssignServiceTest {
   @Test(expected = JiraUnexpectedException.class)
   public void testUnexpectedException() throws OAuth1Exception, OAuth1HttpRequestException {
     doThrow(OAuth1Exception.class).when(provider)
-        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(MOCK_URL), eq(HttpMethods.PUT),
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.PUT),
             any(JsonHttpContent.class));
 
     service.assignUserToIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, USERNAME, MOCK_URL, provider);

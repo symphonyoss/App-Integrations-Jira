@@ -22,11 +22,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
+import org.symphonyoss.integration.jira.exception.InvalidJiraCommentException;
 import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
 import org.symphonyoss.integration.jira.exception.JiraUserNotFoundException;
+import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
 import org.symphonyoss.integration.model.ErrorResponse;
 
 /**
@@ -38,7 +40,8 @@ import org.symphonyoss.integration.model.ErrorResponse;
 public class JiraApiResourceExceptionHandler {
 
   @ResponseBody
-  @ExceptionHandler({ InvalidJiraURLException.class, JiraUserNotFoundException.class })
+  @ExceptionHandler({InvalidJiraURLException.class, JiraUserNotFoundException.class,
+      MissingRequiredPayloadException.class, InvalidJiraCommentException.class})
   public ResponseEntity<ErrorResponse> handleBadRequest(IntegrationRuntimeException ex) {
     ErrorResponse response =
         new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());

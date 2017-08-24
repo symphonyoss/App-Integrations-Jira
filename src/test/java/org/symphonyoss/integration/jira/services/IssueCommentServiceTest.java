@@ -17,53 +17,47 @@
 package org.symphonyoss.integration.jira.services;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 
 import com.google.api.client.http.HttpMethods;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.http.json.JsonHttpContent;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
-import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
+import org.symphonyoss.integration.jira.exception.InvalidJiraCommentException;
+import org.symphonyoss.integration.jira.exception.InvalidJiraPayloadException;
 import org.symphonyoss.integration.jira.exception.IssueKeyNotFoundException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Unit test for {@link SearchAssignableUsersService}
- * Created by rsanchez on 18/08/17.
+ * Unit test for {@link IssueCommentService}
+ *
+ * Created by alexandre-silva-daitan on 22/08/17.
  */
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest({ SearchAssignableUsersService.class, HttpResponse.class})
-public class SearchAssignableUsersServiceTest {
 
-  private static final String PATH_JIRA_API_SEARCH_USERS =
-      "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
+@RunWith(MockitoJUnitRunner.class)
+public class IssueCommentServiceTest {
+
+  private static final String PATH_JIRA_API_COMMENT_ISSUE = "/rest/api/latest/issue/%s/comment";
 
   private static final String MOCK_ACCESS_TOKEN = "as4e435tdfst4302ds8dfs9883249328dsf9";
 
   private static final String ISSUE_KEY = "key";
 
-  private static final String USERNAME = "username";
+  private static final String COMMENT = "{ \"body\": \"this is a comment\" }";
 
   private static final String MOCK_URL = "https://test.symphony.com";
 
@@ -72,72 +66,86 @@ public class SearchAssignableUsersServiceTest {
   @Mock
   private OAuth1Provider provider;
 
-  @Mock
-  private HttpResponse response;
-
-  private SearchAssignableUsersService service = new SearchAssignableUsersService();
+  private IssueCommentService service = new IssueCommentService();
 
   @BeforeClass
   public static void init() throws MalformedURLException {
-    String path = String.format(PATH_JIRA_API_SEARCH_USERS, ISSUE_KEY, USERNAME, null);
+    String path = String.format(PATH_JIRA_API_COMMENT_ISSUE, ISSUE_KEY);
 
     EXPECTED_URL = new URL(new URL(MOCK_URL), path);
   }
 
   @Test(expected = IssueKeyNotFoundException.class)
   public void testInvalidIssueKey() {
-    service.searchAssingablesUsers(MOCK_ACCESS_TOKEN, provider, MOCK_URL, null, USERNAME);
-  }
-
-  @Test(expected = InvalidJiraURLException.class)
-  public void testInvalidBaseURL() {
-    service.searchAssingablesUsers(MOCK_ACCESS_TOKEN, provider, "", ISSUE_KEY, USERNAME);
+    service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, null, MOCK_URL, provider, COMMENT);
   }
 
   @Test(expected = IssueKeyNotFoundException.class)
   public void testIssueKeyNotFound() throws OAuth1Exception, OAuth1HttpRequestException {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("Issue not found", 404);
 
-    doThrow(e).when(provider).makeAuthorizedRequest(MOCK_ACCESS_TOKEN, EXPECTED_URL, HttpMethods.GET, null);
+    doThrow(e).when(provider)
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
+            any(JsonHttpContent.class));
 
-    service.searchAssingablesUsers(MOCK_ACCESS_TOKEN, provider, MOCK_URL, ISSUE_KEY, USERNAME);
+    service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
   }
 
   @Test(expected = JiraAuthorizationException.class)
   public void testUserUnauthorized() throws OAuth1Exception, OAuth1HttpRequestException {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("User unauthorized", 401);
 
-    doThrow(e).when(provider).makeAuthorizedRequest(MOCK_ACCESS_TOKEN, EXPECTED_URL, HttpMethods.GET, null);
+    doThrow(e).when(provider)
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
+            any(JsonHttpContent.class));
 
-    service.searchAssingablesUsers(MOCK_ACCESS_TOKEN, provider, MOCK_URL, ISSUE_KEY, USERNAME);
+    service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
   }
 
   @Test(expected = JiraUnexpectedException.class)
   public void testUnexpectedHttpError() throws OAuth1Exception, OAuth1HttpRequestException {
     OAuth1HttpRequestException e = new OAuth1HttpRequestException("Unexpected error", 500);
 
-    doThrow(e).when(provider).makeAuthorizedRequest(MOCK_ACCESS_TOKEN, EXPECTED_URL, HttpMethods.GET, null);
+    doThrow(e).when(provider)
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
+            any(JsonHttpContent.class));
 
-    service.searchAssingablesUsers(MOCK_ACCESS_TOKEN, provider, MOCK_URL, ISSUE_KEY, USERNAME);
+    service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
   }
 
   @Test(expected = JiraUnexpectedException.class)
   public void testUnexpectedException() throws OAuth1Exception, OAuth1HttpRequestException {
     doThrow(OAuth1Exception.class).when(provider)
-        .makeAuthorizedRequest(MOCK_ACCESS_TOKEN, EXPECTED_URL, HttpMethods.GET, null);
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
+            any(JsonHttpContent.class));
 
-    service.searchAssingablesUsers(MOCK_ACCESS_TOKEN, provider, MOCK_URL, ISSUE_KEY, USERNAME);
+    service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
+  }
+
+  @Test(expected = InvalidJiraPayloadException.class)
+  public void testInvalidJiraCommentException() throws OAuth1Exception, OAuth1HttpRequestException {
+    doThrow(OAuth1Exception.class).when(provider)
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
+            any(JsonHttpContent.class));
+
+    service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, "");
+  }
+
+  @Test(expected = InvalidJiraCommentException.class)
+  public void testEmptyJiraCommentException() throws OAuth1Exception, OAuth1HttpRequestException {
+    doThrow(OAuth1Exception.class).when(provider)
+        .makeAuthorizedRequest(eq(MOCK_ACCESS_TOKEN), eq(EXPECTED_URL), eq(HttpMethods.POST),
+            any(JsonHttpContent.class));
+
+    service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, "{}");
   }
 
   @Test
-  public void testSuccess() throws OAuth1Exception, OAuth1HttpRequestException, IOException {
-    doReturn(response).when(provider).makeAuthorizedRequest(MOCK_ACCESS_TOKEN, EXPECTED_URL, HttpMethods.GET, null);
-    doReturn("OK").when(response).parseAsString();
-
+  public void testSuccess() throws OAuth1Exception, OAuth1HttpRequestException {
     ResponseEntity responseEntity =
-        service.searchAssingablesUsers(MOCK_ACCESS_TOKEN, provider, MOCK_URL, ISSUE_KEY, USERNAME);
+        service.addCommentToAnIssue(MOCK_ACCESS_TOKEN, ISSUE_KEY, MOCK_URL, provider, COMMENT);
 
-    assertEquals(ResponseEntity.ok().body("OK"), responseEntity);
+    assertEquals(ResponseEntity.ok(HttpStatus.OK), responseEntity);
   }
 
 }

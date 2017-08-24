@@ -18,6 +18,7 @@ package org.symphonyoss.integration.jira.services;
 
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -39,10 +40,21 @@ public class SearchAssignableUsersService extends CommonJiraService {
 
   private static final String SERVICE_NAME = "Search Assignable Users Service";
 
+  private static final String PATH_JIRA_API_SEARCH_USERS =
+      "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
+
+  @Value("${applications.jira.api.maxNumberOfResults:10}")
+  private Integer maxResults;
+
   public ResponseEntity searchAssingablesUsers(String accessToken, OAuth1Provider provider,
-      URL assignableUserUrl, String issueKey) {
+      String baseUrl, String issueKey, String username) {
 
     validateIssueKeyParameter(issueKey);
+
+    String pathApiJiraUsersSearch = String.format(PATH_JIRA_API_SEARCH_USERS, issueKey, username,
+        maxResults);
+
+    URL assignableUserUrl = getServiceUrl(baseUrl, pathApiJiraUsersSearch);
 
     try {
       HttpResponse response =

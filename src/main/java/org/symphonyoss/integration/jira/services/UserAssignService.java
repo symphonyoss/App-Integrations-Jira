@@ -41,17 +41,21 @@ public class UserAssignService extends CommonJiraService {
 
   private static final String SERVICE_NAME = "User Assign Service";
 
+  private static final String PATH_JIRA_API_ASSIGN_ISSUE = "/rest/api/latest/issue/%s/assignee";
+
   public ResponseEntity assignUserToIssue(String accessToken, String issueKey, String username,
-      URL integrationURL, OAuth1Provider provider) {
+      String baseUrl, OAuth1Provider provider) {
 
     validateIssueKeyParameter(issueKey);
+
+    URL assignUserUrl = getServiceUrl(baseUrl, String.format(PATH_JIRA_API_ASSIGN_ISSUE, issueKey));
 
     try {
       GenericData data = new GenericData();
       data.put(NAME_PATH, username);
       JsonHttpContent content = new JsonHttpContent(new JacksonFactory(), data);
 
-      provider.makeAuthorizedRequest(accessToken, integrationURL, HttpMethods.PUT, content);
+      provider.makeAuthorizedRequest(accessToken, assignUserUrl, HttpMethods.PUT, content);
     } catch (OAuth1HttpRequestException e) {
       if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
         handleIssueNotFound(issueKey);
