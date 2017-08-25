@@ -1,4 +1,6 @@
 export default ({
+  appId: 'jiraWebHookIntegration',
+  appContext: 'apps/jira',
   appTitle: 'JIRA',
   appName: 'JIRA',
   appSubTitle: 'JIRA Webhook Integration',
