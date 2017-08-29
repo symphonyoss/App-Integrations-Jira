@@ -23,6 +23,5 @@
     "import/no-named-as-default": "warn",
     "array-callback-return": "warn",
     "import/prefer-default-export": "warn",
-    "no-console": 0,
   }
 }
