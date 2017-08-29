@@ -1,26 +1,23 @@
 import { MessageEnricherBase } from 'symphony-integration-commons';
 
+const commentDialog = require('../template/commentDialog.hbs');
+const assingDialog = require('../template/assignDialog.hbs');
+const erroDialog = require('../template/errorDialog.hbs');
+const messageML = require('../template/messageML.hbs');
+
 const name = 'issueState-renderer';
 const messageEvents = ['com.symphony.integration.jira.event.v2.state'];
 
 function renderComment() {
-  const dialogTemplate = `
-    <dialog>
-      <h1>Comment</h1>
-    </dialog>
-  `;
-  return dialogTemplate;
+  return commentDialog();
 }
 
 function renderAssignTo(data) {
-  const dialogTemplate = `
-    <dialog>
-      <h1><a href="${data.entity.issue.url}">${data.entity.issue.key}</a></h1>
-      <h3><b>Assignee:</b></h3>${data.entity.issue.assignee.displayName}
-      <stextarea/>
-    </dialog>
-  `;
-  return dialogTemplate;
+  return assingDialog({
+    url: data.entity.issue.url,
+    key: data.entity.issue.key,
+    name: data.entity.issue.assignee.displayName,
+  });
 }
 
 export default class IssueStateEnricher extends MessageEnricherBase {
@@ -30,12 +27,7 @@ export default class IssueStateEnricher extends MessageEnricherBase {
 
   enrich(type, entity) {
     const result = {
-      template: `
-        <messageML>
-          <action id="assignTo" class="tempo-text-color--link"/>
-          <action id="commentIssue" class="tempo-text-color--link"/>
-        </messageML>
-      `,
+      template: messageML(),
       data: {
         assignTo: {
           service: name,
@@ -73,11 +65,7 @@ export default class IssueStateEnricher extends MessageEnricherBase {
         dialogTemplate = renderAssignTo(data);
         break;
       default:
-        dialogTemplate = `
-          <dialog>
-            <h1>ERROR</h1>
-          </dialog>
-        `;
+        dialogTemplate = erroDialog();
         break;
     }
     this.dialogsService.show('action', 'issueRendered-renderer', dialogTemplate, {}, {});

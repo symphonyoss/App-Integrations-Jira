@@ -4,7 +4,7 @@ var path = require("path"),
 
 module.exports = {
   entry: {
-    babelPolyfill: 'babel-polyfill',
+    // babelPolyfill: 'babel-polyfill',
     controller: path.resolve(__dirname, "./src/main/webapp/js/controller.js"),
     app: path.resolve(__dirname, "./src/main/webapp/js/app.jsx")
   },
@@ -18,6 +18,7 @@ module.exports = {
       { test: /\.jsx?$/, loader: 'eslint', exclude: /node_modules/ }
     ],
     loaders: [
+      { test: /\.hbs$/, loader: "handlebars-loader" },
       { test: /\.css$/, loader: "style!css" },
       { test: /\.less$/, loader: "style!css!less" },
       {
