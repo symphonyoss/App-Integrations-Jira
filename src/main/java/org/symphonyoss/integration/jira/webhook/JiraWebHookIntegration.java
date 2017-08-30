@@ -72,7 +72,6 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
 
   public static final String OAUTH_VERIFIER = "oauth_verifier";
 
-  @Autowired
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   @Autowired

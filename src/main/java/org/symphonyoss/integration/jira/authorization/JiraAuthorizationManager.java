@@ -89,7 +89,6 @@ public class JiraAuthorizationManager {
 
   private static final String PATH_JIRA_API_MY_SELF = "/rest/api/2/myself";
 
-  @Autowired
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   @Autowired
