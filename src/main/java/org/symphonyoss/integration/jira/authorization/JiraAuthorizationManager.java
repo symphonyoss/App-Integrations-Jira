@@ -91,7 +91,6 @@ public class JiraAuthorizationManager {
 
   private static final String CLOSE_POP_UP_HTML = "/closePopUp.html";
 
-  @Autowired
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   @Autowired
