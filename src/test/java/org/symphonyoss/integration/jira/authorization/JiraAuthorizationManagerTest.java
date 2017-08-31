@@ -133,7 +133,7 @@ public class JiraAuthorizationManagerTest {
 
   private static final String MOCK_TOKEN = "mockToken";
 
-  private static final String MOCK_URL = "http://mockurl.com";
+  private static final String MOCK_URL = "https://test.symphony.com";
 
   private static final Long MOCK_USER = 0L;
 
@@ -405,5 +405,12 @@ public class JiraAuthorizationManagerTest {
 
     assertEquals(EXPECTED_PUBLIC_KEY, publicKey.toString());
     assertEquals(EXPECTED_PRIVATE_KEY, privateKey.toString());
+  }
+
+  @Test
+  public void testGetAuthorizationRedirectUrl() {
+    String expected = MOCK_URL + "/apps/jira/closePopUp.html";
+    String url = authManager.getAuthorizationRedirectUrl(SETTINGS);
+    assertEquals(expected, url);
   }
 }

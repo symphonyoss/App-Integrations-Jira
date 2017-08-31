@@ -452,6 +452,19 @@ public class JiraWebHookIntegrationTest {
 
   }
 
+  @Test
+  public void testGetAuthorizationRedirectUrl() throws AuthorizationException {
+    IntegrationSettings settings = new IntegrationSettings();
+    jiraWhi.onConfigChange(settings);
+    doReturn(MOCK_URL).when(authManager).getAuthorizationRedirectUrl(settings);
+    String url = jiraWhi.getAuthorizationRedirectUrl();
+    assertEquals(MOCK_URL, url);
+  }
+
+  @Test(expected = AuthorizationException.class)
+  public void testGetAuthorizationRedirectUrlSettingsNull() throws AuthorizationException {
+    jiraWhi.getAuthorizationRedirectUrl();
+  }
 
   private String getBody(String filename) throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
