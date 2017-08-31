@@ -1,15 +1,18 @@
-import { MessageEnricherBase } from 'symphony-integration-commons';
+import { MessageEnricherBase, getUserJWT } from 'symphony-integration-commons';
+import { commentIssue } from '../services/jiraApiCalls';
 
-const commentDialog = require('../template/commentDialog.hbs');
-const assingDialog = require('../template/assignDialog.hbs');
-const erroDialog = require('../template/errorDialog.hbs');
-const messageML = require('../template/messageML.hbs');
+const commentDialog = require('../templates/commentDialog.hbs');
+const assingDialog = require('../templates/assignDialog.hbs');
+const erroDialog = require('../templates/errorDialog.hbs');
+const messageML = require('../templates/messageML.hbs');
 
 const name = 'issueState-renderer';
 const messageEvents = ['com.symphony.integration.jira.event.v2.state'];
 
 function renderComment() {
-  return commentDialog();
+  return commentDialog({
+    func: commentIssue(),
+  });
 }
 
 function renderAssignTo(data) {
