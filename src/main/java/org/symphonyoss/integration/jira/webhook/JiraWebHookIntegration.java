@@ -69,10 +69,9 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
       MSG_NO_INTEGRATION_FOUND + ".solution";
 
   public static final String OAUTH_TOKEN = "oauth_token";
-
   public static final String OAUTH_VERIFIER = "oauth_verifier";
+  public static final String OAUTH_DENIED = "denied";
 
-  @Autowired
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   @Autowired
@@ -182,7 +181,9 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
           MSG.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
     }
 
-    authManager.authorizeTemporaryToken(settings, temporaryToken, verificationCode);
+    if (!OAUTH_DENIED.equals(verificationCode)) {
+      authManager.authorizeTemporaryToken(settings, temporaryToken, verificationCode);
+    }
   }
 
   /**
@@ -213,5 +214,17 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
     return null;
   }
 
+  /**
+   * @see AuthorizedIntegration#getAuthorizationRedirectUrl()
+   */
+  @Override
+  public String getAuthorizationRedirectUrl() throws AuthorizationException {
+    IntegrationSettings settings = getSettings();
+    if (settings == null) {
+      throw new JiraOAuth1Exception(MSG.getMessage(MSG_NO_INTEGRATION_FOUND),
+          MSG.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
+    }
+    return authManager.getAuthorizationRedirectUrl(settings);
+  }
 }
 

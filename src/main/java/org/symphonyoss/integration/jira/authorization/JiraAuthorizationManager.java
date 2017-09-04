@@ -89,7 +89,8 @@ public class JiraAuthorizationManager {
 
   private static final String PATH_JIRA_API_MY_SELF = "/rest/api/2/myself";
 
-  @Autowired
+  private static final String CLOSE_POP_UP_HTML = "/closePopUp.html";
+
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
   @Autowired
@@ -445,7 +446,7 @@ public class JiraAuthorizationManager {
 
   /**
    * Find a user authorization data that matches with the given url and userId
-   * @param settings Integration settings
+   * @param settings Integration settings.
    * @param url Third-party integration url.
    * @param userId User id.
    * @return Data found or null otherwise.
@@ -454,5 +455,17 @@ public class JiraAuthorizationManager {
   public UserAuthorizationData getUserAuthorizationData(IntegrationSettings settings, String url,
       Long userId) throws AuthorizationException {
     return authRepoService.find(settings.getType(), settings.getConfigurationId(), url, userId);
+  }
+
+  /**
+   * Return an URL to be called after the authorization callback is called, this can be useful
+   * to close the authorization popUp window, for example.
+   * @param settings Integration settings.
+   * @return A valid URL to redirect or null when no redirection must be performed.
+   */
+  public String getAuthorizationRedirectUrl(IntegrationSettings settings) {
+    String appId = properties.getApplicationId(settings.getType());
+    String baseUrl = properties.getApplicationUrl(appId);
+    return baseUrl + CLOSE_POP_UP_HTML;
   }
 }

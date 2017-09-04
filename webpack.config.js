@@ -57,6 +57,9 @@ module.exports = {
       from: './src/main/webapp/html/controller.html'
     }]),
     new CopyWebpackPlugin([{
+      from: './src/main/webapp/html/closePopUp.html'
+    }]),
+    new CopyWebpackPlugin([{
       from: './src/main/webapp/bundle.json'
     }]),
     new CopyWebpackPlugin([{

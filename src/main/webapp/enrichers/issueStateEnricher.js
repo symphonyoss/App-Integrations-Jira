@@ -6,12 +6,19 @@ const assingDialog = require('../templates/assignDialog.hbs');
 const erroDialog = require('../templates/errorDialog.hbs');
 const messageML = require('../templates/messageML.hbs');
 
+const hostPort = window.location.port === 443 ? '' : `:${window.location.port}`;
+const baseUrl = `${window.location.protocol}//${window.location.hostname}${hostPort}/integration`;
+const comment = 'testing the API through the FE';
 const name = 'issueState-renderer';
 const messageEvents = ['com.symphony.integration.jira.event.v2.state'];
 
-function renderComment() {
+const jwt = getUserJWT();
+
+function renderComment(data) {
+  const url = data.entity.issue.url;
+  const issuename = data.entity.issue.key;
   return commentDialog({
-    func: commentIssue(),
+    func: commentIssue(baseUrl, issuename, url, comment, jwt),
   });
 }
 
