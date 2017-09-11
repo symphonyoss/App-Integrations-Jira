@@ -38,10 +38,13 @@ import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Excepti
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.logging.MessageUtils;
+import org.symphonyoss.integration.model.UserKeyManagerData;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.model.yaml.Application;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
+import org.symphonyoss.integration.service.CryptoService;
+import org.symphonyoss.integration.service.KeyManagerService;
 import org.symphonyoss.integration.utils.IntegrationUtils;
 import org.symphonyoss.integration.utils.RsaKeyUtils;
 
@@ -107,6 +110,12 @@ public class JiraAuthorizationManager {
 
   @Autowired
   private ApplicationContext context;
+
+  @Autowired
+  private KeyManagerService kmService;
+
+  @Autowired
+  private CryptoService cryptoService;
 
   /**
    * Application public key cache
@@ -300,7 +309,7 @@ public class JiraAuthorizationManager {
       return false;
     }
 
-    JiraOAuth1Data jiraOAuth1Data = getJiraOAuth1Data(userAuthorizationData);
+    JiraOAuth1Data jiraOAuth1Data = getJiraOAuth1Data(settings, userAuthorizationData);
 
     if (StringUtils.isEmpty(jiraOAuth1Data.getAccessToken())) {
       return false;
@@ -374,8 +383,13 @@ public class JiraAuthorizationManager {
 
     JiraOAuth1Provider provider = getJiraOAuth1Provider(settings, url);
 
-    String accessCode = provider.requestAcessToken(temporaryToken, verifierCode);
-    JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, accessCode);
+    String accessToken = provider.requestAcessToken(temporaryToken, verifierCode);
+
+    UserKeyManagerData userKMData =
+        kmService.getBotUserAccountKeyByConfiguration(settings.getConfigurationId());
+    String encryptedAccessToken = cryptoService.encrypt(accessToken, userKMData.getPrivateKey());
+
+    JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, encryptedAccessToken);
     userAuthData.setData(jiraOAuth1Data);
 
     authRepoService.save(settings.getType(), settings.getConfigurationId(), userAuthData);
@@ -416,7 +430,7 @@ public class JiraAuthorizationManager {
       return null;
     }
 
-    JiraOAuth1Data jiraOAuth1Data = getJiraOAuth1Data(userAuthorizationData);
+    JiraOAuth1Data jiraOAuth1Data = getJiraOAuth1Data(settings, userAuthorizationData);
 
     if (StringUtils.isEmpty(jiraOAuth1Data.getAccessToken())) {
       return null;
@@ -427,21 +441,25 @@ public class JiraAuthorizationManager {
 
   /**
    * Retrieves the specific JIRA authorization data.
-   *
+   * @param settings Integration settings
    * @param userAuthorizationData User authorization data
    * @return JIRA authorization data
    * @throws AuthorizationException Invalid JIRA authorization data
    */
-  private JiraOAuth1Data getJiraOAuth1Data(UserAuthorizationData userAuthorizationData)
-      throws AuthorizationException {
-    JiraOAuth1Data jiraOAuth1Data;
-
+  private JiraOAuth1Data getJiraOAuth1Data(IntegrationSettings settings,
+      UserAuthorizationData userAuthorizationData) throws AuthorizationException {
     try {
-      jiraOAuth1Data = JsonUtils.readValue(userAuthorizationData.getData(), JiraOAuth1Data.class);
+      JiraOAuth1Data jiraOAuth1Data = JsonUtils.readValue(userAuthorizationData.getData(),
+          JiraOAuth1Data.class);
+      String accessToken = jiraOAuth1Data.getAccessToken();
+      UserKeyManagerData userKMData =
+          kmService.getBotUserAccountKeyByConfiguration(settings.getConfigurationId());
+      String decryptedAccessToken = cryptoService.decrypt(accessToken, userKMData.getPrivateKey());
+      jiraOAuth1Data.setAccessToken(decryptedAccessToken);
+      return jiraOAuth1Data;
     } catch (IOException e) {
       throw new AuthorizationException("Invalid temporary token");
     }
-    return jiraOAuth1Data;
   }
 
   /**
