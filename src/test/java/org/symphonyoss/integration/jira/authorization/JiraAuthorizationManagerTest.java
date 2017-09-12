@@ -16,6 +16,7 @@
 
 package org.symphonyoss.integration.jira.authorization;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -48,6 +49,9 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
 import org.symphonyoss.integration.logging.LogMessageSource;
+import org.symphonyoss.integration.model.UserKeyManagerData;
+import org.symphonyoss.integration.service.CryptoService;
+import org.symphonyoss.integration.service.KeyManagerService;
 import org.symphonyoss.integration.utils.RsaKeyUtils;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
@@ -81,7 +85,7 @@ import java.util.UUID;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableConfigurationProperties
-@ContextConfiguration(classes = {IntegrationProperties.class, JiraAuthorizationManager.class})
+@ContextConfiguration(classes = {IntegrationProperties.class, JiraAuthorizationManager.class })
 @ActiveProfiles("jira")
 public class JiraAuthorizationManagerTest {
 
@@ -165,6 +169,12 @@ public class JiraAuthorizationManagerTest {
   @Autowired
   private JiraAuthorizationManager authManager;
 
+  @MockBean
+  private KeyManagerService kmService;
+
+  @MockBean
+  private CryptoService cryptoService;
+
   @BeforeClass
   public static void startup() {
     SETTINGS.setType(JIRA_APP_TYPE);
@@ -175,6 +185,9 @@ public class JiraAuthorizationManagerTest {
   public void init() {
     ReflectionTestUtils.setField(authManager, "publicKey", null);
     ReflectionTestUtils.setField(authManager, "privateKey", null);
+    UserKeyManagerData userKeyManagerData = new UserKeyManagerData();
+    userKeyManagerData.setPrivateKey(MOCK_PRIVATE_KEY);
+    doReturn(userKeyManagerData).when(kmService).getBotUserAccountKeyByConfiguration(anyString());
   }
 
   @Test
@@ -232,9 +245,7 @@ public class JiraAuthorizationManagerTest {
     application.getAuthorization().getProperties().remove(PUBLIC_KEY_FILENAME);
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testIsUserAuthorizedException()
-      throws AuthorizationException, URISyntaxException {
+  public void testIsUserUnauthorized() throws AuthorizationException, URISyntaxException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
 
@@ -252,13 +263,15 @@ public class JiraAuthorizationManagerTest {
     doReturn(userData).when(authRepoService).find(anyString(),
         eq(SETTINGS.getConfigurationId()), eq(MOCK_URL), eq(MOCK_USER));
 
-    authManager.isUserAuthorized(SETTINGS, MOCK_URL, MOCK_USER);
+    assertFalse(authManager.isUserAuthorized(SETTINGS, MOCK_URL, MOCK_USER));
   }
 
   @Test(expected = JiraOAuth1Exception.class)
   public void testIsUserAuthorizedInvalidURL() throws AuthorizationException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
+
+    doReturn(MOCK_ACCESS_TOKEN).when(cryptoService).decrypt(anyString(), eq(MOCK_PRIVATE_KEY));
 
     doReturn(userData).when(authRepoService).find(anyString(),
         eq(SETTINGS.getConfigurationId()), eq(StringUtils.EMPTY), eq(MOCK_USER));
@@ -387,6 +400,8 @@ public class JiraAuthorizationManagerTest {
 
     doReturn(authorizationData).when(authRepoService).find(JIRA_APP_TYPE, JIRA_APP_ID,
         MOCK_URL, MOCK_USER);
+
+    doReturn(MOCK_ACCESS_TOKEN).when(cryptoService).decrypt(anyString(), eq(MOCK_PRIVATE_KEY));
 
     String accessToken = authManager.getAccessToken(SETTINGS, MOCK_URL, MOCK_USER);
     assertEquals(MOCK_ACCESS_TOKEN, accessToken);
