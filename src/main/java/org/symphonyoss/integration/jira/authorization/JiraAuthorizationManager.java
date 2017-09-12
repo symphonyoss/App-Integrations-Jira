@@ -31,6 +31,7 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
+import org.symphonyoss.integration.exception.CryptoException;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
@@ -129,7 +130,6 @@ public class JiraAuthorizationManager {
 
   /**
    * Provide the authorization properties for JIRA application.
-   *
    * @param settings Integration settings
    * @return authorization properties
    */
@@ -147,7 +147,6 @@ public class JiraAuthorizationManager {
 
   /**
    * Read the application public key configured on the filesystem and validate it.
-   *
    * @param authModel authorization properties
    * @param application Application settings
    * @return Application public key
@@ -184,7 +183,6 @@ public class JiraAuthorizationManager {
 
   /**
    * Retrieve the application public key filename.
-   *
    * @param authModel authorization properties
    * @param application Application settings
    * @return Application public key filename
@@ -200,7 +198,6 @@ public class JiraAuthorizationManager {
 
   /**
    * Read the application private key configured on the filesystem and validate it.
-   *
    * @param settings This integration settings.
    * @return Application private key
    */
@@ -240,7 +237,6 @@ public class JiraAuthorizationManager {
 
   /**
    * Retrieve the application private key filename.
-   *
    * @param authModel authorization properties
    * @param application Application settings
    * @return Application private key filename
@@ -255,7 +251,6 @@ public class JiraAuthorizationManager {
 
   /**
    * Read public or private key configured on the filesystem.
-   *
    * @param fileName Public/private key filename
    * @return Application public/private key or null if the file not found
    */
@@ -309,7 +304,13 @@ public class JiraAuthorizationManager {
       return false;
     }
 
-    JiraOAuth1Data jiraOAuth1Data = getJiraOAuth1Data(settings, userAuthorizationData);
+    JiraOAuth1Data jiraOAuth1Data = null;
+    try {
+      jiraOAuth1Data = getJiraOAuth1Data(settings, userAuthorizationData);
+    } catch (CryptoException e) {
+      LOGGER.warn("There is a cryptography problem, the OAuth process must be restarted.", e);
+      return false;
+    }
 
     if (StringUtils.isEmpty(jiraOAuth1Data.getAccessToken())) {
       return false;
@@ -385,14 +386,20 @@ public class JiraAuthorizationManager {
 
     String accessToken = provider.requestAcessToken(temporaryToken, verifierCode);
 
-    UserKeyManagerData userKMData =
-        kmService.getBotUserAccountKeyByConfiguration(settings.getConfigurationId());
-    String encryptedAccessToken = cryptoService.encrypt(accessToken, userKMData.getPrivateKey());
+    try {
+      UserKeyManagerData userKMData =
+          kmService.getBotUserAccountKeyByConfiguration(settings.getConfigurationId());
+      String encryptedAccessToken = cryptoService.encrypt(accessToken, userKMData.getPrivateKey());
 
-    JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, encryptedAccessToken);
-    userAuthData.setData(jiraOAuth1Data);
+      JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, encryptedAccessToken);
+      userAuthData.setData(jiraOAuth1Data);
 
-    authRepoService.save(settings.getType(), settings.getConfigurationId(), userAuthData);
+      authRepoService.save(settings.getType(), settings.getConfigurationId(), userAuthData);
+    } catch (CryptoException e) {
+      throw new JiraOAuth1Exception(
+          MSG.getMessage("integration.jira.auth.encrypt", temporaryToken),
+          MSG.getMessage("integration.jira.auth.encrypt.solution"));
+    }
   }
 
   /**
@@ -400,10 +407,10 @@ public class JiraAuthorizationManager {
    * @param settings Integration settings.
    * @param baseUrl Base URL.
    * @return JiraOAuth1Provider configured.
-   * @throws JiraOAuth1Exception Thrown in case of error.
+   * @throws AuthorizationException Thrown in case of error.
    */
   public JiraOAuth1Provider getJiraOAuth1Provider(IntegrationSettings settings, String baseUrl)
-      throws JiraOAuth1Exception {
+      throws AuthorizationException {
     AppAuthorizationModel appAuthorizationModel = getAuthorizationModel(settings);
     String consumerKey = (String) appAuthorizationModel.getProperties().get(CONSUMER_KEY);
     String privateKey = getPrivateKey(settings);
@@ -420,7 +427,8 @@ public class JiraAuthorizationManager {
    * @param url Integration URL.
    * @param userId User id.
    * @return An access token.
-   * @throws AuthorizationException Invalid JIRA authorization data or failure to read authorization data
+   * @throws AuthorizationException Invalid JIRA authorization data or failure to read
+   * authorization data.
    */
   public String getAccessToken(IntegrationSettings settings, String url, Long userId)
       throws AuthorizationException {
@@ -430,9 +438,14 @@ public class JiraAuthorizationManager {
       return null;
     }
 
-    JiraOAuth1Data jiraOAuth1Data = getJiraOAuth1Data(settings, userAuthorizationData);
+    JiraOAuth1Data jiraOAuth1Data = null;
+    try {
+      jiraOAuth1Data = getJiraOAuth1Data(settings, userAuthorizationData);
+    } catch (CryptoException e) {
+      LOGGER.warn("There is a cryptography problem, the OAuth process must be restarted.", e);
+    }
 
-    if (StringUtils.isEmpty(jiraOAuth1Data.getAccessToken())) {
+    if (jiraOAuth1Data == null || StringUtils.isEmpty(jiraOAuth1Data.getAccessToken())) {
       return null;
     }
 
@@ -444,10 +457,11 @@ public class JiraAuthorizationManager {
    * @param settings Integration settings
    * @param userAuthorizationData User authorization data
    * @return JIRA authorization data
-   * @throws AuthorizationException Invalid JIRA authorization data
+   * @throws AuthorizationException Invalid JIRA authorization data.
+   * @throws CryptoException Thrown when the cryptography process cannot be done.
    */
   private JiraOAuth1Data getJiraOAuth1Data(IntegrationSettings settings,
-      UserAuthorizationData userAuthorizationData) throws AuthorizationException {
+      UserAuthorizationData userAuthorizationData) throws AuthorizationException, CryptoException {
     try {
       JiraOAuth1Data jiraOAuth1Data = JsonUtils.readValue(userAuthorizationData.getData(),
           JiraOAuth1Data.class);
@@ -468,7 +482,7 @@ public class JiraAuthorizationManager {
    * @param url Third-party integration url.
    * @param userId User id.
    * @return Data found or null otherwise.
-   * @throws AuthorizationException Failure to read authorization data
+   * @throws AuthorizationException Failure to read authorization data.
    */
   public UserAuthorizationData getUserAuthorizationData(IntegrationSettings settings, String url,
       Long userId) throws AuthorizationException {
