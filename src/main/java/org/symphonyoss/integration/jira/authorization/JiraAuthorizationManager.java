@@ -45,7 +45,7 @@ import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.model.yaml.Application;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.service.CryptoService;
-import org.symphonyoss.integration.service.KeyManagerService;
+import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.utils.IntegrationUtils;
 import org.symphonyoss.integration.utils.RsaKeyUtils;
 
@@ -113,7 +113,7 @@ public class JiraAuthorizationManager {
   private ApplicationContext context;
 
   @Autowired
-  private KeyManagerService kmService;
+  private UserService userService;
 
   @Autowired
   private CryptoService cryptoService;
@@ -388,7 +388,7 @@ public class JiraAuthorizationManager {
 
     try {
       UserKeyManagerData userKMData =
-          kmService.getBotUserAccountKeyByConfiguration(settings.getConfigurationId());
+          userService.getBotUserAccountKeyData(settings.getConfigurationId());
       String encryptedAccessToken = cryptoService.encrypt(accessToken, userKMData.getPrivateKey());
 
       JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, encryptedAccessToken);
@@ -467,7 +467,7 @@ public class JiraAuthorizationManager {
           JiraOAuth1Data.class);
       String accessToken = jiraOAuth1Data.getAccessToken();
       UserKeyManagerData userKMData =
-          kmService.getBotUserAccountKeyByConfiguration(settings.getConfigurationId());
+          userService.getBotUserAccountKeyData(settings.getConfigurationId());
       String decryptedAccessToken = cryptoService.decrypt(accessToken, userKMData.getPrivateKey());
       jiraOAuth1Data.setAccessToken(decryptedAccessToken);
       return jiraOAuth1Data;

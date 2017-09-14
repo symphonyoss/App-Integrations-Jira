@@ -48,22 +48,21 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
-import org.symphonyoss.integration.exception.CryptoException;
-import org.symphonyoss.integration.logging.LogMessageSource;
-import org.symphonyoss.integration.model.UserKeyManagerData;
-import org.symphonyoss.integration.service.CryptoService;
-import org.symphonyoss.integration.service.KeyManagerService;
-import org.symphonyoss.integration.utils.RsaKeyUtils;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.exception.CryptoException;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
+import org.symphonyoss.integration.model.UserKeyManagerData;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.model.yaml.Application;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
+import org.symphonyoss.integration.service.CryptoService;
+import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.utils.IntegrationUtils;
+import org.symphonyoss.integration.utils.RsaKeyUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -171,7 +170,7 @@ public class JiraAuthorizationManagerTest {
   private JiraAuthorizationManager authManager;
 
   @MockBean
-  private KeyManagerService kmService;
+  private UserService userService;
 
   @MockBean
   private CryptoService cryptoService;
@@ -188,7 +187,7 @@ public class JiraAuthorizationManagerTest {
     ReflectionTestUtils.setField(authManager, "privateKey", null);
     UserKeyManagerData userKeyManagerData = new UserKeyManagerData();
     userKeyManagerData.setPrivateKey(MOCK_PRIVATE_KEY);
-    doReturn(userKeyManagerData).when(kmService).getBotUserAccountKeyByConfiguration(anyString());
+    doReturn(userKeyManagerData).when(userService).getBotUserAccountKeyData(anyString());
   }
 
   @Test
