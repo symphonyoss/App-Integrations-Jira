@@ -45,7 +45,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.symphonyoss.integration.authentication.api.jwt.JwtAuthentication;
 import org.symphonyoss.integration.authorization.AuthorizationException;
-import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
@@ -217,7 +216,7 @@ public class JiraApiResource {
   private OAuth1Provider getOAuth1Provider(String jiraIntegrationURL) {
     try {
       return jiraWebHookIntegration.getOAuth1Provider(jiraIntegrationURL);
-    } catch (OAuth1Exception e) {
+    } catch (AuthorizationException e) {
       throw new JiraAuthorizationException(COMPONENT, MSG.getMessage(APPLICATION_KEY_ERROR), e);
     }
   }

@@ -16,6 +16,7 @@
 
 package org.symphonyoss.integration.jira.authorization;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -47,18 +48,21 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
-import org.symphonyoss.integration.logging.LogMessageSource;
-import org.symphonyoss.integration.utils.RsaKeyUtils;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.exception.CryptoException;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
+import org.symphonyoss.integration.model.UserKeyManagerData;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
 import org.symphonyoss.integration.model.yaml.Application;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
+import org.symphonyoss.integration.service.CryptoService;
+import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.utils.IntegrationUtils;
+import org.symphonyoss.integration.utils.RsaKeyUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,25 +107,25 @@ public class JiraAuthorizationManagerTest {
 
   private static final String EXPECTED_PUBLIC_KEY =
       "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC6yaUNjzhKUK7/8X8vCAXkSDp+\n"
-      + "zy1UGhAXMthChPPtDb5kixc6WMLDdGjRRPvzZBROo1vk7K7fum4YXCNHwcSS26Nf\n"
-      + "GJCLCFoW64tKyFhxcVZ7lU43Unhji50S0Bb3reniB0ophJ8UEOjH2qiy3hOTtUNF\n"
-      + "JynqT6wBqrpTGodBmwIDAQAB\n";
+          + "zy1UGhAXMthChPPtDb5kixc6WMLDdGjRRPvzZBROo1vk7K7fum4YXCNHwcSS26Nf\n"
+          + "GJCLCFoW64tKyFhxcVZ7lU43Unhji50S0Bb3reniB0ophJ8UEOjH2qiy3hOTtUNF\n"
+          + "JynqT6wBqrpTGodBmwIDAQAB\n";
 
   private static final String EXPECTED_PRIVATE_KEY =
       "MIICeQIBADANBgkqhkiG9w0BAQEFAASCAmMwggJfAgEAAoGBAN8wcSF5AE7sL30p\n"
-      + "2mnM0X3T1OZy4BDfxucZTYdYmg99vqv6uVQyjc4zKOHRiwnCh2GwatT4jBfoQfWx\n"
-      + "6VUmvcxKHuZwcVCHF/u/Vw85wsMDpD4pBglpX1GsFlfSQe1E115X7mHD7tHlkQHv\n"
-      + "tVplf5BmYxM6G2EljBmiRRQq4OLbAgMBAAECgYEAxu54h6tAWRgvo9IgOVk0CIE9\n"
-      + "LEKL8L5knStybQbOGqyrvMJ3WdLNjlMPR2fsE8DtxmbmcfkvdUexMvtmzF0BoWDv\n"
-      + "JgqnGaUr9l0gZfGCR0ir2PBJ7V9OOJz5ug4ExLz6S9WNV6RdtXOSXSbNG3/L+56t\n"
-      + "ocA05JpZrZaUfK43V0ECQQDyjkokOrk54DwdnSH86V2bXn+RlzAyumhfGKJpC7pb\n"
-      + "eZgcSJtkbV9RslEr+TcVuuJyHZGeWtPEStl1BaKnvRLxAkEA649aVUD1b9Cly+Q2\n"
-      + "l7KbgDjny5k/Ezw7JK3hjYEKQrHjgkMejOuKSkeRz2imWD8PLoJ01GgMXLIiu+F1\n"
-      + "lb06iwJBAI7NJuldiV+BnOLyd+gmnG20nPZiRIYZKQmTv0qJFRZ16A/+zz25Br1a\n"
-      + "dl+lQcERXfBBaFIKt1KBnrU+tBx9PIECQQCLquG6rttXwvSrIdMkuufsbNEzLNfz\n"
-      + "RcEjjF2yExLMXMEymS1iDL5gMHNJ8RjANhOAViWDU3YQ+CYUFCgt8pblAkEAhM5k\n"
-      + "y54f3UViEO29UyWv2ZNaZPd17bSr8HAo/lxXyju4TRNRB3vIq79lMNalX5HKHlI9\n"
-      + "EST7xXLh110xXRH9/Q==\n";
+          + "2mnM0X3T1OZy4BDfxucZTYdYmg99vqv6uVQyjc4zKOHRiwnCh2GwatT4jBfoQfWx\n"
+          + "6VUmvcxKHuZwcVCHF/u/Vw85wsMDpD4pBglpX1GsFlfSQe1E115X7mHD7tHlkQHv\n"
+          + "tVplf5BmYxM6G2EljBmiRRQq4OLbAgMBAAECgYEAxu54h6tAWRgvo9IgOVk0CIE9\n"
+          + "LEKL8L5knStybQbOGqyrvMJ3WdLNjlMPR2fsE8DtxmbmcfkvdUexMvtmzF0BoWDv\n"
+          + "JgqnGaUr9l0gZfGCR0ir2PBJ7V9OOJz5ug4ExLz6S9WNV6RdtXOSXSbNG3/L+56t\n"
+          + "ocA05JpZrZaUfK43V0ECQQDyjkokOrk54DwdnSH86V2bXn+RlzAyumhfGKJpC7pb\n"
+          + "eZgcSJtkbV9RslEr+TcVuuJyHZGeWtPEStl1BaKnvRLxAkEA649aVUD1b9Cly+Q2\n"
+          + "l7KbgDjny5k/Ezw7JK3hjYEKQrHjgkMejOuKSkeRz2imWD8PLoJ01GgMXLIiu+F1\n"
+          + "lb06iwJBAI7NJuldiV+BnOLyd+gmnG20nPZiRIYZKQmTv0qJFRZ16A/+zz25Br1a\n"
+          + "dl+lQcERXfBBaFIKt1KBnrU+tBx9PIECQQCLquG6rttXwvSrIdMkuufsbNEzLNfz\n"
+          + "RcEjjF2yExLMXMEymS1iDL5gMHNJ8RjANhOAViWDU3YQ+CYUFCgt8pblAkEAhM5k\n"
+          + "y54f3UViEO29UyWv2ZNaZPd17bSr8HAo/lxXyju4TRNRB3vIq79lMNalX5HKHlI9\n"
+          + "EST7xXLh110xXRH9/Q==\n";
 
   private static final String INVALID_PUBLIC_KEY = "invalid_app_pub.pem";
 
@@ -165,6 +169,12 @@ public class JiraAuthorizationManagerTest {
   @Autowired
   private JiraAuthorizationManager authManager;
 
+  @MockBean
+  private UserService userService;
+
+  @MockBean
+  private CryptoService cryptoService;
+
   @BeforeClass
   public static void startup() {
     SETTINGS.setType(JIRA_APP_TYPE);
@@ -175,6 +185,9 @@ public class JiraAuthorizationManagerTest {
   public void init() {
     ReflectionTestUtils.setField(authManager, "publicKey", null);
     ReflectionTestUtils.setField(authManager, "privateKey", null);
+    UserKeyManagerData userKeyManagerData = new UserKeyManagerData();
+    userKeyManagerData.setPrivateKey(MOCK_PRIVATE_KEY);
+    doReturn(userKeyManagerData).when(userService).getBotUserAccountKeyData(anyString());
   }
 
   @Test
@@ -203,7 +216,9 @@ public class JiraAuthorizationManagerTest {
     doReturn(tmpDir).when(utils).getCertsDirectory();
 
     Application application = properties.getApplication(SETTINGS.getType());
-    application.getAuthorization().getProperties().put(PUBLIC_KEY_FILENAME, UUID.randomUUID().toString());
+    application.getAuthorization()
+        .getProperties()
+        .put(PUBLIC_KEY_FILENAME, UUID.randomUUID().toString());
 
     AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
     validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
@@ -232,9 +247,8 @@ public class JiraAuthorizationManagerTest {
     application.getAuthorization().getProperties().remove(PUBLIC_KEY_FILENAME);
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testIsUserAuthorizedException()
-      throws AuthorizationException, URISyntaxException {
+  public void testIsUserUnauthorized()
+      throws AuthorizationException, URISyntaxException, CryptoException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
 
@@ -252,13 +266,15 @@ public class JiraAuthorizationManagerTest {
     doReturn(userData).when(authRepoService).find(anyString(),
         eq(SETTINGS.getConfigurationId()), eq(MOCK_URL), eq(MOCK_USER));
 
-    authManager.isUserAuthorized(SETTINGS, MOCK_URL, MOCK_USER);
+    assertFalse(authManager.isUserAuthorized(SETTINGS, MOCK_URL, MOCK_USER));
   }
 
   @Test(expected = JiraOAuth1Exception.class)
-  public void testIsUserAuthorizedInvalidURL() throws AuthorizationException {
+  public void testIsUserAuthorizedInvalidURL() throws AuthorizationException, CryptoException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
+
+    doReturn(MOCK_ACCESS_TOKEN).when(cryptoService).decrypt(anyString(), eq(MOCK_PRIVATE_KEY));
 
     doReturn(userData).when(authRepoService).find(anyString(),
         eq(SETTINGS.getConfigurationId()), eq(StringUtils.EMPTY), eq(MOCK_USER));
@@ -291,7 +307,8 @@ public class JiraAuthorizationManagerTest {
   }
 
   @Test
-  public void testAuthorizeTemporaryToken() throws AuthorizationException, URISyntaxException {
+  public void testAuthorizeTemporaryToken()
+      throws AuthorizationException, URISyntaxException, CryptoException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
 
@@ -349,13 +366,13 @@ public class JiraAuthorizationManagerTest {
   }
 
   @Test
-  public void testGetAccessTokenNullValue() throws AuthorizationException {
+  public void testGetAccessTokenNullValue() throws AuthorizationException, CryptoException {
     String accessToken = authManager.getAccessToken(new IntegrationSettings(), MOCK_URL, MOCK_USER);
     assertNull(accessToken);
   }
 
   @Test
-  public void testGetAccessTokenEmptyValue() throws AuthorizationException {
+  public void testGetAccessTokenEmptyValue() throws AuthorizationException, CryptoException {
     doReturn(new UserAuthorizationData()).when(authRepoService).find(JIRA_APP_TYPE, JIRA_APP_ID,
         MOCK_URL, MOCK_USER);
 
@@ -364,7 +381,7 @@ public class JiraAuthorizationManagerTest {
   }
 
   @Test
-  public void testGetAccessTokenNotFound() throws AuthorizationException {
+  public void testGetAccessTokenNotFound() throws AuthorizationException, CryptoException {
     JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data();
 
     UserAuthorizationData authorizationData = new UserAuthorizationData();
@@ -378,7 +395,7 @@ public class JiraAuthorizationManagerTest {
   }
 
   @Test
-  public void testGetAccessToken() throws AuthorizationException {
+  public void testGetAccessToken() throws AuthorizationException, CryptoException {
     JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data();
     jiraOAuth1Data.setAccessToken(MOCK_ACCESS_TOKEN);
 
@@ -387,6 +404,8 @@ public class JiraAuthorizationManagerTest {
 
     doReturn(authorizationData).when(authRepoService).find(JIRA_APP_TYPE, JIRA_APP_ID,
         MOCK_URL, MOCK_USER);
+
+    doReturn(MOCK_ACCESS_TOKEN).when(cryptoService).decrypt(anyString(), eq(MOCK_PRIVATE_KEY));
 
     String accessToken = authManager.getAccessToken(SETTINGS, MOCK_URL, MOCK_USER);
     assertEquals(MOCK_ACCESS_TOKEN, accessToken);
@@ -397,8 +416,10 @@ public class JiraAuthorizationManagerTest {
     testAuthorizationModel();
     testGetAuthorizationUrl();
 
-    Object publicKey = ReflectionTestUtils.getField(authManager, JiraAuthorizationManager.class, "publicKey");
-    Object privateKey = ReflectionTestUtils.getField(authManager, JiraAuthorizationManager.class, "privateKey");
+    Object publicKey =
+        ReflectionTestUtils.getField(authManager, JiraAuthorizationManager.class, "publicKey");
+    Object privateKey =
+        ReflectionTestUtils.getField(authManager, JiraAuthorizationManager.class, "privateKey");
 
     assertNotNull(publicKey);
     assertNotNull(privateKey);
