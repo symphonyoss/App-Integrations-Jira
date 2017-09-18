@@ -1,19 +1,40 @@
 import axios from 'axios';
-import { authorizeUser } from 'symphony-integration-commons';
+import { authorizeUser, getIntegrationBaseUrl } from 'symphony-integration-commons';
 
 const assignDialog = require('../templates/assignDialog.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
+const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
+const forbiddenDialog = require('../templates/forbiddenDialog.hbs');
+const notFoundDialog = require('../templates/issueNotFoundDialog.hbs');
+const successDialog = require('../templates/successDialog.hbs');
 
 export default class AssignUserService {
   constructor(serviceName) {
     this.serviceName = serviceName;
     this.selectedUser = {};
-    this.baseUrl = 'https://localhost.symphony.com:8186/integration';
+    this.baseUrl = getIntegrationBaseUrl();
+    this.jwt = '';
   }
 
-  showDialog(data) {
+  successDialog(issueKey) {
     const dialogsService = SYMPHONY.services.subscribe('dialogs');
 
+    this.close('assignIssue');
+
+    const template = successDialog({
+      issueKey,
+      prettyName: this.selectedUser.prettyName,
+    });
+
+    dialogsService.show('userAssigned', this.serviceName, template, {}, { title: 'Assign issue' });
+  }
+
+  openDialog(id, template, data) {
+    const dialogsService = SYMPHONY.services.subscribe('dialogs');
+    dialogsService.show(id, this.serviceName, template, data, {});
+  }
+
+  openAssignDialog(data) {
     const template = assignDialog({
       url: data.entity.issue.url,
       key: data.entity.issue.key,
@@ -42,10 +63,23 @@ export default class AssignUserService {
       },
     };
 
-    dialogsService.show('assignIssue', this.serviceName, template, userData, { title: 'Assign issue' });
+    this.openDialog('assignIssue', template, userData);
   }
 
-  searchAssignableUser(url, issueKey, jwt) {
+  showDialog(data) {
+    const baseUrl = data.entity.baseUrl;
+
+    authorizeUser(baseUrl)
+      .then((response) => {
+        if (response.success) {
+          this.jwt = response.jwt;
+          this.openAssignDialog(data);
+        }
+      })
+      .catch(() => this.openDialog('unexpectedErrorDialog', unexpectedErrorDialog(), {}));
+  }
+
+  searchAssignableUser(url, issueKey) {
     const apiUrl = `${this.baseUrl}/v1/jira/rest/api/user/assignable/search`;
     const emailAddress = this.selectedUser.email;
 
@@ -57,63 +91,65 @@ export default class AssignUserService {
 
     return axios.get(apiUrl, {
       params,
-      headers: { Authorization: `Bearer ${jwt}` },
+      headers: { Authorization: `Bearer ${this.jwt}` },
+    }).catch((error) => {
+      const response = error.response || {};
+      const status = response.status || 500;
+
+      return Promise.reject(new Error(status));
     });
   }
 
-  assignUser(url, issueKey, username, jwt) {
+  assignUser(url, issueKey, username) {
     const apiUrl = `${this.baseUrl}/v1/jira/rest/api/issue/${issueKey}/assignee`;
 
-    const params = {
-      url,
-      username,
-    };
+    return axios({
+      method: 'put',
+      url: apiUrl,
+      headers: { Authorization: `Bearer ${this.jwt}` },
+      params: {
+        url,
+        username,
+      },
+    }).catch((error) => {
+      const response = error.response || {};
+      const status = response.status || 500;
 
-    return axios.put(apiUrl, {
-      params,
-      headers: { Authorization: `Bearer ${jwt}` },
+      return Promise.reject(new Error(status));
     });
-  }
-
-  successDialog(issueKey) {
-    const dialogsService = SYMPHONY.services.subscribe('dialogs');
-
-    this.close('assignIssue');
-
-    const template = `<dialog><h1>Issue ${issueKey} assigned to ${this.selectedUser.prettyName}</h1></dialog>`;
-    dialogsService.show('userAssigned', this.serviceName, template, {}, { title: 'Assign issue' });
-  }
-
-  errorDialog() {
-    const dialogsService = SYMPHONY.services.subscribe('dialogs');
-
-    const template = `<dialog><h1>User ${this.selectedUser.prettyName} not authorized</h1></dialog>`;
-    dialogsService.show('errorAssignDialog', this.serviceName, template, {}, { title: 'Assign issue' });
   }
 
   save(data) {
     const baseUrl = data.entity.baseUrl;
     const issueKey = data.entity.issue.key;
-    let jwt;
 
-    authorizeUser(baseUrl)
-      .then((response) => {
-        if (response.success) {
-          jwt = response.jwt;
-          return this.searchAssignableUser(baseUrl, issueKey, jwt);
-        }
-
-        return Promise.reject(new Error('unauthorized'));
-      })
+    this.searchAssignableUser(baseUrl, issueKey)
       .then((users) => {
-        if (users.length === 0) {
-          this.errorDialog();
-          return Promise.reject(new Error('forbidden'));
+        if (users.data.length === 0) {
+          return Promise.reject(new Error(401));
         }
 
-        return this.assignUser(baseUrl, issueKey, users[0].name, jwt);
+        return this.assignUser(baseUrl, issueKey, users.data[0].name);
       })
-      .then(() => this.successDialog(issueKey));
+      .then(() => this.successDialog(issueKey))
+      .catch((error) => {
+        console.log(error.message);
+        console.log(typeof error.message);
+        switch (error.message) {
+          case '401': {
+            this.openDialog('forbiddenDialog', forbiddenDialog({ username: this.selectedUser.prettyName }), {});
+            break;
+          }
+          case '404': {
+            this.openDialog('issueNotFoundDialog', notFoundDialog({ issueKey }), {});
+            break;
+          }
+          default: {
+            this.openDialog('unexpectedErrorDialog', unexpectedErrorDialog(), {});
+            break;
+          }
+        }
+      });
   }
 
   close(dialog) {
