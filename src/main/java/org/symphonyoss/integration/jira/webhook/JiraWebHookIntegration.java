@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationPayload;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
-import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
@@ -202,9 +201,9 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
    * Get an OAuth1 provider for user to perform calls to an external system resource.
    * @param url Integration URL.
    * @return JIRA OAuth1Provider.
-   * @throws OAuth1Exception Thrown in any case of error.
+   * @throws AuthorizationException Thrown in any case of error.
    */
-  public OAuth1Provider getOAuth1Provider(String url) throws OAuth1Exception {
+  public OAuth1Provider getOAuth1Provider(String url) throws AuthorizationException {
     IntegrationSettings settings = getSettings();
 
     if (settings != null) {
