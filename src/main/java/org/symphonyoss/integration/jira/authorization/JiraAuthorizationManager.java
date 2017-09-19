@@ -466,10 +466,12 @@ public class JiraAuthorizationManager {
       JiraOAuth1Data jiraOAuth1Data = JsonUtils.readValue(userAuthorizationData.getData(),
           JiraOAuth1Data.class);
       String accessToken = jiraOAuth1Data.getAccessToken();
-      UserKeyManagerData userKMData =
-          userService.getBotUserAccountKeyData(settings.getConfigurationId());
-      String decryptedAccessToken = cryptoService.decrypt(accessToken, userKMData.getPrivateKey());
-      jiraOAuth1Data.setAccessToken(decryptedAccessToken);
+      if (!StringUtils.isEmpty(accessToken)) {
+        UserKeyManagerData userKMData =
+            userService.getBotUserAccountKeyData(settings.getConfigurationId());
+        String decryptedAccessToken = cryptoService.decrypt(accessToken, userKMData.getPrivateKey());
+        jiraOAuth1Data.setAccessToken(decryptedAccessToken);
+      }
       return jiraOAuth1Data;
     } catch (IOException e) {
       throw new AuthorizationException("Invalid temporary token");
