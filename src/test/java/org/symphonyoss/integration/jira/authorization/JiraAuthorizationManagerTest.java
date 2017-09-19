@@ -430,7 +430,7 @@ public class JiraAuthorizationManagerTest {
 
   @Test
   public void testGetAuthorizationRedirectUrl() {
-    String expected = MOCK_URL + "/apps/jira/closePopUp.html";
+    String expected = MOCK_URL + ":8443/apps/jira/closePopUp.html";
     String url = authManager.getAuthorizationRedirectUrl(SETTINGS);
     assertEquals(expected, url);
   }
