@@ -19,6 +19,7 @@ module.exports = {
       { test: /\.jsx?$/, loader: 'eslint', exclude: /node_modules/ }
     ],
     loaders: [
+      { test: /\.hbs$/, loader: "handlebars-loader" },
       { test: /\.css$/, loader: "style!css" },
       { test: /\.less$/, loader: "style!css!less" },
       {
