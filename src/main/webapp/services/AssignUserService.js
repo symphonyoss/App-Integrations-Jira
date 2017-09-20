@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { authorizeUser, getIntegrationBaseUrl } from 'symphony-integration-commons';
+import { getIntegrationBaseUrl } from 'symphony-integration-commons';
+import BaseService from './BaseService';
 
 const assignDialog = require('../templates/assignDialog.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
@@ -8,33 +9,27 @@ const forbiddenDialog = require('../templates/forbiddenDialog.hbs');
 const notFoundDialog = require('../templates/issueNotFoundDialog.hbs');
 const successDialog = require('../templates/successDialog.hbs');
 
-export default class AssignUserService {
+export default class AssignUserService extends BaseService {
   constructor(serviceName) {
-    this.serviceName = serviceName;
-    this.selectedUser = {};
+    super(serviceName);
     this.baseUrl = getIntegrationBaseUrl();
-    this.jwt = '';
+    this.selectedUser = {};
   }
 
   successDialog(issueKey) {
-    const dialogsService = SYMPHONY.services.subscribe('dialogs');
-
-    this.close('assignIssue');
+    this.closeDialog('assignIssue');
 
     const template = successDialog({
       issueKey,
       prettyName: this.selectedUser.prettyName,
     });
 
-    dialogsService.show('userAssigned', this.serviceName, template, {}, { title: 'Assign issue' });
+    this.openDialog('userAssigned', template, {});
   }
 
-  openDialog(id, template, data) {
+  openAssignDialog(data, serviceName) {
     const dialogsService = SYMPHONY.services.subscribe('dialogs');
-    dialogsService.show(id, this.serviceName, template, data, {});
-  }
 
-  openAssignDialog(data) {
     const template = assignDialog({
       url: data.entity.issue.url,
       key: data.entity.issue.key,
@@ -43,11 +38,11 @@ export default class AssignUserService {
 
     const userData = {
       user: {
-        service: this.serviceName,
+        service: serviceName,
         crossPod: 'NONE',
       },
       assignIssue: {
-        service: this.serviceName,
+        service: serviceName,
         label: 'OK',
         data: {
           entity: data.entity,
@@ -55,7 +50,7 @@ export default class AssignUserService {
         },
       },
       closeAssignDialog: {
-        service: this.serviceName,
+        service: serviceName,
         label: 'Cancel',
         data: {
           entity: data.entity,
@@ -64,20 +59,7 @@ export default class AssignUserService {
       },
     };
 
-    this.openDialog('assignIssue', template, userData);
-  }
-
-  showDialog(data) {
-    const baseUrl = data.entity.baseUrl;
-
-    authorizeUser(baseUrl)
-      .then((response) => {
-        if (response.success) {
-          this.jwt = response.jwt;
-          this.openAssignDialog(data);
-        }
-      })
-      .catch(() => this.openDialog('unexpectedErrorDialog', unexpectedErrorDialog(), {}));
+    dialogsService.show('assignIssue', serviceName, template, userData, {});
   }
 
   searchAssignableUser(url, issueKey) {
@@ -93,12 +75,7 @@ export default class AssignUserService {
     return axios.get(apiUrl, {
       params,
       headers: { Authorization: `Bearer ${this.jwt}` },
-    }).catch((error) => {
-      const response = error.response || {};
-      const status = response.status || 500;
-
-      return Promise.reject(new Error(status));
-    });
+    }).catch(error => this.rejectPromise(error));
   }
 
   assignUser(url, issueKey, username) {
@@ -112,12 +89,7 @@ export default class AssignUserService {
         url,
         username,
       },
-    }).catch((error) => {
-      const response = error.response || {};
-      const status = response.status || 500;
-
-      return Promise.reject(new Error(status));
-    });
+    }).catch(error => this.rejectPromise(error));
   }
 
   save(data) {
@@ -134,8 +106,6 @@ export default class AssignUserService {
       })
       .then(() => this.successDialog(issueKey))
       .catch((error) => {
-        console.log(error.message);
-        console.log(typeof error.message);
         switch (error.message) {
           case '401': {
             this.openDialog('forbiddenDialog', forbiddenDialog({ username: this.selectedUser.prettyName }), {});
@@ -153,15 +123,10 @@ export default class AssignUserService {
       });
   }
 
-  close(dialog) {
-    const dialogsService = SYMPHONY.services.subscribe('dialogs');
-    dialogsService.close(dialog);
-  }
-
   action(data) {
     switch (data.type) {
       case 'assignDialog': {
-        this.showDialog(data);
+        this.showDialog(data, this.openAssignDialog);
         break;
       }
       case 'assignIssue': {
@@ -169,12 +134,11 @@ export default class AssignUserService {
         break;
       }
       case 'closeAssignDialog': {
-        this.close('assignIssue');
+        this.closeDialog('assignIssue');
         break;
       }
       default: {
-        const dialogsService = SYMPHONY.services.subscribe('dialogs');
-        dialogsService.show('error', this.serviceName, errorDialog(), {}, {});
+        this.openDialog('error', errorDialog(), {});
         break;
       }
     }

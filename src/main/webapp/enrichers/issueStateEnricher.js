@@ -11,7 +11,7 @@ const messageEvents = ['com.symphony.integration.jira.event.v2.state'];
 export default class IssueStateEnricher extends MessageEnricherBase {
   constructor() {
     super(name, messageEvents);
-    this.implements = ['enrich', 'action', 'selected'];
+    this.implements = ['enrich', 'action', 'selected', 'changed'];
 
     const assignUserService = new AssignUserService(name);
     const commentService = new CommentService(name);
@@ -64,5 +64,9 @@ export default class IssueStateEnricher extends MessageEnricherBase {
 
   selected(user) {
     this.services.assignDialog.selected(user);
+  }
+
+  changed(comment) {
+    this.services.commentDialog.changed(comment);
   }
 }

@@ -1,56 +1,94 @@
+import axios from 'axios';
+import { getIntegrationBaseUrl } from 'symphony-integration-commons';
+import BaseService from './BaseService';
+
+const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
+const forbiddenDialog = require('../templates/forbiddenDialog.hbs');
+const notFoundDialog = require('../templates/issueNotFoundDialog.hbs');
+const errorDialog = require('../templates/errorDialog.hbs');
 const commentDialog = require('../templates/commentDialog.hbs');
 
-export default class CommentService {
+export default class CommentService extends BaseService {
   constructor(serviceName) {
-    this.serviceName = serviceName;
+    super(serviceName);
+    this.baseUrl = getIntegrationBaseUrl();
+    this.comment = '';
   }
 
-  showDialog(data) {
+  openCommentDialog(data, serviceName) {
     const dialogsService = SYMPHONY.services.subscribe('dialogs');
 
-    const template = commentDialog({
-      func: this.commentIssue(data),
-    });
+    const template = commentDialog();
 
     const commentData = {
+      comment: {
+        service: serviceName,
+      },
       commentIssue: {
-        service: this.serviceName,
+        service: serviceName,
         label: 'OK',
         data: {
+          entity: data.entity,
           type: 'commentIssue',
         },
       },
       closeCommentDialog: {
-        service: this.serviceName,
+        service: serviceName,
         label: 'Cancel',
         data: {
+          entity: data.entity,
           type: 'closeCommentDialog',
         },
       },
     };
 
-    dialogsService.show('commentIssue', this.serviceName, template, commentData, { title: 'Comment issue' });
+    dialogsService.show('commentIssue', serviceName, template, commentData, {});
   }
 
-  save() {
-    const dialogsService = SYMPHONY.services.subscribe('dialogs');
+  commentIssue(url, issueKey) {
+    const apiUrl = `${this.baseUrl}/v1/jira/rest/api/issue/${issueKey}/comment`;
 
-    this.close('commentIssue');
-
-    const template = '<messageML>Comment created</messageML>';
-
-    dialogsService.show('commentCreated', this.serviceName, template, {}, { title: 'Comment issue' });
+    return axios({
+      method: 'post',
+      url: apiUrl,
+      headers: { Authorization: `Bearer ${this.jwt}` },
+      params: {
+        url,
+      },
+      data: {
+        body: this.comment,
+      },
+    }).catch(error => this.rejectPromise(error));
   }
 
-  close(dialog) {
-    const dialogsService = SYMPHONY.services.subscribe('dialogs');
-    dialogsService.close(dialog);
+  save(data) {
+    const baseUrl = data.entity.baseUrl;
+    const issueKey = data.entity.issue.key;
+
+    this.commentIssue(baseUrl, issueKey)
+      .then(() => this.closeDialog('commentIssue'))
+      .catch((error) => {
+        switch (error.message) {
+          case '401': {
+            this.openDialog('forbiddenDialog', forbiddenDialog({ username: '' }), {});
+            break;
+          }
+          case '404': {
+            this.openDialog('issueNotFoundDialog', notFoundDialog({ issueKey }), {});
+            break;
+          }
+          default: {
+            this.openDialog('unexpectedErrorDialog', unexpectedErrorDialog(), {});
+            break;
+          }
+        }
+      });
   }
 
   action(data) {
     switch (data.type) {
       case 'commentDialog': {
-        this.showDialog(data);
+        this.showDialog(data, this.openCommentDialog);
         break;
       }
       case 'commentIssue': {
@@ -58,12 +96,17 @@ export default class CommentService {
         break;
       }
       case 'closeCommentDialog': {
-        this.close('commentIssue');
+        this.closeDialog('commentIssue');
         break;
       }
       default: {
+        this.openDialog('error', errorDialog(), {});
         break;
       }
     }
+  }
+
+  changed(comment) {
+    this.comment = comment;
   }
 }
