@@ -1,7 +1,9 @@
 import BaseService from './baseService';
 import { searchAssignableUser, assignUser } from '../api/apiCalls';
 import actionFactory from '../utils/actionFactory';
+import DialogBuilder from '../templates/builders/dialogBuilder';
 
+const dialog = require('../templates/dialog.hbs');
 const assignDialog = require('../templates/assignDialog.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
@@ -27,11 +29,10 @@ export default class AssignUserService extends BaseService {
   }
 
   openAssignDialog(data, service) {
-    const template = assignDialog({
-      url: data.entity.issue.url,
-      key: data.entity.issue.key,
-      name: data.entity.issue.assignee.displayName,
-    });
+    const assignTemplate = assignDialog();
+
+    const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+    const template = dialogBuilder.build(data);
 
     const assignIssueAction = { type: 'assignIssue', label: 'ASSIGN' };
     const closeDialogAction = { type: 'closeAssignDialog', label: 'Cancel' };
