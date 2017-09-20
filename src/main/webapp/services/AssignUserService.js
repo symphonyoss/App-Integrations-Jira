@@ -44,6 +44,7 @@ export default class AssignUserService {
     const userData = {
       user: {
         service: this.serviceName,
+        crossPod: 'NONE',
       },
       assignIssue: {
         service: this.serviceName,
