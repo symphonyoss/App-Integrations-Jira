@@ -31,13 +31,6 @@ export default class BaseService {
       .catch(() => this.openDialog('unexpectedErrorDialog', unexpectedErrorDialog(), {}));
   }
 
-  rejectPromise(error) {
-    const response = error.response || {};
-    const status = response.status || 500;
-
-    return Promise.reject(new Error(status));
-  }
-
   closeDialog(dialog) {
     const dialogsService = SYMPHONY.services.subscribe('dialogs');
     dialogsService.close(dialog);

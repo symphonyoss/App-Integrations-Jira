@@ -1,6 +1,5 @@
-import axios from 'axios';
-import { getIntegrationBaseUrl } from 'symphony-integration-commons';
 import BaseService from './BaseService';
+import { searchAssignableUser, assignUser } from '../api/apiCalls';
 
 const assignDialog = require('../templates/assignDialog.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
@@ -12,7 +11,6 @@ const successDialog = require('../templates/successDialog.hbs');
 export default class AssignUserService extends BaseService {
   constructor(serviceName) {
     super(serviceName);
-    this.baseUrl = getIntegrationBaseUrl();
     this.selectedUser = {};
   }
 
@@ -60,47 +58,17 @@ export default class AssignUserService extends BaseService {
     service.openDialog('assignIssue', template, userData);
   }
 
-  searchAssignableUser(url, issueKey) {
-    const apiUrl = `${this.baseUrl}/v1/jira/rest/api/user/assignable/search`;
-    const emailAddress = this.selectedUser.email;
-
-    const params = {
-      url,
-      issueKey,
-      username: emailAddress,
-    };
-
-    return axios.get(apiUrl, {
-      params,
-      headers: { Authorization: `Bearer ${this.jwt}` },
-    }).catch(error => this.rejectPromise(error));
-  }
-
-  assignUser(url, issueKey, username) {
-    const apiUrl = `${this.baseUrl}/v1/jira/rest/api/issue/${issueKey}/assignee`;
-
-    return axios({
-      method: 'put',
-      url: apiUrl,
-      headers: { Authorization: `Bearer ${this.jwt}` },
-      params: {
-        url,
-        username,
-      },
-    }).catch(error => this.rejectPromise(error));
-  }
-
   save(data) {
     const baseUrl = data.entity.baseUrl;
     const issueKey = data.entity.issue.key;
 
-    this.searchAssignableUser(baseUrl, issueKey)
+    searchAssignableUser(baseUrl, issueKey, this.selectedUser, this.jwt)
       .then((users) => {
         if (users.data.length === 0) {
           return Promise.reject(new Error(401));
         }
 
-        return this.assignUser(baseUrl, issueKey, users.data[0].name);
+        return assignUser(baseUrl, issueKey, users.data[0].name, this.jwt);
       })
       .then(() => this.successDialog(issueKey))
       .catch((error) => {

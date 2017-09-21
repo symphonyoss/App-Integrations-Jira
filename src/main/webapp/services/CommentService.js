@@ -1,6 +1,5 @@
-import axios from 'axios';
-import { getIntegrationBaseUrl } from 'symphony-integration-commons';
 import BaseService from './BaseService';
+import { commentIssue } from '../api/apiCalls';
 
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
 const forbiddenDialog = require('../templates/forbiddenDialog.hbs');
@@ -11,7 +10,6 @@ const commentDialog = require('../templates/commentDialog.hbs');
 export default class CommentService extends BaseService {
   constructor(serviceName) {
     super(serviceName);
-    this.baseUrl = getIntegrationBaseUrl();
     this.comment = '';
   }
 
@@ -43,27 +41,11 @@ export default class CommentService extends BaseService {
     service.openDialog('commentIssue', template, commentData);
   }
 
-  commentIssue(url, issueKey) {
-    const apiUrl = `${this.baseUrl}/v1/jira/rest/api/issue/${issueKey}/comment`;
-
-    return axios({
-      method: 'post',
-      url: apiUrl,
-      headers: { Authorization: `Bearer ${this.jwt}` },
-      params: {
-        url,
-      },
-      data: {
-        body: this.comment,
-      },
-    }).catch(error => this.rejectPromise(error));
-  }
-
   save(data) {
     const baseUrl = data.entity.baseUrl;
     const issueKey = data.entity.issue.key;
 
-    this.commentIssue(baseUrl, issueKey)
+    commentIssue(baseUrl, issueKey, this.comment, this.jwt)
       .then(() => this.closeDialog('commentIssue'))
       .catch((error) => {
         switch (error.message) {
