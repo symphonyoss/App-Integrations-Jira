@@ -36,12 +36,14 @@ export default class AssignUserService extends BaseService {
     const assignIssueAction = { type: 'assignIssue', label: 'ASSIGN' };
     const closeDialogAction = { type: 'closeAssignDialog', label: 'Cancel' };
 
+    const actions = actionFactory([assignIssueAction, closeDialogAction], service.serviceName, data.entity);
+
     const userData = Object.assign({
       user: {
         service: service.serviceName,
         crossPod: 'NONE',
       },
-    }, actionFactory([assignIssueAction, closeDialogAction], service.serviceName, data.entity));
+    }, actions);
 
     service.openDialog('assignIssue', template, userData);
   }

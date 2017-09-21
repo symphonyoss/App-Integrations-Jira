@@ -20,11 +20,13 @@ export default class CommentService extends BaseService {
     const commentIssueAction = { type: 'commentIssue', label: 'COMMENT' };
     const closeDialogAction = { type: 'closeCommentDialog', label: 'Cancel' };
 
+    const actions = actionFactory([commentIssueAction, closeDialogAction], service.serviceName, data.entity);
+
     const commentData = Object.assign({
       comment: {
         service: service.serviceName,
       },
-    }, actionFactory([commentIssueAction, closeDialogAction], service.serviceName, data.entity));
+    }, actions);
 
     service.openDialog('commentIssue', template, commentData);
   }
