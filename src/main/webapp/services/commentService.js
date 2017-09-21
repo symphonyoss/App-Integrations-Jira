@@ -1,4 +1,4 @@
-import BaseService from './BaseService';
+import BaseService from './baseService';
 import { commentIssue } from '../api/apiCalls';
 
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');

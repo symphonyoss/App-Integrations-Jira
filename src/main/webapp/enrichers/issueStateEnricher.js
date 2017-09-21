@@ -1,6 +1,6 @@
 import { MessageEnricherBase } from 'symphony-integration-commons';
-import AssignUserService from '../services/AssignUserService';
-import CommentService from '../services/CommentService';
+import AssignUserService from '../services/assignUserService';
+import CommentService from '../services/commentService';
 
 const actions = require('../templates/actions.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');

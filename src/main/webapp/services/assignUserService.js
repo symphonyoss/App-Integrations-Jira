@@ -1,4 +1,4 @@
-import BaseService from './BaseService';
+import BaseService from './baseService';
 import { searchAssignableUser, assignUser } from '../api/apiCalls';
 
 const assignDialog = require('../templates/assignDialog.hbs');
