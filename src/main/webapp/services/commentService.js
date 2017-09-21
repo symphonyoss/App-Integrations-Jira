@@ -1,5 +1,6 @@
 import BaseService from './baseService';
 import { commentIssue } from '../api/apiCalls';
+import actionFactory from '../utils/actionFactory';
 
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
 const forbiddenDialog = require('../templates/forbiddenDialog.hbs');
@@ -16,27 +17,14 @@ export default class CommentService extends BaseService {
   openCommentDialog(data, service) {
     const template = commentDialog();
 
-    const commentData = {
+    const commentIssueAction = { type: 'commentIssue', label: 'COMMENT' };
+    const closeDialogAction = { type: 'closeCommentDialog', label: 'Cancel' };
+
+    const commentData = Object.assign({
       comment: {
         service: service.serviceName,
       },
-      commentIssue: {
-        service: service.serviceName,
-        label: 'OK',
-        data: {
-          entity: data.entity,
-          type: 'commentIssue',
-        },
-      },
-      closeCommentDialog: {
-        service: service.serviceName,
-        label: 'Cancel',
-        data: {
-          entity: data.entity,
-          type: 'closeCommentDialog',
-        },
-      },
-    };
+    }, actionFactory([commentIssueAction, closeDialogAction], service.serviceName, data.entity));
 
     service.openDialog('commentIssue', template, commentData);
   }

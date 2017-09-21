@@ -1,5 +1,6 @@
 import BaseService from './baseService';
 import { searchAssignableUser, assignUser } from '../api/apiCalls';
+import actionFactory from '../utils/actionFactory';
 
 const assignDialog = require('../templates/assignDialog.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
@@ -32,28 +33,15 @@ export default class AssignUserService extends BaseService {
       name: data.entity.issue.assignee.displayName,
     });
 
-    const userData = {
+    const assignIssueAction = { type: 'assignIssue', label: 'ASSIGN' };
+    const closeDialogAction = { type: 'closeAssignDialog', label: 'Cancel' };
+
+    const userData = Object.assign({
       user: {
         service: service.serviceName,
         crossPod: 'NONE',
       },
-      assignIssue: {
-        service: service.serviceName,
-        label: 'OK',
-        data: {
-          entity: data.entity,
-          type: 'assignIssue',
-        },
-      },
-      closeAssignDialog: {
-        service: service.serviceName,
-        label: 'Cancel',
-        data: {
-          entity: data.entity,
-          type: 'closeAssignDialog',
-        },
-      },
-    };
+    }, actionFactory([assignIssueAction, closeDialogAction], service.serviceName, data.entity));
 
     service.openDialog('assignIssue', template, userData);
   }

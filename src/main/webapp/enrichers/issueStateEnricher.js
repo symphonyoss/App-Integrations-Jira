@@ -1,6 +1,7 @@
 import { MessageEnricherBase } from 'symphony-integration-commons';
 import AssignUserService from '../services/assignUserService';
 import CommentService from '../services/commentService';
+import actionFactory from '../utils/actionFactory';
 
 const actions = require('../templates/actions.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
@@ -29,26 +30,14 @@ export default class IssueStateEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
+    const assignToAction = { id: 'assignTo', type: 'assignDialog', label: 'Assign To' };
+    const commentIssueAction = { id: 'commentIssue', type: 'commentDialog', label: 'Comment' };
+
+    const data = actionFactory([assignToAction, commentIssueAction], enricherServiceName, entity);
+
     const result = {
       template: actions(),
-      data: {
-        assignTo: {
-          service: enricherServiceName,
-          label: 'Assign To',
-          data: {
-            entity,
-            type: 'assignDialog',
-          },
-        },
-        commentIssue: {
-          service: enricherServiceName,
-          label: 'Comment',
-          data: {
-            entity,
-            type: 'commentDialog',
-          },
-        },
-      },
+      data,
     };
 
     return result;
