@@ -15,17 +15,15 @@ export default class CommentService extends BaseService {
     this.comment = '';
   }
 
-  openCommentDialog(data, serviceName) {
-    const dialogsService = SYMPHONY.services.subscribe('dialogs');
-
+  openCommentDialog(data, service) {
     const template = commentDialog();
 
     const commentData = {
       comment: {
-        service: serviceName,
+        service: service.serviceName,
       },
       commentIssue: {
-        service: serviceName,
+        service: service.serviceName,
         label: 'OK',
         data: {
           entity: data.entity,
@@ -33,7 +31,7 @@ export default class CommentService extends BaseService {
         },
       },
       closeCommentDialog: {
-        service: serviceName,
+        service: service.serviceName,
         label: 'Cancel',
         data: {
           entity: data.entity,
@@ -42,7 +40,7 @@ export default class CommentService extends BaseService {
       },
     };
 
-    dialogsService.show('commentIssue', serviceName, template, commentData, {});
+    service.openDialog('commentIssue', template, commentData);
   }
 
   commentIssue(url, issueKey) {

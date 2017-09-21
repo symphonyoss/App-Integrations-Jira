@@ -27,9 +27,7 @@ export default class AssignUserService extends BaseService {
     this.openDialog('userAssigned', template, {});
   }
 
-  openAssignDialog(data, serviceName) {
-    const dialogsService = SYMPHONY.services.subscribe('dialogs');
-
+  openAssignDialog(data, service) {
     const template = assignDialog({
       url: data.entity.issue.url,
       key: data.entity.issue.key,
@@ -38,11 +36,11 @@ export default class AssignUserService extends BaseService {
 
     const userData = {
       user: {
-        service: serviceName,
+        service: service.serviceName,
         crossPod: 'NONE',
       },
       assignIssue: {
-        service: serviceName,
+        service: service.serviceName,
         label: 'OK',
         data: {
           entity: data.entity,
@@ -50,7 +48,7 @@ export default class AssignUserService extends BaseService {
         },
       },
       closeAssignDialog: {
-        service: serviceName,
+        service: service.serviceName,
         label: 'Cancel',
         data: {
           entity: data.entity,
@@ -59,7 +57,7 @@ export default class AssignUserService extends BaseService {
       },
     };
 
-    dialogsService.show('assignIssue', serviceName, template, userData, {});
+    service.openDialog('assignIssue', template, userData);
   }
 
   searchAssignableUser(url, issueKey) {

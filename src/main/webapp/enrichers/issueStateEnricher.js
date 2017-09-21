@@ -5,17 +5,19 @@ import CommentService from '../services/CommentService';
 const actions = require('../templates/actions.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
 
-const name = 'issueState-renderer';
+const enricherServiceName = 'issueState-renderer';
 const messageEvents = ['com.symphony.integration.jira.event.v2.state'];
 
 export default class IssueStateEnricher extends MessageEnricherBase {
   constructor() {
-    super(name, messageEvents);
-    this.implements = ['enrich', 'action', 'selected', 'changed'];
+    super(enricherServiceName, messageEvents);
+    this.implements.push('selected', 'changed');
 
-    const assignUserService = new AssignUserService(name);
-    const commentService = new CommentService(name);
+    // Create new service components responsible for actions handling
+    const assignUserService = new AssignUserService(enricherServiceName);
+    const commentService = new CommentService(enricherServiceName);
 
+    // Mapping actions to the corresponding services
     this.services = {
       assignDialog: assignUserService,
       assignIssue: assignUserService,
@@ -31,7 +33,7 @@ export default class IssueStateEnricher extends MessageEnricherBase {
       template: actions(),
       data: {
         assignTo: {
-          service: name,
+          service: enricherServiceName,
           label: 'Assign To',
           data: {
             entity,
@@ -39,7 +41,7 @@ export default class IssueStateEnricher extends MessageEnricherBase {
           },
         },
         commentIssue: {
-          service: name,
+          service: enricherServiceName,
           label: 'Comment',
           data: {
             entity,
@@ -56,7 +58,7 @@ export default class IssueStateEnricher extends MessageEnricherBase {
     const service = this.services[data.type];
 
     if (service === undefined) {
-      this.dialogsService.show('error', name, errorDialog(), {}, {});
+      this.dialogsService.show('error', enricherServiceName, errorDialog(), {}, {});
     } else {
       service.action(data);
     }

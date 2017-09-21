@@ -20,7 +20,12 @@ export default class BaseService {
       .then((response) => {
         if (response.success) {
           this.jwt = response.jwt;
-          callback(data, this.serviceName);
+
+          if (typeof callback === 'function') {
+            callback(data, this);
+          } else {
+            Promise.reject(new Error(500));
+          }
         }
       })
       .catch(() => this.openDialog('unexpectedErrorDialog', unexpectedErrorDialog(), {}));
