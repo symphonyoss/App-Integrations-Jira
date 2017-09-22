@@ -3,7 +3,6 @@ import { searchAssignableUser, assignUser } from '../api/apiCalls';
 import actionFactory from '../utils/actionFactory';
 import DialogBuilder from '../templates/builders/dialogBuilder';
 
-const dialog = require('../templates/dialog.hbs');
 const assignDialog = require('../templates/assignDialog.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
@@ -34,10 +33,22 @@ export default class AssignUserService extends BaseService {
     const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
     const template = dialogBuilder.build(data);
 
-    const assignIssueAction = { type: 'assignIssue', label: 'ASSIGN' };
-    const closeDialogAction = { type: 'closeAssignDialog', label: 'Cancel' };
+    const assignIssueAction = {
+      type: 'assignUserService',
+      subtype: 'performDialogAction',
+      label: 'ASSIGN',
+    };
+    const closeDialogAction = {
+      type: 'assignUserService',
+      subtype: 'closeDialog',
+      label: 'Cancel',
+    };
 
-    const actions = actionFactory([assignIssueAction, closeDialogAction], service.serviceName, data.entity);
+    const actions = actionFactory(
+      [assignIssueAction, closeDialogAction],
+      service.serviceName,
+      data.entity
+    );
 
     const userData = Object.assign({
       user: {
@@ -81,16 +92,16 @@ export default class AssignUserService extends BaseService {
   }
 
   action(data) {
-    switch (data.type) {
-      case 'assignDialog': {
+    switch (data.subtype) {
+      case 'openDialog': {
         this.showDialog(data, this.openAssignDialog);
         break;
       }
-      case 'assignIssue': {
+      case 'performDialogAction': {
         this.save(data);
         break;
       }
-      case 'closeAssignDialog': {
+      case 'closeDialog': {
         this.closeDialog('assignIssue');
         break;
       }

@@ -17,10 +17,22 @@ export default class CommentService extends BaseService {
   openCommentDialog(data, service) {
     const template = commentDialog();
 
-    const commentIssueAction = { type: 'commentIssue', label: 'COMMENT' };
-    const closeDialogAction = { type: 'closeCommentDialog', label: 'Cancel' };
+    const commentIssueAction = {
+      type: 'commentIssueService',
+      subtype: 'performDialogAction',
+      label: 'COMMENT',
+    };
+    const closeDialogAction = {
+      type: 'commentIssueService',
+      subtype: 'closeDialog',
+      label: 'Cancel',
+    };
 
-    const actions = actionFactory([commentIssueAction, closeDialogAction], service.serviceName, data.entity);
+    const actions = actionFactory(
+      [commentIssueAction, closeDialogAction],
+      service.serviceName,
+      data.entity
+    );
 
     const commentData = Object.assign({
       comment: {
@@ -56,16 +68,16 @@ export default class CommentService extends BaseService {
   }
 
   action(data) {
-    switch (data.type) {
-      case 'commentDialog': {
+    switch (data.subtype) {
+      case 'openDialog': {
         this.showDialog(data, this.openCommentDialog);
         break;
       }
-      case 'commentIssue': {
+      case 'performDialogAction': {
         this.save(data);
         break;
       }
-      case 'closeCommentDialog': {
+      case 'closeDialog': {
         this.closeDialog('commentIssue');
         break;
       }

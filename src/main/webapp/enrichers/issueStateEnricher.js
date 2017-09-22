@@ -7,7 +7,10 @@ const actions = require('../templates/actions.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
 
 const enricherServiceName = 'issueState-renderer';
-const messageEvents = ['com.symphony.integration.jira.event.v2.state'];
+const messageEvents = [
+  'com.symphony.integration.jira.event.v2.state',
+  'com.symphony.integration.jira.event.v2.issue_commented',
+];
 
 export default class IssueStateEnricher extends MessageEnricherBase {
   constructor() {
@@ -20,18 +23,24 @@ export default class IssueStateEnricher extends MessageEnricherBase {
 
     // Mapping actions to the corresponding services
     this.services = {
-      assignDialog: assignUserService,
-      assignIssue: assignUserService,
-      commentDialog: commentService,
-      commentIssue: commentService,
-      closeAssignDialog: assignUserService,
-      closeCommentDialog: commentService,
+      assignUserService,
+      commentIssueService: commentService,
     };
   }
 
   enrich(type, entity) {
-    const assignToAction = { id: 'assignTo', type: 'assignDialog', label: 'Assign To' };
-    const commentIssueAction = { id: 'commentIssue', type: 'commentDialog', label: 'Comment' };
+    const assignToAction = {
+      id: 'assignTo',
+      type: 'assignUserService',
+      subtype: 'openDialog',
+      label: 'Assign To',
+    };
+    const commentIssueAction = {
+      id: 'commentIssue',
+      type: 'commentIssueService',
+      subtype: 'openDialog',
+      label: 'Comment',
+    };
 
     const data = actionFactory([assignToAction, commentIssueAction], enricherServiceName, entity);
 
