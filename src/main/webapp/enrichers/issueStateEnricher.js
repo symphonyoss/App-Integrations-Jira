@@ -1,21 +1,24 @@
 import { MessageEnricherBase } from 'symphony-integration-commons';
-import AssignUserService from '../services/AssignUserService';
-import CommentService from '../services/CommentService';
+import AssignUserService from '../services/assignUserService';
+import CommentService from '../services/commentService';
+import actionFactory from '../utils/actionFactory';
 
 const actions = require('../templates/actions.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
 
-const name = 'issueState-renderer';
+const enricherServiceName = 'issueState-renderer';
 const messageEvents = ['com.symphony.integration.jira.event.v2.state'];
 
 export default class IssueStateEnricher extends MessageEnricherBase {
   constructor() {
-    super(name, messageEvents);
-    this.implements = ['enrich', 'action', 'selected'];
+    super(enricherServiceName, messageEvents);
+    this.implements.push('selected', 'changed');
 
-    const assignUserService = new AssignUserService(name);
-    const commentService = new CommentService(name);
+    // Create new service components responsible for actions handling
+    const assignUserService = new AssignUserService(enricherServiceName);
+    const commentService = new CommentService(enricherServiceName);
 
+    // Mapping actions to the corresponding services
     this.services = {
       assignDialog: assignUserService,
       assignIssue: assignUserService,
@@ -27,26 +30,14 @@ export default class IssueStateEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
+    const assignToAction = { id: 'assignTo', type: 'assignDialog', label: 'Assign To' };
+    const commentIssueAction = { id: 'commentIssue', type: 'commentDialog', label: 'Comment' };
+
+    const data = actionFactory([assignToAction, commentIssueAction], enricherServiceName, entity);
+
     const result = {
       template: actions(),
-      data: {
-        assignTo: {
-          service: name,
-          label: 'Assign To',
-          data: {
-            entity,
-            type: 'assignDialog',
-          },
-        },
-        commentIssue: {
-          service: name,
-          label: 'Comment',
-          data: {
-            entity,
-            type: 'commentDialog',
-          },
-        },
-      },
+      data,
     };
 
     return result;
@@ -56,7 +47,7 @@ export default class IssueStateEnricher extends MessageEnricherBase {
     const service = this.services[data.type];
 
     if (service === undefined) {
-      this.dialogsService.show('error', name, errorDialog(), {}, {});
+      this.dialogsService.show('error', enricherServiceName, errorDialog(), {}, {});
     } else {
       service.action(data);
     }
@@ -64,5 +55,9 @@ export default class IssueStateEnricher extends MessageEnricherBase {
 
   selected(user) {
     this.services.assignDialog.selected(user);
+  }
+
+  changed(comment) {
+    this.services.commentDialog.changed(comment);
   }
 }
