@@ -1,6 +1,7 @@
 import { authorizeUser } from 'symphony-integration-commons';
 
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
+const errorDialog = require('../templates/errorDialog.hbs');
 
 export default class BaseService {
   constructor(serviceName) {
@@ -34,5 +35,32 @@ export default class BaseService {
   closeDialog(dialog) {
     const dialogsService = SYMPHONY.services.subscribe('dialogs');
     dialogsService.close(dialog);
+  }
+
+  action(data) {
+    switch (data.type) {
+      case 'openDialog': {
+        this.showDialog(data, this.openActionDialog);
+        break;
+      }
+      case 'performDialogAction': {
+        this.save(data);
+        break;
+      }
+      case 'closeDialog': {
+        this.closeActionDialog();
+        break;
+      }
+      default: {
+        this.openDialog('error', errorDialog(), {});
+        break;
+      }
+    }
+  }
+
+  updateDialog(id, template, data) {
+    const dialogsService = SYMPHONY.services.subscribe('dialogs');
+    dialogsService.close(id);
+    dialogsService.show(id, this.serviceName, template, data, {});
   }
 }

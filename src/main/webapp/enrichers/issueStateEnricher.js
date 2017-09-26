@@ -24,21 +24,22 @@ export default class IssueStateEnricher extends MessageEnricherBase {
     // Mapping actions to the corresponding services
     this.services = {
       assignUserService,
-      commentIssueService: commentService,
+      commentService,
     };
   }
 
   enrich(type, entity) {
     const assignToAction = {
       id: 'assignTo',
-      type: 'assignUserService',
-      subtype: 'openDialog',
+      service: 'assignUserService',
+      type: 'openDialog',
       label: 'Assign To',
     };
+
     const commentIssueAction = {
       id: 'commentIssue',
-      type: 'commentIssueService',
-      subtype: 'openDialog',
+      service: 'commentService',
+      type: 'openDialog',
       label: 'Comment',
     };
 
@@ -53,7 +54,7 @@ export default class IssueStateEnricher extends MessageEnricherBase {
   }
 
   action(data) {
-    const service = this.services[data.type];
+    const service = this.services[data.service];
 
     if (service === undefined) {
       this.dialogsService.show('error', enricherServiceName, errorDialog(), {}, {});
@@ -63,10 +64,10 @@ export default class IssueStateEnricher extends MessageEnricherBase {
   }
 
   selected(user) {
-    this.services.assignDialog.selected(user);
+    this.services.assignUserService.selected(user);
   }
 
   changed(comment) {
-    this.services.commentDialog.changed(comment);
+    this.services.commentService.changed(comment);
   }
 }

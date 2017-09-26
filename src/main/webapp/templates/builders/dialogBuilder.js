@@ -8,6 +8,15 @@ export default class DialogBuilder {
   constructor(actionText, innerContent) {
     this.actionText = actionText;
     this.innerContent = innerContent;
+    this.showFooter = true;
+  }
+
+  error(message) {
+    this.errorMessage = message;
+  }
+
+  footer(value) {
+    this.showFooter = value;
   }
 
   build(data) {
@@ -17,6 +26,8 @@ export default class DialogBuilder {
       subject: data.entity.issue.subject,
       actionText: this.actionText,
       content: this.innerContent,
+      errorMessage: this.errorMessage,
+      footer: this.showFooter,
     });
     return template;
   }

@@ -1,15 +1,15 @@
 export default (actions, service, entity) =>
   actions.reduce((result, action) => {
     const actionObj = {};
-    const actionId = action.id || action.subtype;
+    const actionId = action.id || action.type;
 
     const actionData = {
       service,
       label: action.label,
       data: {
         entity,
+        service: action.service,
         type: action.type,
-        subtype: action.subtype,
       },
     };
 
