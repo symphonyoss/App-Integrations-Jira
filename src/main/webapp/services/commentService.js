@@ -1,12 +1,10 @@
 import BaseService from './baseService';
 import { commentIssue } from '../api/apiCalls';
 import actionFactory from '../utils/actionFactory';
+import DialogBuilder from '../templates/builders/dialogBuilder';
 
-const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
-const forbiddenDialog = require('../templates/forbiddenDialog.hbs');
-const notFoundDialog = require('../templates/issueNotFoundDialog.hbs');
-const errorDialog = require('../templates/errorDialog.hbs');
 const commentDialog = require('../templates/commentDialog.hbs');
+const successDialog = require('../templates/commentCreatedDialog.hbs');
 
 export default class CommentService extends BaseService {
   constructor(serviceName) {
