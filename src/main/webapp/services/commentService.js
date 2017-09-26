@@ -1,6 +1,7 @@
 import BaseService from './baseService';
 import { commentIssue } from '../api/apiCalls';
 import actionFactory from '../utils/actionFactory';
+import DialogBuilder from '../templates/builders/dialogBuilder';
 
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
 const forbiddenDialog = require('../templates/forbiddenDialog.hbs');
@@ -15,7 +16,9 @@ export default class CommentService extends BaseService {
   }
 
   openCommentDialog(data, service) {
-    const template = commentDialog();
+    const commentTemplate = commentDialog();
+    const dialogBuilder = new DialogBuilder('Comment', commentTemplate);
+    const template = dialogBuilder.build(data);
 
     const commentIssueAction = {
       type: 'commentIssueService',
