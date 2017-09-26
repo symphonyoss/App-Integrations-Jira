@@ -7,11 +7,14 @@
             <h1>{{subject}}</h1>
         </div>
         <div class="content">
+            <span>{{{errorMessage}}}</span>
             {{{content}}}
         </div>
+        {{#if footer}}
         <div class="footer">
             <action id="performDialogAction" class="tempo-btn tempo-btn--good"/>
             <action id="closeDialog" class="tempo-btn tempo-btn--dismiss"/>
         </div>
+        {{/if}}
     </div>
 </dialog>

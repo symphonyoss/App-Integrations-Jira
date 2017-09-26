@@ -4,11 +4,7 @@ import actionFactory from '../utils/actionFactory';
 import DialogBuilder from '../templates/builders/dialogBuilder';
 
 const assignDialog = require('../templates/assignDialog.hbs');
-const errorDialog = require('../templates/errorDialog.hbs');
-const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
-const forbiddenDialog = require('../templates/forbiddenDialog.hbs');
-const notFoundDialog = require('../templates/issueNotFoundDialog.hbs');
-const successDialog = require('../templates/successDialog.hbs');
+const successDialog = require('../templates/userAssignedDialog.hbs');
 
 export default class AssignUserService extends BaseService {
   constructor(serviceName) {
@@ -16,48 +12,60 @@ export default class AssignUserService extends BaseService {
     this.selectedUser = {};
   }
 
-  successDialog(issueKey) {
-    this.closeDialog('assignIssue');
+  successDialog(data) {
+    const issueKey = data.entity.issue.key;
 
-    const template = successDialog({
+    const content = successDialog({
       issueKey,
       prettyName: this.selectedUser.prettyName,
     });
 
-    this.openDialog('userAssigned', template, {});
+    const dialogBuilder = new DialogBuilder('Assign', content);
+    dialogBuilder.footer(false);
+
+    const template = dialogBuilder.build(data);
+    this.updateDialog('assignIssue', template, {});
   }
 
-  openAssignDialog(data, service) {
-    const assignTemplate = assignDialog();
-
-    const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+  retrieveTemplate(dialogBuilder, data, serviceName) {
     const template = dialogBuilder.build(data);
 
     const assignIssueAction = {
-      type: 'assignUserService',
-      subtype: 'performDialogAction',
+      service: 'assignUserService',
+      type: 'performDialogAction',
       label: 'ASSIGN',
     };
     const closeDialogAction = {
-      type: 'assignUserService',
-      subtype: 'closeDialog',
+      service: 'assignUserService',
+      type: 'closeDialog',
       label: 'Cancel',
     };
 
     const actions = actionFactory(
-      [assignIssueAction, closeDialogAction],
-      service.serviceName,
-      data.entity
+        [assignIssueAction, closeDialogAction],
+        serviceName,
+        data.entity
     );
 
     const userData = Object.assign({
       user: {
-        service: service.serviceName,
+        service: serviceName,
         crossPod: 'NONE',
       },
     }, actions);
 
-    service.openDialog('assignIssue', template, userData);
+    return {
+      layout: template,
+      data: userData,
+    };
+  }
+
+  openActionDialog(data, service) {
+    const assignTemplate = assignDialog();
+    const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+
+    const template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
+    service.openDialog('assignIssue', template.layout, template.data);
   }
 
   save(data) {
@@ -72,44 +80,38 @@ export default class AssignUserService extends BaseService {
 
         return assignUser(baseUrl, issueKey, users.data[0].name, this.jwt);
       })
-      .then(() => this.successDialog(issueKey))
+      .then(() => this.successDialog(data))
       .catch((error) => {
+        let errorMessage;
+
         switch (error.message) {
           case '401': {
-            this.openDialog('forbiddenDialog', forbiddenDialog({ username: this.selectedUser.prettyName }), {});
+            errorMessage = `User ${this.selectedUser.prettyName} is not authorized to perform this action`;
             break;
           }
           case '404': {
-            this.openDialog('issueNotFoundDialog', notFoundDialog({ issueKey }), {});
+            errorMessage = `Issue ${issueKey} not found`;
             break;
           }
           default: {
-            this.openDialog('unexpectedErrorDialog', unexpectedErrorDialog(), {});
+            errorMessage = 'Unexpected error to perform this action, please try to reload this page ' +
+                'or contact the administrator.';
             break;
           }
         }
+
+        const assignTemplate = assignDialog();
+
+        const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+        dialogBuilder.error(errorMessage);
+
+        const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
+        this.updateDialog('assignIssue', template.layout, template.data);
       });
   }
 
-  action(data) {
-    switch (data.subtype) {
-      case 'openDialog': {
-        this.showDialog(data, this.openAssignDialog);
-        break;
-      }
-      case 'performDialogAction': {
-        this.save(data);
-        break;
-      }
-      case 'closeDialog': {
-        this.closeDialog('assignIssue');
-        break;
-      }
-      default: {
-        this.openDialog('error', errorDialog(), {});
-        break;
-      }
-    }
+  closeActionDialog() {
+    this.closeDialog('assignIssue');
   }
 
   selected(user) {
