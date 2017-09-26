@@ -61,6 +61,8 @@ export default class AssignUserService extends BaseService {
   }
 
   openActionDialog(data, service) {
+    service.selectedUser = {};
+
     const assignTemplate = assignDialog();
     const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
 
@@ -69,6 +71,20 @@ export default class AssignUserService extends BaseService {
   }
 
   save(data) {
+    if (this.selectedUser.email === undefined) {
+      const assignTemplate = assignDialog();
+
+      const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+      dialogBuilder.error('Please select an user');
+
+      const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
+      this.updateDialog('assignIssue', template.layout, template.data);
+    } else {
+      this.performAssignUserAction(data);
+    }
+  }
+
+  performAssignUserAction(data) {
     const baseUrl = data.entity.baseUrl;
     const issueKey = data.entity.issue.key;
 
@@ -100,9 +116,11 @@ export default class AssignUserService extends BaseService {
           }
         }
 
-        const assignTemplate = assignDialog();
+        this.selectedUser = {};
 
+        const assignTemplate = assignDialog();
         const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+
         dialogBuilder.error(errorMessage);
 
         const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
