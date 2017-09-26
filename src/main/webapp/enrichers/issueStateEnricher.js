@@ -7,7 +7,10 @@ const actions = require('../templates/actions.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
 
 const enricherServiceName = 'issueState-renderer';
-const messageEvents = ['com.symphony.integration.jira.event.v2.state'];
+const messageEvents = [
+  'com.symphony.integration.jira.event.v2.state',
+  'com.symphony.integration.jira.event.v2.issue_commented',
+];
 
 export default class IssueStateEnricher extends MessageEnricherBase {
   constructor() {
@@ -20,18 +23,25 @@ export default class IssueStateEnricher extends MessageEnricherBase {
 
     // Mapping actions to the corresponding services
     this.services = {
-      assignDialog: assignUserService,
-      assignIssue: assignUserService,
-      commentDialog: commentService,
-      commentIssue: commentService,
-      closeAssignDialog: assignUserService,
-      closeCommentDialog: commentService,
+      assignUserService,
+      commentService,
     };
   }
 
   enrich(type, entity) {
-    const assignToAction = { id: 'assignTo', type: 'assignDialog', label: 'Assign To' };
-    const commentIssueAction = { id: 'commentIssue', type: 'commentDialog', label: 'Comment' };
+    const assignToAction = {
+      id: 'assignTo',
+      service: 'assignUserService',
+      type: 'openDialog',
+      label: 'Assign To',
+    };
+
+    const commentIssueAction = {
+      id: 'commentIssue',
+      service: 'commentService',
+      type: 'openDialog',
+      label: 'Comment',
+    };
 
     const data = actionFactory([assignToAction, commentIssueAction], enricherServiceName, entity);
 
@@ -44,7 +54,7 @@ export default class IssueStateEnricher extends MessageEnricherBase {
   }
 
   action(data) {
-    const service = this.services[data.type];
+    const service = this.services[data.service];
 
     if (service === undefined) {
       this.dialogsService.show('error', enricherServiceName, errorDialog(), {}, {});
@@ -54,10 +64,10 @@ export default class IssueStateEnricher extends MessageEnricherBase {
   }
 
   selected(user) {
-    this.services.assignDialog.selected(user);
+    this.services.assignUserService.selected(user);
   }
 
   changed(comment) {
-    this.services.commentDialog.changed(comment);
+    this.services.commentService.changed(comment);
   }
 }

@@ -1,0 +1,20 @@
+<dialog>
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="label">
+                {{actionText}} <a href="{{url}}">{{key}}</a>
+            </div>
+            <h1>{{subject}}</h1>
+        </div>
+        <div class="modal-content">
+            <span>{{{errorMessage}}}</span>
+            {{{content}}}
+        </div>
+        {{#if footer}}
+        <div class="modal-footer">
+            <action id="performDialogAction" class="tempo-btn tempo-btn--good"/>
+            <action id="closeDialog" class="tempo-btn tempo-btn--dismiss"/>
+        </div>
+        {{/if}}
+    </div>
+</dialog>

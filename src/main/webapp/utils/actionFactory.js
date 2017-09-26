@@ -8,6 +8,7 @@ export default (actions, service, entity) =>
       label: action.label,
       data: {
         entity,
+        service: action.service,
         type: action.type,
       },
     };
