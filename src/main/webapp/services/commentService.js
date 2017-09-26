@@ -30,7 +30,6 @@ export default class CommentService extends BaseService {
       type: 'performDialogAction',
       label: 'COMMENT',
     };
-
     const closeDialogAction = {
       service: 'commentService',
       type: 'closeDialog',
