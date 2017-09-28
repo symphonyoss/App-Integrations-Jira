@@ -97,6 +97,8 @@ public class JiraAuthorizationManager {
 
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
+  private boolean cryptographyEnabled = false;
+
   @Autowired
   private IntegrationProperties properties;
 
@@ -387,9 +389,12 @@ public class JiraAuthorizationManager {
     String accessToken = provider.requestAcessToken(temporaryToken, verifierCode);
 
     try {
-      UserKeyManagerData userKMData =
-          userService.getBotUserAccountKeyData(settings.getConfigurationId());
-      String encryptedAccessToken = cryptoService.encrypt(accessToken, userKMData.getPrivateKey());
+      String encryptedAccessToken = accessToken;
+      if (cryptographyEnabled) {
+        UserKeyManagerData userKMData =
+            userService.getBotUserAccountKeyData(settings.getConfigurationId());
+        encryptedAccessToken = cryptoService.encrypt(accessToken, userKMData.getPrivateKey());
+      }
 
       JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, encryptedAccessToken);
       userAuthData.setData(jiraOAuth1Data);
@@ -466,7 +471,7 @@ public class JiraAuthorizationManager {
       JiraOAuth1Data jiraOAuth1Data = JsonUtils.readValue(userAuthorizationData.getData(),
           JiraOAuth1Data.class);
       String accessToken = jiraOAuth1Data.getAccessToken();
-      if (!StringUtils.isEmpty(accessToken)) {
+      if (cryptographyEnabled && !StringUtils.isEmpty(accessToken)) {
         UserKeyManagerData userKMData =
             userService.getBotUserAccountKeyData(settings.getConfigurationId());
         String decryptedAccessToken = cryptoService.decrypt(accessToken, userKMData.getPrivateKey());
