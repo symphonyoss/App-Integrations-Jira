@@ -55,6 +55,8 @@ export default class CommentService extends BaseService {
   }
 
   openActionDialog(data, service) {
+    service.comment = '';
+
     const commentTemplate = commentDialog();
     const dialogBuilder = new DialogBuilder('Comment on', commentTemplate);
 
@@ -63,6 +65,20 @@ export default class CommentService extends BaseService {
   }
 
   save(data) {
+    if (this.comment === '') {
+      const commentTemplate = commentDialog();
+      const dialogBuilder = new DialogBuilder('Comment on', commentTemplate);
+
+      dialogBuilder.error('Invalid comment');
+
+      const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
+      this.updateDialog('commentIssue', template.layout, template.data);
+    } else {
+      this.performAssignUserAction(data);
+    }
+  }
+
+  performAssignUserAction(data) {
     const baseUrl = data.entity.baseUrl;
     const issueKey = data.entity.issue.key;
 
@@ -90,6 +106,8 @@ export default class CommentService extends BaseService {
             break;
           }
         }
+
+        this.comment = '';
 
         const commentTemplate = commentDialog();
 
