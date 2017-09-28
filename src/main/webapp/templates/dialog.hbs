@@ -1,17 +1,17 @@
 <dialog>
-    <div class="modal-content">
-        <div class="modal-header">
+    <div class="container">
+        <div class="header">
             <div class="label">
                 {{actionText}} <a href="{{url}}">{{key}}</a>
             </div>
             <h1>{{subject}}</h1>
         </div>
-        <div class="modal-content">
-            <span>{{{errorMessage}}}</span>
+        <div class="content">
+            <alert isVisible="{{showError}}">{{errorMessage}}</alert>
             {{{content}}}
         </div>
         {{#if footer}}
-        <div class="modal-footer">
+        <div class="footer">
             <action id="performDialogAction" class="tempo-btn tempo-btn--good"/>
             <action id="closeDialog" class="tempo-btn tempo-btn--dismiss"/>
         </div>

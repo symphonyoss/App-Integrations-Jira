@@ -9,10 +9,12 @@ export default class DialogBuilder {
     this.actionText = actionText;
     this.innerContent = innerContent;
     this.showFooter = true;
+    this.showError = false;
   }
 
   error(message) {
     this.errorMessage = message;
+    this.showError = true;
   }
 
   footer(value) {
@@ -27,6 +29,7 @@ export default class DialogBuilder {
       actionText: this.actionText,
       content: this.innerContent,
       errorMessage: this.errorMessage,
+      showError: this.showError,
       footer: this.showFooter,
     });
     return template;
