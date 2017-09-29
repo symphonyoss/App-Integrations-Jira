@@ -1,3 +1,4 @@
+import { getIntegrationBaseUrl } from 'symphony-integration-commons';
 import BaseService from './baseService';
 import { searchAssignableUser, assignUser } from '../api/apiCalls';
 import actionFactory from '../utils/actionFactory';
@@ -6,6 +7,8 @@ import DialogBuilder from '../templates/builders/dialogBuilder';
 const assignDialog = require('../templates/assignDialog.hbs');
 const successDialog = require('../templates/userAssignedDialog.hbs');
 
+const baseUrl = getIntegrationBaseUrl();
+
 export default class AssignUserService extends BaseService {
   constructor(serviceName) {
     super(serviceName);
@@ -13,18 +16,23 @@ export default class AssignUserService extends BaseService {
   }
 
   successDialog(data) {
-    const issueKey = data.entity.issue.key;
-
-    const content = successDialog({
-      issueKey,
-      prettyName: this.selectedUser.prettyName,
-    });
+    const image = `${baseUrl}/apps/jira/img/icon-checkmark-green.svg`;
+    const content = successDialog({ successImg: image });
 
     const dialogBuilder = new DialogBuilder('Assign', content);
     dialogBuilder.footer(false);
 
     const template = dialogBuilder.build(data);
-    this.updateDialog('assignIssue', template, {});
+
+    const userData = {
+      user: {
+        service: this.serviceName,
+        successMessage: 'Assigned',
+        selected: this.selectedUser,
+      },
+    };
+
+    this.updateDialog('assignIssue', template, userData);
   }
 
   retrieveTemplate(dialogBuilder, data, serviceName) {

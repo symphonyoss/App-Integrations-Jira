@@ -1,3 +1,4 @@
+import { getIntegrationBaseUrl } from 'symphony-integration-commons';
 import BaseService from './baseService';
 import { commentIssue } from '../api/apiCalls';
 import actionFactory from '../utils/actionFactory';
@@ -6,6 +7,8 @@ import DialogBuilder from '../templates/builders/dialogBuilder';
 const commentDialog = require('../templates/commentDialog.hbs');
 const successDialog = require('../templates/commentCreatedDialog.hbs');
 
+const baseUrl = getIntegrationBaseUrl();
+
 export default class CommentService extends BaseService {
   constructor(serviceName) {
     super(serviceName);
@@ -13,7 +16,8 @@ export default class CommentService extends BaseService {
   }
 
   successDialog(data) {
-    const content = successDialog();
+    const image = `${baseUrl}/apps/jira/img/icon-checkmark-green.svg`;
+    const content = successDialog({ successImg: image });
 
     const dialogBuilder = new DialogBuilder('Comment on', content);
     dialogBuilder.footer(false);
