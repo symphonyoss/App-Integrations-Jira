@@ -143,4 +143,8 @@ export default class AssignUserService extends BaseService {
   selected(user) {
     this.selectedUser = user;
   }
+
+  deselected() {
+    this.selectedUser = {};
+  }
 }
