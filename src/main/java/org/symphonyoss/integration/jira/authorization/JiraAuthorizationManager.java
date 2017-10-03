@@ -327,11 +327,15 @@ public class JiraAuthorizationManager {
           provider.makeAuthorizedRequest(jiraOAuth1Data.getAccessToken(), myselfUrl,
               HttpMethods.GET, null);
 
-      return response.getStatusCode() != HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
+      return response.getStatusCode() == HttpStatusCodes.STATUS_CODE_OK;
     } catch (MalformedURLException e) {
       throw new JiraOAuth1Exception(MSG.getMessage("integration.jira.url.api.invalid", url),
           e, MSG.getMessage("integration.jira.url.api.invalid.solution"));
     } catch (OAuth1HttpRequestException e) {
+      if (HttpStatusCodes.STATUS_CODE_UNAUTHORIZED == e.getCode()) {
+        return false;
+      }
+
       throw new JiraOAuth1Exception(MSG.getMessage("integration.jira.url.api.invalid", url),
           e, MSG.getMessage("integration.jira.url.api.invalid.solution"));
     }
@@ -396,7 +400,7 @@ public class JiraAuthorizationManager {
         encryptedAccessToken = cryptoService.encrypt(accessToken, userKMData.getPrivateKey());
       }
 
-      JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(temporaryToken, encryptedAccessToken);
+      JiraOAuth1Data jiraOAuth1Data = new JiraOAuth1Data(null, encryptedAccessToken);
       userAuthData.setData(jiraOAuth1Data);
 
       authRepoService.save(settings.getType(), settings.getConfigurationId(), userAuthData);
