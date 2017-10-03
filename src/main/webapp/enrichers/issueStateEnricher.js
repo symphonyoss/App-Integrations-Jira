@@ -15,7 +15,7 @@ const messageEvents = [
 export default class IssueStateEnricher extends MessageEnricherBase {
   constructor() {
     super(enricherServiceName, messageEvents);
-    this.implements.push('selected', 'changed');
+    this.implements.push('selected', 'changed', 'deselected');
 
     // Create new service components responsible for actions handling
     const assignUserService = new AssignUserService(enricherServiceName);
@@ -65,6 +65,10 @@ export default class IssueStateEnricher extends MessageEnricherBase {
 
   selected(user) {
     this.services.assignUserService.selected(user);
+  }
+
+  deselected() {
+    this.services.assignUserService.deselected();
   }
 
   changed(comment) {
