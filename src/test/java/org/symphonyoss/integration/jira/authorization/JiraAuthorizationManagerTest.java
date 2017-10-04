@@ -20,7 +20,6 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -33,7 +32,6 @@ import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationMa
     .PUBLIC_KEY_FILENAME;
 
 import com.google.api.client.http.HttpMethods;
-import com.google.api.client.http.json.JsonHttpContent;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
