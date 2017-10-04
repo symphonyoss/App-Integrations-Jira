@@ -31,6 +31,7 @@ import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationMa
 import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager
     .PUBLIC_KEY_FILENAME;
 
+import com.google.api.client.http.HttpMethods;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -49,6 +51,7 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
 import org.symphonyoss.integration.authorization.UserAuthorizationData;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.exception.CryptoException;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
@@ -66,6 +69,7 @@ import org.symphonyoss.integration.utils.RsaKeyUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -144,6 +148,8 @@ public class JiraAuthorizationManagerTest {
   private static final String MOCK_ACCESS_TOKEN = "accessToken";
 
   private static final IntegrationSettings SETTINGS = new IntegrationSettings();
+
+  private static final String MOCK_URL_MYSELF = MOCK_URL + "/rest/api/2/myself";
 
   @Autowired
   private IntegrationProperties properties;
@@ -247,8 +253,10 @@ public class JiraAuthorizationManagerTest {
     application.getAuthorization().getProperties().remove(PUBLIC_KEY_FILENAME);
   }
 
+  @Test
   public void testIsUserUnauthorized()
-      throws AuthorizationException, URISyntaxException, CryptoException {
+      throws AuthorizationException, URISyntaxException, CryptoException,
+      OAuth1HttpRequestException, MalformedURLException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
 
@@ -265,6 +273,12 @@ public class JiraAuthorizationManagerTest {
 
     doReturn(userData).when(authRepoService).find(anyString(),
         eq(SETTINGS.getConfigurationId()), eq(MOCK_URL), eq(MOCK_USER));
+
+    OAuth1HttpRequestException oAuth1HttpRequestException = new OAuth1HttpRequestException("Unauthorized",
+        HttpStatus.UNAUTHORIZED.value());
+
+    doThrow(oAuth1HttpRequestException).when(jiraOAuth1Provider)
+        .makeAuthorizedRequest(MOCK_TOKEN, new URL(MOCK_URL_MYSELF), HttpMethods.GET, null);
 
     assertFalse(authManager.isUserAuthorized(SETTINGS, MOCK_URL, MOCK_USER));
   }
