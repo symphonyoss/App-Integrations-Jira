@@ -116,7 +116,7 @@ public class CommentMetadataParser extends JiraMetadataParser {
     ObjectNode commentNode = getCommentNode(input);
 
     if (commentNode != null) {
-      String comment = formatTextContent(commentNode.path(BODY_PATH).asText()).toString();
+      String comment = formatTextContent(commentNode.path(BODY_PATH).asText(), true).toString();
       commentNode.put(BODY_PATH, comment);
     }
   }
