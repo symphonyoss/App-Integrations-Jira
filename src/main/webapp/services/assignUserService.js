@@ -29,13 +29,14 @@ export default class AssignUserService extends BaseService {
         service: this.serviceName,
         successMessage: 'Assigned',
         selected: this.selectedUser,
+        renderSelectedUser: true,
       },
     };
 
     this.updateDialog('assignIssue', template, userData);
   }
 
-  retrieveTemplate(dialogBuilder, data, serviceName) {
+  retrieveTemplate(dialogBuilder, data, serviceName, renderSelectedUser = false) {
     const template = dialogBuilder.build(data);
 
     const assignIssueAction = {
@@ -59,6 +60,8 @@ export default class AssignUserService extends BaseService {
       user: {
         service: serviceName,
         crossPod: 'NONE',
+        renderSelectedUser,
+        selected: this.selectedUser,
       },
     }, actions);
 
@@ -79,15 +82,20 @@ export default class AssignUserService extends BaseService {
   }
 
   save(data) {
-    if (this.selectedUser.email === undefined) {
-      const assignTemplate = assignDialog();
+    const assignTemplate = assignDialog();
+    const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
 
-      const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+    if (this.selectedUser.email === undefined) {
       dialogBuilder.error('Please select an user');
 
       const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
       this.updateDialog('assignIssue', template.layout, template.data);
     } else {
+      dialogBuilder.loading(true);
+
+      const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName, true);
+      this.updateDialog('assignIssue', template.layout, template.data);
+
       this.performAssignUserAction(data);
     }
   }

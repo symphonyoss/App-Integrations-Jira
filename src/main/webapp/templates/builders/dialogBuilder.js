@@ -10,6 +10,7 @@ export default class DialogBuilder {
     this.innerContent = innerContent;
     this.showFooter = true;
     this.showError = false;
+    this.isLoading = false;
   }
 
   error(message) {
@@ -19,6 +20,10 @@ export default class DialogBuilder {
 
   footer(value) {
     this.showFooter = value;
+  }
+
+  loading(value) {
+    this.isLoading = value;
   }
 
   build(data) {
@@ -31,6 +36,7 @@ export default class DialogBuilder {
       errorMessage: this.errorMessage,
       showError: this.showError,
       footer: this.showFooter,
+      isLoading: this.isLoading,
     });
     return template;
   }
