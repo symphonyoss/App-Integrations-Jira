@@ -10,6 +10,19 @@ const rejectPromise = (error) => {
   return Promise.reject(new Error(status));
 };
 
+export const searchIssue = (url, issueKey, jwt) => {
+  const apiUrl = `${baseUrl}/v1/jira/rest/api/issue/${issueKey}`;
+
+  const params = {
+    url,
+  };
+
+  return axios.get(apiUrl, {
+    params,
+    headers: { Authorization: `Bearer ${jwt}` },
+  }).catch(error => rejectPromise(error));
+};
+
 export const searchAssignableUser = (url, issueKey, user, jwt) => {
   const apiUrl = `${baseUrl}/v1/jira/rest/api/user/assignable/search`;
   const emailAddress = user.email;

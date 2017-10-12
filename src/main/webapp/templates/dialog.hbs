@@ -1,10 +1,17 @@
 <dialog>
     <div class="container">
         <div class="header">
+            {{#if headerError}}
+            <div class="headerError"><img src="../img/exclamation_mark.svg" />{{headerError}}</div>
+            {{/if}}
             <div class="label">
                 {{actionText}} <a href="{{url}}">{{key}}</a>
             </div>
             <h1>{{{subject}}}</h1>
+            <div class="label key-value">
+                <span class="key">Assignee</span>
+                <span class="value">{{assignee}}</span>
+            </div>
         </div>
         <div class="content">
             <alert isVisible="{{showError}}">{{errorMessage}}</alert>

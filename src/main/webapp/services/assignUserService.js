@@ -1,6 +1,6 @@
 import { getIntegrationBaseUrl } from 'symphony-integration-commons';
 import BaseService from './baseService';
-import { searchAssignableUser, assignUser } from '../api/apiCalls';
+import { searchAssignableUser, assignUser, searchIssue } from '../api/apiCalls';
 import actionFactory from '../utils/actionFactory';
 import DialogBuilder from '../templates/builders/dialogBuilder';
 
@@ -72,13 +72,26 @@ export default class AssignUserService extends BaseService {
   }
 
   openActionDialog(data, service) {
-    service.selectedUser = {};
+    const baseUrl = data.entity.baseUrl;
+    const issueKey = data.entity.issue.key;
 
     const assignTemplate = assignDialog();
     const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+    let template = null;
 
-    const template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
-    service.openDialog('assignIssue', template.layout, template.data);
+    searchIssue(baseUrl, issueKey, service.jwt)
+      .then((issueInfo) => {
+        Object.assign(data, issueInfo.data);
+        service.selectedUser = {};
+
+        template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
+        service.openDialog('assignIssue', template.layout, template.data);
+      })
+      .catch(() => {
+        dialogBuilder.headerError('deu ruim!');
+        template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
+        service.openDialog('assignIssue', template.layout, template.data);
+      });
   }
 
   save(data) {
@@ -112,7 +125,11 @@ export default class AssignUserService extends BaseService {
 
         return assignUser(baseUrl, issueKey, users.data[0].name, this.jwt);
       })
-      .then(() => this.successDialog(data))
+      .then(() => searchIssue(baseUrl, issueKey, this.jwt))
+      .then((issueInfo) => {
+        Object.assign(data, issueInfo.data);
+        this.successDialog(data);
+      })
       .catch((error) => {
         let errorMessage;
 

@@ -38,6 +38,7 @@ import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
 import org.symphonyoss.integration.jira.services.IssueCommentService;
+import org.symphonyoss.integration.jira.services.IssueSearchService;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
@@ -86,6 +87,9 @@ public class JiraApiResourceTest {
   private IssueCommentService issueCommentService;
 
   @Mock
+  private IssueSearchService issueSearchService;
+
+  @Mock
   private JiraWebHookIntegration jiraWebHookIntegration;
 
   @Mock
@@ -116,7 +120,7 @@ public class JiraApiResourceTest {
         .addCommentToAnIssue(ACCESS_TOKEN, ISSUE_KEY, JIRA_INTEGRATION_URL, provider, COMMENT);
 
     jiraApiResource = new JiraApiResource(jiraWebHookIntegration, jwtAuthentication,
-        userAssignService, searchAssignableUsersService, issueCommentService);
+        userAssignService, searchAssignableUsersService, issueCommentService, issueSearchService);
   }
 
   @Test(expected = IntegrationUnavailableException.class)

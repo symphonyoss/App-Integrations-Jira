@@ -13,6 +13,10 @@ export default class DialogBuilder {
     this.isLoading = false;
   }
 
+  headerError(errorMessage) {
+    this.headerError = errorMessage;
+  }
+
   error(message) {
     this.errorMessage = message;
     this.showError = true;
@@ -31,10 +35,12 @@ export default class DialogBuilder {
       url: data.entity.issue.url,
       key: data.entity.issue.key,
       subject: data.entity.issue.subject,
+      assignee: data.fields.assignee.displayName || 'Not available', //TODO - This is empty when an error occurs
       actionText: this.actionText,
       content: this.innerContent,
       errorMessage: this.errorMessage,
       showError: this.showError,
+      headerError: this.headerError,
       footer: this.showFooter,
       isLoading: this.isLoading,
     });
