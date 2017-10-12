@@ -13,11 +13,11 @@
         {{#if footer}}
         <div class="footer">
             {{#if isLoading}}
-            <action id="performDialogAction" type="needs-confirmation" isLoading="true" isDisabled="true" />
-            <action id="closeDialog" type="dismiss" isDisabled="true" />
+            <action:button id="performDialogAction" type="needs-confirmation" isLoading="true" isDisabled="true" />
+            <action:button id="closeDialog" type="dismiss" isDisabled="true" />
             {{else}}
-            <action id="performDialogAction" type="good" />
-            <action id="closeDialog" type="dismiss"/>
+            <action:button id="performDialogAction" type="good" />
+            <action:button id="closeDialog" type="dismiss"/>
             {{/if}}
         </div>
         {{/if}}
