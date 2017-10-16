@@ -97,7 +97,7 @@ public class JiraAuthorizationManager {
 
   private static final MessageUtils MSG = new MessageUtils(BUNDLE_FILENAME);
 
-  private boolean cryptographyEnabled = false;
+  private boolean cryptographyEnabled = true;
 
   @Autowired
   private IntegrationProperties properties;
