@@ -20,6 +20,7 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.B
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationPayload;
@@ -171,13 +172,13 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
 
     if (StringUtils.isBlank(temporaryToken) || StringUtils.isBlank(verificationCode)) {
       throw new JiraOAuth1Exception(MSG.getMessage(MSG_INSUFFICIENT_PARAMS),
-          MSG.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
+          HttpStatus.BAD_REQUEST.value(), MSG.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
     }
 
     IntegrationSettings settings = getSettings();
     if (settings == null) {
       throw new JiraOAuth1Exception(MSG.getMessage(MSG_NO_INTEGRATION_FOUND),
-          MSG.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
+          HttpStatus.NOT_FOUND.value(), MSG.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
     }
 
     if (!OAUTH_DENIED.equals(verificationCode)) {
