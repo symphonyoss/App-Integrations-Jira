@@ -29,14 +29,15 @@ function normalizeStreams(streams) {
 }
 
 function updateInstance(instance) {
-    var streams = normalizeStreams(instance.optionalProperties.streams);
+    var streams = instance.optionalProperties.streams;
+    var normalizedStreams = normalizeStreams(streams);
     var rooms = instance.optionalProperties.rooms;
     var shouldUpdate = false;
 
     for (var i = 0; i < rooms.length; i++) {
         var streamId = rooms[i].streamId;
 
-        if (streamId !== undefined && streams.indexOf(streamId) === -1) {
+        if (streamId !== undefined && normalizedStreams.indexOf(streamId) === -1) {
             var normalized = streamId.replace(new RegExp('/', 'g'), '_').substring(0, streamId.length - 2);
             streams.push(normalized);
 
