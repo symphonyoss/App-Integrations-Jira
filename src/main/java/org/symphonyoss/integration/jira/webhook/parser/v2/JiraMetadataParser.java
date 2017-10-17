@@ -26,10 +26,14 @@ import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.CH
 import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.DOCUMENTATION_TYPE;
 import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.EPIC_TYPE;
 import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.IMPROVEMENT_TYPE;
-import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.INCIDENT_SEVERITY_1_TYPE;
-import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.INCIDENT_SEVERITY_2_TYPE;
-import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.INCIDENT_SEVERITY_3_TYPE;
-import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.INCIDENT_SEVERITY_4_TYPE;
+import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants
+    .INCIDENT_SEVERITY_1_TYPE;
+import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants
+    .INCIDENT_SEVERITY_2_TYPE;
+import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants
+    .INCIDENT_SEVERITY_3_TYPE;
+import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants
+    .INCIDENT_SEVERITY_4_TYPE;
 import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.INCIDENT_TYPE;
 import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.NEW_FEATURE_TYPE;
 import static org.symphonyoss.integration.jira.webhook.JiraIssueTypeConstants.PROBLEM_TYPE;
@@ -212,7 +216,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     JsonNode summaryNode = fieldsNode.path(SUMMARY_PATH);
 
     if (summaryNode != null) {
-      String summary = formatTextContent(summaryNode.asText());
+      String summary = formatTextContent(summaryNode.asText(), false);
       ((ObjectNode) fieldsNode).put(SUMMARY_PATH, summary.toString());
     }
   }
@@ -367,21 +371,27 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    * @param fieldContent The field content without formatting
    * @return Comment supported by MessageML v2 syntax
    */
-  protected String formatTextContent(String fieldContent) {
+  protected String formatTextContent(String fieldContent, boolean stripJiraFormatting) {
     if (StringUtils.isNotEmpty(fieldContent)) {
-      SafeString description = ParserUtils.escapeAndAddLineBreaks(fieldContent);
+      SafeString safeFieldContent = ParserUtils.escapeAndAddLineBreaks(fieldContent);
 
-      Map<String, User> usersToMention = determineUserMentions(description.toString());
+      Map<String, User> usersToMention = determineUserMentions(safeFieldContent.toString());
       if (usersToMention != null && !usersToMention.isEmpty()) {
         for (Map.Entry<String, User> userToMention : usersToMention.entrySet()) {
           User user = userToMention.getValue();
 
-          description.safeReplace(new SafeString(BEGIN_MENTION + userToMention.getKey() + END_MENTION),
+          safeFieldContent.safeReplace(
+              new SafeString(BEGIN_MENTION + userToMention.getKey() + END_MENTION),
               ParserUtils.presentationFormat(MENTION_MARKUP, user.getEmailAddress()));
         }
       }
 
-      String finalDescription = JiraParserUtils.stripJiraFormatting(description.toString());
+      String finalDescription;
+      if (stripJiraFormatting) {
+        finalDescription = JiraParserUtils.stripJiraFormatting(safeFieldContent.toString());
+      } else {
+        finalDescription = safeFieldContent.toString();
+      }
 
       return ParserUtils.markupLinks(finalDescription);
 
@@ -414,7 +424,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
     ObjectNode fieldsNode = (ObjectNode) input.path(ISSUE_PATH).path(FIELDS_PATH);
     String description = fieldsNode.path(DESCRIPTION_PATH).asText(EMPTY);
 
-    fieldsNode.put(DESCRIPTION_PATH, formatTextContent(description));
+    fieldsNode.put(DESCRIPTION_PATH, formatTextContent(description, true));
   }
 
   /**
@@ -532,7 +542,7 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    */
   private void processBaseUrl(JsonNode input) {
     String selfPath = input.path(ISSUE_PATH).path(SELF_PATH).asText();
-    selfPath = selfPath.replaceAll(BASE_API_REGEX,"");
+    selfPath = selfPath.replaceAll(BASE_API_REGEX, "");
 
     ((ObjectNode) input).put(BASE_URL, selfPath);
   }
@@ -573,7 +583,8 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
       String label = name.replaceAll("#", "");
 
       EntityObject nestedObject = new EntityObject(LABELS_TYPE, getVersion());
-      nestedObject.addContent(TEXT_ENTITY_FIELD, ParserUtils.escapeAndAddLineBreaks(label).toString());
+      nestedObject.addContent(TEXT_ENTITY_FIELD,
+          ParserUtils.escapeAndAddLineBreaks(label).toString());
 
       list.add(nestedObject);
     }
