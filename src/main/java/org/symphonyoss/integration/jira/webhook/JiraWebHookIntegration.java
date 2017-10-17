@@ -20,14 +20,17 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.B
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationPayload;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.exception.JiraOAuth1Exception;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.exception
+    .JiraOAuth1IntegrationNotFoundException;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.exception
+    .JiraOAuth1MissingParametersException;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.logging.MessageUtils;
@@ -171,14 +174,14 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
     String verificationCode = authorizationPayload.getParameters().get(OAUTH_VERIFIER);
 
     if (StringUtils.isBlank(temporaryToken) || StringUtils.isBlank(verificationCode)) {
-      throw new JiraOAuth1Exception(MSG.getMessage(MSG_INSUFFICIENT_PARAMS),
-          HttpStatus.BAD_REQUEST.value(), MSG.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
+      throw new JiraOAuth1MissingParametersException(MSG.getMessage(MSG_INSUFFICIENT_PARAMS),
+          MSG.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
     }
 
     IntegrationSettings settings = getSettings();
     if (settings == null) {
-      throw new JiraOAuth1Exception(MSG.getMessage(MSG_NO_INTEGRATION_FOUND),
-          HttpStatus.NOT_FOUND.value(), MSG.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
+      throw new JiraOAuth1IntegrationNotFoundException(MSG.getMessage(MSG_NO_INTEGRATION_FOUND),
+          MSG.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
     }
 
     if (!OAUTH_DENIED.equals(verificationCode)) {

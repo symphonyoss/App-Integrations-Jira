@@ -1,4 +1,4 @@
-package org.symphonyoss.integration.jira.authorization.oauth.v1;
+package org.symphonyoss.integration.jira.authorization.oauth.v1.exception;
 
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 
@@ -15,11 +15,6 @@ public class JiraOAuth1Exception extends OAuth1Exception {
 
   public JiraOAuth1Exception(String message, String... solutions) {
     super(message, solutions);
-  }
-
-  public JiraOAuth1Exception(String message, int code,
-      String... solutions) {
-    super(message, code, solutions);
   }
 }
 
