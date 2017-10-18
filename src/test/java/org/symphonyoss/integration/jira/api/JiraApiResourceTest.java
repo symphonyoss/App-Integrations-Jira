@@ -32,11 +32,9 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
-import org.symphonyoss.integration.jira.exception.InvalidJiraPayloadException;
-import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
-import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
+import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
 import org.symphonyoss.integration.jira.services.IssueCommentService;
 import org.symphonyoss.integration.jira.services.IssueSearchService;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
@@ -45,8 +43,6 @@ import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * Unit tests for {@link JiraApiResource}
@@ -69,6 +65,8 @@ public class JiraApiResourceTest {
   private static String JIRA_INTEGRATION_URL = "https://test.symphony.com";
 
   private static String ACCESS_TOKEN = "accessToken";
+
+  private static final String SAMPLE_ISSUE = "{\"fields\":{\"assignee\": \"Me\"}}";
 
   private static final Long USER_ID = 10L;
 
@@ -118,6 +116,10 @@ public class JiraApiResourceTest {
 
     doReturn(new ResponseEntity(HttpStatus.OK)).when(issueCommentService)
         .addCommentToAnIssue(ACCESS_TOKEN, ISSUE_KEY, JIRA_INTEGRATION_URL, provider, COMMENT);
+
+    ResponseEntity issueResponseEntity = new ResponseEntity(SAMPLE_ISSUE, HttpStatus.OK);
+    doReturn(issueResponseEntity).when(issueSearchService)
+        .getIssueInfo(ACCESS_TOKEN, provider, JIRA_INTEGRATION_URL, ISSUE_KEY);
 
     jiraApiResource = new JiraApiResource(jiraWebHookIntegration, jwtAuthentication,
         userAssignService, searchAssignableUsersService, issueCommentService, issueSearchService);
@@ -257,5 +259,35 @@ public class JiraApiResourceTest {
             JIRA_INTEGRATION_URL);
 
     assertEquals(expectedResponse, responseEntity);
+  }
+
+  @Test(expected = IntegrationUnavailableException.class)
+  public void testGetIssueInfoUnavailable() throws IOException {
+    doReturn(null).when(jiraWebHookIntegration).getSettings();
+
+    jiraApiResource.getIssueInfo(ISSUE_KEY, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+  }
+
+  @Test(expected = JiraAuthorizationException.class)
+  public void testGetIssueInfoProviderFailed() throws IOException, AuthorizationException {
+    doThrow(OAuth1Exception.class).when(jiraWebHookIntegration)
+        .getOAuth1Provider(JIRA_INTEGRATION_URL);
+    jiraApiResource.getIssueInfo(ISSUE_KEY, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+  }
+
+  @Test(expected = JiraAuthorizationException.class)
+  public void testGetIssueInfoNullAccessToken() throws IOException {
+    doReturn(0L).when(jwtAuthentication)
+        .getUserIdFromAuthorizationHeader(CONFIGURATION_ID, AUTHORIZATION_HEADER);
+    jiraApiResource.getIssueInfo(ISSUE_KEY, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+  }
+
+  @Test
+  public void testGetIssueInfo() {
+    ResponseEntity issueInfo =
+        jiraApiResource.getIssueInfo(ISSUE_KEY, AUTHORIZATION_HEADER, JIRA_INTEGRATION_URL);
+
+    assertEquals(HttpStatus.OK, issueInfo.getStatusCode());
+    assertEquals(SAMPLE_ISSUE, issueInfo.getBody());
   }
 }

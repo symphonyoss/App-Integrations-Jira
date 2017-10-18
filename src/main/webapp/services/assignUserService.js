@@ -88,7 +88,7 @@ export default class AssignUserService extends BaseService {
         service.openDialog('assignIssue', template.layout, template.data);
       })
       .catch(() => {
-        dialogBuilder.headerError('deu ruim!');
+        dialogBuilder.headerError('Couldn\'t fetch issue info');
         template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
         service.openDialog('assignIssue', template.layout, template.data);
       });

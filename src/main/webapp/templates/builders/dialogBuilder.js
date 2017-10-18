@@ -35,7 +35,7 @@ export default class DialogBuilder {
       url: data.entity.issue.url,
       key: data.entity.issue.key,
       subject: data.entity.issue.subject,
-      assignee: data.fields.assignee.displayName || 'Not available', //TODO - This is empty when an error occurs
+      assignee: (data.fields) ? data.fields.assignee.displayName : 'Not available',
       actionText: this.actionText,
       content: this.innerContent,
       errorMessage: this.errorMessage,
