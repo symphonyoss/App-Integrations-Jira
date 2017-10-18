@@ -40,14 +40,12 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationPayload;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1IntegrationNotFoundException;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1MissingParametersException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.exception
-    .JiraOAuth1IntegrationNotFoundException;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.exception
-    .JiraOAuth1MissingParametersException;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.jira.webhook.parser.JiraWebHookParserAdapter;
@@ -418,13 +416,13 @@ public class JiraWebHookIntegrationTest {
     assertNull(result);
   }
 
-  @Test(expected = JiraOAuth1MissingParametersException.class)
+  @Test(expected = OAuth1MissingParametersException.class)
   public void testAuthorizeTemporaryTokenBlank() throws AuthorizationException {
     AuthorizationPayload payload = new AuthorizationPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), "body");
     jiraWhi.authorize(payload);
   }
 
-  @Test(expected = JiraOAuth1MissingParametersException.class)
+  @Test(expected = OAuth1MissingParametersException.class)
   public void testAuthorizeVerificationCodeBlank() throws AuthorizationException {
     User user = createNewUser();
     Map<String, String> params = new HashMap<>();
@@ -433,7 +431,7 @@ public class JiraWebHookIntegrationTest {
     jiraWhi.authorize(payload);
   }
 
-  @Test(expected = JiraOAuth1IntegrationNotFoundException.class)
+  @Test(expected = OAuth1IntegrationNotFoundException.class)
   public void testAuthorizeVerificationSettingsNull() throws AuthorizationException {
     Map<String, String> params = new HashMap<>();
     params.put(TEMPORARY_TOKEN, TEMPORARY_TOKEN);
