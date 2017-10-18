@@ -24,6 +24,8 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationPayload;
 import org.symphonyoss.integration.authorization.AuthorizedIntegration;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1IntegrationNotFoundException;
+import org.symphonyoss.integration.authorization.oauth.v1.OAuth1MissingParametersException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
@@ -170,13 +172,13 @@ public class JiraWebHookIntegration extends WebHookIntegration implements Author
     String verificationCode = authorizationPayload.getParameters().get(OAUTH_VERIFIER);
 
     if (StringUtils.isBlank(temporaryToken) || StringUtils.isBlank(verificationCode)) {
-      throw new JiraOAuth1Exception(MSG.getMessage(MSG_INSUFFICIENT_PARAMS),
+      throw new OAuth1MissingParametersException(MSG.getMessage(MSG_INSUFFICIENT_PARAMS),
           MSG.getMessage(MSG_INSUFFICIENT_PARAMS_SOLUTION));
     }
 
     IntegrationSettings settings = getSettings();
     if (settings == null) {
-      throw new JiraOAuth1Exception(MSG.getMessage(MSG_NO_INTEGRATION_FOUND),
+      throw new OAuth1IntegrationNotFoundException(MSG.getMessage(MSG_NO_INTEGRATION_FOUND),
           MSG.getMessage(MSG_NO_INTEGRATION_FOUND_SOLUTION));
     }
 
