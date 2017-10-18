@@ -28,7 +28,7 @@ import org.symphonyoss.integration.authorization.oauth.v1.OAuth1IntegrationNotFo
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1MissingParametersException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.exception.JiraOAuth1Exception;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.logging.MessageUtils;

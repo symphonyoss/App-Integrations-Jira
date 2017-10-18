@@ -35,7 +35,7 @@ import org.symphonyoss.integration.exception.CryptoException;
 import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.exception.JiraOAuth1Exception;
+import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Provider;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.logging.MessageUtils;

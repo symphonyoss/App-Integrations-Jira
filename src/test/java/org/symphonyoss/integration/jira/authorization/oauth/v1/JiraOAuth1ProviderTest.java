@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.integration.jira.authorization.oauth.v1.exception.JiraOAuth1Exception;
 
 /**
  * Unit tests for {@link JiraOAuth1Provider}.
