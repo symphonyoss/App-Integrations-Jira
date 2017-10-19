@@ -1,6 +1,5 @@
 package org.symphonyoss.integration.jira.authorization.oauth.v1;
 
-import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 
 /**

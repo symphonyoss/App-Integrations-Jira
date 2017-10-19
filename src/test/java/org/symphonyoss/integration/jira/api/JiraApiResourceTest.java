@@ -32,9 +32,11 @@ import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Provider;
 import org.symphonyoss.integration.exception.IntegrationUnavailableException;
+import org.symphonyoss.integration.jira.exception.InvalidJiraPayloadException;
+import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
+import org.symphonyoss.integration.jira.exception.InvalidJiraURLException;
 import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
-import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
 import org.symphonyoss.integration.jira.services.IssueCommentService;
 import org.symphonyoss.integration.jira.services.IssueSearchService;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
@@ -43,6 +45,8 @@ import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Unit tests for {@link JiraApiResource}
