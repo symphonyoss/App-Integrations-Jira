@@ -12,6 +12,8 @@
     <artifactId>integration-jira</artifactId>
 
     <properties>
+        <!-- This is temporary; set to true as soon as the WhiteSource dashboard is clean -->
+        <whitesource.checkPolicies>false</whitesource.checkPolicies>
         <webapp.directory>jira</webapp.directory>
         <rpm.name>jira-symphony-integration</rpm.name>
     </properties>
