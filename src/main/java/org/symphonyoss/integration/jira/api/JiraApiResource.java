@@ -51,6 +51,7 @@ import org.symphonyoss.integration.jira.exception.JiraAuthorizationException;
 import org.symphonyoss.integration.jira.exception.JiraUnexpectedException;
 import org.symphonyoss.integration.jira.exception.MissingRequiredPayloadException;
 import org.symphonyoss.integration.jira.services.IssueCommentService;
+import org.symphonyoss.integration.jira.services.IssueSearchService;
 import org.symphonyoss.integration.jira.services.SearchAssignableUsersService;
 import org.symphonyoss.integration.jira.services.UserAssignService;
 import org.symphonyoss.integration.jira.webhook.JiraWebHookIntegration;
@@ -79,15 +80,18 @@ public class JiraApiResource {
 
   private final IssueCommentService issueCommentService;
 
+  private final IssueSearchService issueSearchService;
+
   public JiraApiResource(JiraWebHookIntegration jiraWebHookIntegration,
       JwtAuthentication jwtAuthentication, UserAssignService userAssignService,
       SearchAssignableUsersService searchAssignableUsersService,
-      IssueCommentService issueCommentService) {
+      IssueCommentService issueCommentService, IssueSearchService issueSearchService) {
     this.jiraWebHookIntegration = jiraWebHookIntegration;
     this.jwtAuthentication = jwtAuthentication;
     this.userAssignService = userAssignService;
     this.searchAssignableUsersService = searchAssignableUsersService;
     this.issueCommentService = issueCommentService;
+    this.issueSearchService = issueSearchService;
   }
 
   /**
@@ -106,7 +110,8 @@ public class JiraApiResource {
     validateIntegrationBootstrap();
 
     String configurationId = jiraWebHookIntegration.getSettings().getConfigurationId();
-    Long userId = jwtAuthentication.getUserIdFromAuthorizationHeader(configurationId, authorizationHeader);
+    Long userId =
+        jwtAuthentication.getUserIdFromAuthorizationHeader(configurationId, authorizationHeader);
 
     if (username == null) {
       username = StringUtils.EMPTY;
@@ -118,6 +123,30 @@ public class JiraApiResource {
 
     return searchAssignableUsersService.searchAssingablesUsers(accessToken, provider,
         jiraIntegrationURL, issueKey, username);
+  }
+
+  /**
+   * Get information of a specific issue.
+   * @param issueKey Issue identifier
+   * @return Detailed issue information or 400 Bad Request - Returned if no issue key
+   * was provided, 401 Unauthorized - Returned if the user is not authenticated ,
+   * 404 Not Found - Returned if the requested issue is empty or not found.
+   */
+  @GetMapping(value = "/issue/{issueKey}", produces = MediaType.APPLICATION_JSON)
+  public ResponseEntity getIssueInfo(@PathVariable String issueKey,
+      @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+      @RequestParam(name = "url") String jiraIntegrationURL) {
+    validateIntegrationBootstrap();
+
+    String configurationId = jiraWebHookIntegration.getSettings().getConfigurationId();
+    Long userId =
+        jwtAuthentication.getUserIdFromAuthorizationHeader(configurationId, authorizationHeader);
+
+    String accessToken = getAccessToken(jiraIntegrationURL, userId);
+
+    OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
+
+    return issueSearchService.getIssueInfo(accessToken, provider, jiraIntegrationURL, issueKey);
   }
 
   /**
@@ -144,12 +173,12 @@ public class JiraApiResource {
 
     OAuth1Provider provider = getOAuth1Provider(jiraIntegrationURL);
 
-    return userAssignService.assignUserToIssue(accessToken, issueKey, username, jiraIntegrationURL, provider);
+    return userAssignService.assignUserToIssue(accessToken, issueKey, username, jiraIntegrationURL,
+        provider);
   }
 
   /**
    * Adds new comments on issue.
-   *
    * @param issueKey Issue identifier
    * @return 200 OK - Returned if add was successful or 400 Bad Request - Returned if the input
    * is invalid (e.g. missing required fields, invalid values, and so forth), 401 Unauthorized -
@@ -190,7 +219,6 @@ public class JiraApiResource {
 
   /**
    * Retrieves user access token.
-   *
    * @param baseURL JIRA base URL
    * @param userId User identifier
    * @return User access token
@@ -223,7 +251,6 @@ public class JiraApiResource {
 
   /**
    * Validate the required payload.
-   *
    * @param payload Payload to be analyzed
    */
   private void validateRequiredPayload(String payload) {

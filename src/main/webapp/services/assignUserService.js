@@ -1,6 +1,6 @@
 import { getIntegrationBaseUrl } from 'symphony-integration-commons';
 import BaseService from './baseService';
-import { searchAssignableUser, assignUser } from '../api/apiCalls';
+import { searchAssignableUser, assignUser, searchIssue } from '../api/apiCalls';
 import actionFactory from '../utils/actionFactory';
 import DialogBuilder from '../templates/builders/dialogBuilder';
 
@@ -29,19 +29,20 @@ export default class AssignUserService extends BaseService {
         service: this.serviceName,
         successMessage: 'Assigned',
         selected: this.selectedUser,
+        renderSelectedUser: true,
       },
     };
 
     this.updateDialog('assignIssue', template, userData);
   }
 
-  retrieveTemplate(dialogBuilder, data, serviceName) {
+  retrieveTemplate(dialogBuilder, data, serviceName, renderSelectedUser = false, assignLabel = 'ASSIGN') {
     const template = dialogBuilder.build(data);
 
     const assignIssueAction = {
       service: 'assignUserService',
       type: 'performDialogAction',
-      label: 'ASSIGN',
+      label: assignLabel,
     };
     const closeDialogAction = {
       service: 'assignUserService',
@@ -59,6 +60,8 @@ export default class AssignUserService extends BaseService {
       user: {
         service: serviceName,
         crossPod: 'NONE',
+        renderSelectedUser,
+        selected: this.selectedUser,
       },
     }, actions);
 
@@ -69,25 +72,43 @@ export default class AssignUserService extends BaseService {
   }
 
   openActionDialog(data, service) {
-    service.selectedUser = {};
+    const baseUrl = data.entity.baseUrl;
+    const issueKey = data.entity.issue.key;
 
     const assignTemplate = assignDialog();
     const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+    let template = null;
 
-    const template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
-    service.openDialog('assignIssue', template.layout, template.data);
+    searchIssue(baseUrl, issueKey, service.jwt)
+      .then((issueInfo) => {
+        Object.assign(data, issueInfo.data);
+        service.selectedUser = {};
+
+        template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
+        service.openDialog('assignIssue', template.layout, template.data);
+      })
+      .catch(() => {
+        dialogBuilder.headerError('Couldn\'t fetch issue info');
+        template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
+        service.openDialog('assignIssue', template.layout, template.data);
+      });
   }
 
   save(data) {
-    if (this.selectedUser.email === undefined) {
-      const assignTemplate = assignDialog();
+    const assignTemplate = assignDialog();
+    const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
 
-      const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+    if (this.selectedUser.email === undefined) {
       dialogBuilder.error('Please select an user');
 
       const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
       this.updateDialog('assignIssue', template.layout, template.data);
     } else {
+      dialogBuilder.loading(true);
+
+      const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName, true, 'SAVING...');
+      this.updateDialog('assignIssue', template.layout, template.data);
+
       this.performAssignUserAction(data);
     }
   }
@@ -104,7 +125,11 @@ export default class AssignUserService extends BaseService {
 
         return assignUser(baseUrl, issueKey, users.data[0].name, this.jwt);
       })
-      .then(() => this.successDialog(data))
+      .then(() => searchIssue(baseUrl, issueKey, this.jwt))
+      .then((issueInfo) => {
+        Object.assign(data, issueInfo.data);
+        this.successDialog(data);
+      })
       .catch((error) => {
         let errorMessage;
 
