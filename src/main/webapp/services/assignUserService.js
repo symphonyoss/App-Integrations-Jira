@@ -19,7 +19,7 @@ export default class AssignUserService extends BaseService {
     const image = `${baseUrl}/apps/jira/img/icon-checkmark-green.svg`;
     const content = successDialog({ successImg: image });
 
-    const dialogBuilder = new DialogBuilder('Assign', content);
+    const dialogBuilder = new DialogBuilder('Assign', content, true);
     dialogBuilder.footer(false);
 
     const template = dialogBuilder.build(data);
@@ -76,7 +76,7 @@ export default class AssignUserService extends BaseService {
     const issueKey = data.entity.issue.key;
 
     const assignTemplate = assignDialog();
-    const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+    const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
     let template = null;
 
     searchIssue(baseUrl, issueKey, service.jwt)
@@ -96,7 +96,7 @@ export default class AssignUserService extends BaseService {
 
   save(data) {
     const assignTemplate = assignDialog();
-    const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+    const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
 
     if (this.selectedUser.email === undefined) {
       dialogBuilder.error('Please select an user');
@@ -152,7 +152,7 @@ export default class AssignUserService extends BaseService {
         this.selectedUser = {};
 
         const assignTemplate = assignDialog();
-        const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+        const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
 
         dialogBuilder.error(errorMessage);
 

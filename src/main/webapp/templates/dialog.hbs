@@ -8,10 +8,12 @@
                 {{actionText}} <a href="{{url}}">{{key}}</a>
             </div>
             <h1>{{{subject}}}</h1>
+            {{#if hasAssignee}}
             <div class="label key-value">
                 <span class="key">Current assignee</span>
                 <span class="value">{{assignee}}</span>
             </div>
+            {{/if}}
         </div>
         <div class="content">
             <alert isVisible="{{showError}}">{{errorMessage}}</alert>
