@@ -9,7 +9,7 @@
             </div>
             <h1>{{{subject}}}</h1>
             <div class="label key-value">
-                <span class="key">Assignee</span>
+                <span class="key">Current assignee</span>
                 <span class="value">{{assignee}}</span>
             </div>
         </div>
@@ -20,7 +20,7 @@
         {{#if footer}}
         <div class="footer">
             {{#if isLoading}}
-            <action:button id="performDialogAction" type="needs-confirmation" isLoading="true" isDisabled="true" />
+            <action:button id="performDialogAction" type="needs-confirmation" isDisabled="true" />
             <action:button id="closeDialog" type="dismiss" isDisabled="true" />
             {{else}}
             <action:button id="performDialogAction" type="good" />

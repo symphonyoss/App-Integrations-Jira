@@ -128,7 +128,7 @@ public class JiraApiResource {
   /**
    * Get information of a specific issue.
    * @param issueKey Issue identifier
-   * @return List of potential assigneers users or 400 Bad Request - Returned if no issue key
+   * @return Detailed issue information or 400 Bad Request - Returned if no issue key
    * was provided, 401 Unauthorized - Returned if the user is not authenticated ,
    * 404 Not Found - Returned if the requested issue is empty or not found.
    */

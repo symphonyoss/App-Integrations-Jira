@@ -36,13 +36,13 @@ export default class AssignUserService extends BaseService {
     this.updateDialog('assignIssue', template, userData);
   }
 
-  retrieveTemplate(dialogBuilder, data, serviceName, renderSelectedUser = false) {
+  retrieveTemplate(dialogBuilder, data, serviceName, renderSelectedUser = false, assignLabel = 'ASSIGN') {
     const template = dialogBuilder.build(data);
 
     const assignIssueAction = {
       service: 'assignUserService',
       type: 'performDialogAction',
-      label: 'ASSIGN',
+      label: assignLabel,
     };
     const closeDialogAction = {
       service: 'assignUserService',
@@ -106,7 +106,7 @@ export default class AssignUserService extends BaseService {
     } else {
       dialogBuilder.loading(true);
 
-      const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName, true);
+      const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName, true, 'SAVING...');
       this.updateDialog('assignIssue', template.layout, template.data);
 
       this.performAssignUserAction(data);
