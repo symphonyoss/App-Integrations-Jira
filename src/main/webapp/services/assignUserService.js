@@ -88,7 +88,7 @@ export default class AssignUserService extends BaseService {
         service.openDialog('assignIssue', template.layout, template.data);
       })
       .catch(() => {
-        dialogBuilder.headerError('Couldn\'t fetch issue info');
+        dialogBuilder.headerError('Issue not found');
         template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
         service.openDialog('assignIssue', template.layout, template.data);
       });
@@ -131,30 +131,28 @@ export default class AssignUserService extends BaseService {
         this.successDialog(data);
       })
       .catch((error) => {
-        let errorMessage;
-
-        switch (error.message) {
-          case '401': {
-            errorMessage = `User ${this.selectedUser.prettyName} is not authorized to perform this action`;
-            break;
-          }
-          case '404': {
-            errorMessage = `Issue ${issueKey} not found`;
-            break;
-          }
-          default: {
-            errorMessage = 'Unexpected error to perform this action, please try to reload this page ' +
-                'or contact the administrator.';
-            break;
-          }
-        }
-
         this.selectedUser = {};
 
         const assignTemplate = assignDialog();
         const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
 
-        dialogBuilder.error(errorMessage);
+        switch (error.message) {
+          case '401': {
+            const errorMessage = 'This person doesn’t have a valid Jira account';
+            dialogBuilder.error(errorMessage);
+            break;
+          }
+          case '404': {
+            const errorMessage = `Issue ${issueKey} not found`;
+            dialogBuilder.headerError(errorMessage);
+            break;
+          }
+          default: {
+            const errorMessage = 'Assignee not saved due to a network error. Please try again.';
+            dialogBuilder.headerError(errorMessage);
+            break;
+          }
+        }
 
         const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
         this.updateDialog('assignIssue', template.layout, template.data);

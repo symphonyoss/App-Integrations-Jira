@@ -110,8 +110,7 @@ export default class CommentService extends BaseService {
             break;
           }
           default: {
-            errorMessage = 'Unexpected error to perform this action, please try to reload this page ' +
-                'or contact the administrator.';
+            errorMessage = 'Comment not saved due to a network error. Please try again.';
             break;
           }
         }
@@ -121,7 +120,7 @@ export default class CommentService extends BaseService {
         const commentTemplate = commentDialog();
 
         const dialogBuilder = new DialogBuilder('Comment on', commentTemplate);
-        dialogBuilder.error(errorMessage);
+        dialogBuilder.headerError(errorMessage);
 
         const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
         this.updateDialog('commentIssue', template.layout, template.data);

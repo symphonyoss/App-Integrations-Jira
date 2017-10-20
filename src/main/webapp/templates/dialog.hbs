@@ -16,8 +16,10 @@
             {{/if}}
         </div>
         <div class="content">
-            <alert isVisible="{{showError}}">{{errorMessage}}</alert>
             {{{content}}}
+            {{#if showError}}
+            <span class="tempo-text-color--red">{{errorMessage}}</span>
+            {{/if}}
         </div>
         {{#if footer}}
         <div class="footer">
