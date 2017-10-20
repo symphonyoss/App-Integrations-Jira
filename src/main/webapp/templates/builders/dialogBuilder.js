@@ -5,12 +5,13 @@
 const dialog = require('../dialog.hbs');
 
 export default class DialogBuilder {
-  constructor(actionText, innerContent) {
+  constructor(actionText, innerContent, hasAssignee = false) {
     this.actionText = actionText;
     this.innerContent = innerContent;
     this.showFooter = true;
     this.showError = false;
     this.isLoading = false;
+    this.hasAssignee = hasAssignee;
   }
 
   headerError(errorMessage) {
@@ -35,7 +36,6 @@ export default class DialogBuilder {
       url: data.entity.issue.url,
       key: data.entity.issue.key,
       subject: data.entity.issue.subject,
-      assignee: (data.fields) ? data.fields.assignee.displayName : 'Not available',
       actionText: this.actionText,
       content: this.innerContent,
       errorMessage: this.errorMessage,
@@ -43,7 +43,10 @@ export default class DialogBuilder {
       headerError: this.headerError,
       footer: this.showFooter,
       isLoading: this.isLoading,
+      hasAssignee: this.hasAssignee,
+      assignee: (this.hasAssignee && data.fields) ? data.fields.assignee.displayName : 'Not available',
     });
+
     return template;
   }
 }

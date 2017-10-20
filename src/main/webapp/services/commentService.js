@@ -26,13 +26,13 @@ export default class CommentService extends BaseService {
     this.updateDialog('commentIssue', template, {});
   }
 
-  retrieveTemplate(dialogBuilder, data, serviceName) {
+  retrieveTemplate(dialogBuilder, data, serviceName, commentLabel = 'COMMENT') {
     const template = dialogBuilder.build(data);
 
     const commentIssueAction = {
       service: 'commentService',
       type: 'performDialogAction',
-      label: 'COMMENT',
+      label: commentLabel,
     };
     const closeDialogAction = {
       service: 'commentService',
@@ -69,15 +69,20 @@ export default class CommentService extends BaseService {
   }
 
   save(data) {
-    if (this.comment === '') {
-      const commentTemplate = commentDialog();
-      const dialogBuilder = new DialogBuilder('Comment on', commentTemplate);
+    const commentTemplate = commentDialog();
+    const dialogBuilder = new DialogBuilder('Comment on', commentTemplate);
 
+    if (this.comment === '') {
       dialogBuilder.error('Invalid comment');
 
       const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
       this.updateDialog('commentIssue', template.layout, template.data);
     } else {
+      dialogBuilder.loading(true);
+
+      const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName, 'SAVING...');
+      this.updateDialog('commentIssue', template.layout, template.data);
+
       this.performAssignUserAction(data);
     }
   }
@@ -105,8 +110,7 @@ export default class CommentService extends BaseService {
             break;
           }
           default: {
-            errorMessage = 'Unexpected error to perform this action, please try to reload this page ' +
-                'or contact the administrator.';
+            errorMessage = 'Comment not saved due to a network error. Please try again.';
             break;
           }
         }
@@ -116,7 +120,7 @@ export default class CommentService extends BaseService {
         const commentTemplate = commentDialog();
 
         const dialogBuilder = new DialogBuilder('Comment on', commentTemplate);
-        dialogBuilder.error(errorMessage);
+        dialogBuilder.headerError(errorMessage);
 
         const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
         this.updateDialog('commentIssue', template.layout, template.data);
