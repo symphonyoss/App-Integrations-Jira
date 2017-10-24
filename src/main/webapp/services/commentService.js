@@ -24,6 +24,7 @@ export default class CommentService extends BaseService {
 
     const template = dialogBuilder.build(data);
     this.updateDialog('commentIssue', template, {});
+    setTimeout(() => this.closeDialog('commentIssue'), 3000);
   }
 
   retrieveTemplate(dialogBuilder, data, serviceName, commentLabel = 'COMMENT') {

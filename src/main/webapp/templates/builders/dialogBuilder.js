@@ -1,6 +1,7 @@
 /**
  * This builder is used to build a JIRA dialog template according to some required parameters
  */
+import { getIntegrationBaseUrl } from 'symphony-integration-commons';
 
 const dialog = require('../dialog.hbs');
 
@@ -33,6 +34,7 @@ export default class DialogBuilder {
 
   build(data) {
     const template = dialog({
+      exclamationUrl: `${getIntegrationBaseUrl()}/apps/jira/img/exclamation_mark.svg`,
       url: data.entity.issue.url,
       key: data.entity.issue.key,
       subject: data.entity.issue.subject,

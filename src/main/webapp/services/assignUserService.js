@@ -34,6 +34,7 @@ export default class AssignUserService extends BaseService {
     };
 
     this.updateDialog('assignIssue', template, userData);
+    setTimeout(() => this.closeDialog('assignIssue'), 3000);
   }
 
   retrieveTemplate(dialogBuilder, data, serviceName, renderSelectedUser = false, assignLabel = 'ASSIGN') {
@@ -76,7 +77,6 @@ export default class AssignUserService extends BaseService {
     const issueKey = data.entity.issue.key;
 
     const assignTemplate = assignDialog();
-    const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
     let template = null;
 
     searchIssue(baseUrl, issueKey, service.jwt)
@@ -84,10 +84,12 @@ export default class AssignUserService extends BaseService {
         Object.assign(data, issueInfo.data);
         service.selectedUser = {};
 
+        const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
         template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
         service.openDialog('assignIssue', template.layout, template.data);
       })
       .catch(() => {
+        const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
         dialogBuilder.headerError('Issue not found');
         template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
         service.openDialog('assignIssue', template.layout, template.data);
@@ -131,8 +133,6 @@ export default class AssignUserService extends BaseService {
         this.successDialog(data);
       })
       .catch((error) => {
-        this.selectedUser = {};
-
         const assignTemplate = assignDialog();
         const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
 
@@ -154,7 +154,7 @@ export default class AssignUserService extends BaseService {
           }
         }
 
-        const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
+        const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName, true);
         this.updateDialog('assignIssue', template.layout, template.data);
       });
   }
