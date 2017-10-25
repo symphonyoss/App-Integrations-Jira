@@ -1,6 +1,6 @@
 import { getIntegrationBaseUrl } from 'symphony-integration-commons';
 import BaseService from './baseService';
-import { commentIssue } from '../api/apiCalls';
+import { commentIssue, searchIssue } from '../api/apiCalls';
 import actionFactory from '../utils/actionFactory';
 import DialogBuilder from '../templates/builders/dialogBuilder';
 
@@ -60,13 +60,26 @@ export default class CommentService extends BaseService {
   }
 
   openActionDialog(data, service) {
-    service.comment = '';
+    const baseUrl = data.entity.baseUrl;
+    const issueKey = data.entity.issue.key;
 
     const commentTemplate = commentDialog();
     const dialogBuilder = new DialogBuilder('Comment on', commentTemplate);
+    let template = null;
 
-    const template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
-    service.openDialog('commentIssue', template.layout, template.data);
+    service.comment = '';
+
+    searchIssue(baseUrl, issueKey, service.jwt)
+      .then(() => {
+        template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
+        service.openDialog('commentIssue', template.layout, template.data);
+      })
+      .catch(() => {
+        dialogBuilder.headerError('Issue not found');
+        dialogBuilder.disableButtons(true);
+        template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
+        service.openDialog('commentIssue', template.layout, template.data);
+      });
   }
 
   save(data) {

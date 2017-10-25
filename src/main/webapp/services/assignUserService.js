@@ -82,7 +82,7 @@ export default class AssignUserService extends BaseService {
 
     searchIssue(baseUrl, issueKey, service.jwt)
       .then((issueInfo) => {
-        service.currentAssignee = issueInfo.data.fields.assignee.displayName;
+        service.currentAssignee = (issueInfo.data.fields.assignee) ? issueInfo.data.fields.assignee.displayName : 'Unassigned';
         service.selectedUser = {};
 
         const dialogBuilder = new DialogBuilder('Assign', assignTemplate, service.currentAssignee);
