@@ -79,7 +79,7 @@ export default class CommentService extends BaseService {
       const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
       this.updateDialog('commentIssue', template.layout, template.data);
     } else {
-      dialogBuilder.loading(true);
+      dialogBuilder.disableButtons(true);
 
       const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName, 'SAVING...');
       this.updateDialog('commentIssue', template.layout, template.data);

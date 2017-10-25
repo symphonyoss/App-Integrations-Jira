@@ -13,13 +13,14 @@ export default class AssignUserService extends BaseService {
   constructor(serviceName) {
     super(serviceName);
     this.selectedUser = {};
+    this.currentAssignee = null;
   }
 
   successDialog(data) {
     const image = `${baseUrl}/apps/jira/img/icon-checkmark-green.svg`;
     const content = successDialog({ successImg: image });
 
-    const dialogBuilder = new DialogBuilder('Assign', content, true);
+    const dialogBuilder = new DialogBuilder('Assign', content, this.currentAssignee);
     dialogBuilder.footer(false);
 
     const template = dialogBuilder.build(data);
@@ -81,16 +82,17 @@ export default class AssignUserService extends BaseService {
 
     searchIssue(baseUrl, issueKey, service.jwt)
       .then((issueInfo) => {
-        Object.assign(data, issueInfo.data);
+        service.currentAssignee = issueInfo.data.fields.assignee.displayName;
         service.selectedUser = {};
 
-        const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
+        const dialogBuilder = new DialogBuilder('Assign', assignTemplate, service.currentAssignee);
         template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
         service.openDialog('assignIssue', template.layout, template.data);
       })
       .catch(() => {
         const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
         dialogBuilder.headerError('Issue not found');
+        dialogBuilder.disableButtons(true);
         template = service.retrieveTemplate(dialogBuilder, data, service.serviceName);
         service.openDialog('assignIssue', template.layout, template.data);
       });
@@ -98,7 +100,7 @@ export default class AssignUserService extends BaseService {
 
   save(data) {
     const assignTemplate = assignDialog();
-    const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
+    const dialogBuilder = new DialogBuilder('Assign', assignTemplate, this.currentAssignee);
 
     if (this.selectedUser.email === undefined) {
       dialogBuilder.error('Please select an user');
@@ -106,7 +108,7 @@ export default class AssignUserService extends BaseService {
       const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);
       this.updateDialog('assignIssue', template.layout, template.data);
     } else {
-      dialogBuilder.loading(true);
+      dialogBuilder.disableButtons(true);
 
       const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName, true, 'SAVING...');
       this.updateDialog('assignIssue', template.layout, template.data);
@@ -118,6 +120,7 @@ export default class AssignUserService extends BaseService {
   performAssignUserAction(data) {
     const baseUrl = data.entity.baseUrl;
     const issueKey = data.entity.issue.key;
+    let newAssignee = null;
 
     searchAssignableUser(baseUrl, issueKey, this.selectedUser, this.jwt)
       .then((users) => {
@@ -125,16 +128,19 @@ export default class AssignUserService extends BaseService {
           return Promise.reject(new Error(401));
         }
 
+        // save the display name to update the current assignee if the
+        // assign action succeeds
+        newAssignee = users.data[0].displayName;
+
         return assignUser(baseUrl, issueKey, users.data[0].name, this.jwt);
       })
-      .then(() => searchIssue(baseUrl, issueKey, this.jwt))
-      .then((issueInfo) => {
-        Object.assign(data, issueInfo.data);
+      .then(() => {
+        this.currentAssignee = newAssignee;
         this.successDialog(data);
       })
       .catch((error) => {
         const assignTemplate = assignDialog();
-        const dialogBuilder = new DialogBuilder('Assign', assignTemplate, true);
+        const dialogBuilder = new DialogBuilder('Assign', assignTemplate, this.currentAssignee);
 
         switch (error.message) {
           case '401': {
