@@ -2,7 +2,10 @@
     <div class="container">
         <div class="header">
             {{#if headerError}}
-            <div class="headerError"><img src="../img/exclamation_mark.svg" />{{headerError}}</div>
+            <div class="headerError">
+                <img src="{{exclamationUrl}}" />
+                <div>{{headerError}}</div>
+            </div>
             {{/if}}
             <div class="label">
                 {{actionText}} <a href="{{url}}">{{key}}</a>
