@@ -11,7 +11,7 @@
                 {{actionText}} <a href="{{url}}">{{key}}</a>
             </div>
             <h1>{{{subject}}}</h1>
-            {{#if hasAssignee}}
+            {{#if assignee}}
             <div class="label key-value">
                 <span class="key">Current assignee</span>
                 <span class="value">{{assignee}}</span>
@@ -26,7 +26,7 @@
         </div>
         {{#if footer}}
         <div class="footer">
-            {{#if isLoading}}
+            {{#if disableButtons}}
             <action:button id="performDialogAction" type="needs-confirmation" isDisabled="true" />
             <action:button id="closeDialog" type="dismiss" isDisabled="true" />
             {{else}}

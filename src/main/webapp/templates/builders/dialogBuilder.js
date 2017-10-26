@@ -6,13 +6,13 @@ import { getIntegrationBaseUrl } from 'symphony-integration-commons';
 const dialog = require('../dialog.hbs');
 
 export default class DialogBuilder {
-  constructor(actionText, innerContent, hasAssignee = false) {
+  constructor(actionText, innerContent, assignee) {
     this.actionText = actionText;
     this.innerContent = innerContent;
     this.showFooter = true;
     this.showError = false;
-    this.isLoading = false;
-    this.hasAssignee = hasAssignee;
+    this.buttonsDisabled = false;
+    this.assignee = assignee;
   }
 
   headerError(errorMessage) {
@@ -28,8 +28,8 @@ export default class DialogBuilder {
     this.showFooter = value;
   }
 
-  loading(value) {
-    this.isLoading = value;
+  disableButtons(value) {
+    this.buttonsDisabled = value;
   }
 
   build(data) {
@@ -44,9 +44,8 @@ export default class DialogBuilder {
       showError: this.showError,
       headerError: this.headerError,
       footer: this.showFooter,
-      isLoading: this.isLoading,
-      hasAssignee: this.hasAssignee,
-      assignee: (this.hasAssignee && data.fields) ? data.fields.assignee.displayName : 'Not available',
+      disableButtons: this.buttonsDisabled,
+      assignee: this.assignee,
     });
 
     return template;
