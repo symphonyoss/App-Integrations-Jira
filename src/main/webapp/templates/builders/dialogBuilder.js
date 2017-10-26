@@ -32,12 +32,27 @@ export default class DialogBuilder {
     this.isLoading = value;
   }
 
+  removeJiraMentionMarkdown(message) {
+    const mainPatt = new RegExp('(<mention email=\\")|(\\"\\/>)');
+    let result = message;
+
+    if (mainPatt.test(result)) {
+      const matches = result.match(mainPatt);
+
+      matches.forEach((match) => {
+        result = result.replace(match, '');
+      });
+    }
+
+    return result;
+  }
+
   build(data) {
     const template = dialog({
       exclamationUrl: `${getIntegrationBaseUrl()}/apps/jira/img/exclamation_mark.svg`,
       url: data.entity.issue.url,
       key: data.entity.issue.key,
-      subject: data.entity.issue.subject,
+      subject: this.removeJiraMentionMarkdown(data.entity.issue.subject),
       actionText: this.actionText,
       content: this.innerContent,
       errorMessage: this.errorMessage,
