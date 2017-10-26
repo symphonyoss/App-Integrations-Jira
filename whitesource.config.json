@@ -1,7 +1,6 @@
 {
-  // This is temporary; set to true as soon as the WhiteSource dashboard is clean
   "checkPolicies": false,
-  "productName": "App-Integrations-Jira",
+  "productName": "integration-jira",
   "projectName": "jira-npm-package",
   "devDep": false
 }
