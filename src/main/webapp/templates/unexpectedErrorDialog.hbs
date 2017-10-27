@@ -1,8 +1,11 @@
 <dialog>
     <div class="container">
-        <div class="content">
-            <h3>You cannot access JIRA instance to authorize user</h3>
-            <h3>Make sure the <a href="{{baseUrl}}">{{baseUrl}}</a> address exists and you can reach it out.</h3>
+        <div class="header">
+            <div class="headerError">
+                <img src="{{exclamationUrl}}" />
+                <div>Error during JIRA authorization process</div>
+            </div>
+            <p class="value">Please make sure the address <a href="{{baseUrl}}" class="tempo-btn--link">{{baseUrl}}</a> is accessible.</p>
         </div>
     </div>
 </dialog>

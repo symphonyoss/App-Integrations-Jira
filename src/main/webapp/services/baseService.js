@@ -1,4 +1,4 @@
-import { authorizeUser } from 'symphony-integration-commons';
+import { authorizeUser, getIntegrationBaseUrl } from 'symphony-integration-commons';
 
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
 const unauthorizedErrorDialog = require('../templates/unauthorizedErrorDialog.hbs');
@@ -33,17 +33,21 @@ export default class BaseService {
       .catch((error) => {
         const response = error.response || {};
         const status = response.status || 500;
+        const exclamationUrl = `${getIntegrationBaseUrl()}/apps/jira/img/exclamation_mark.svg`;
 
         let template = {};
 
         switch (status) {
           case 401: {
-            template = unauthorizedErrorDialog();
+            template = unauthorizedErrorDialog({
+              exclamationUrl,
+            });
             break;
           }
           default: {
             template = unexpectedErrorDialog({
               baseUrl,
+              exclamationUrl,
             });
             break;
           }
