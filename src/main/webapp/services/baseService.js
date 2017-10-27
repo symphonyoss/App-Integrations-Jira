@@ -1,6 +1,7 @@
-import { authorizeUser } from 'symphony-integration-commons';
+import { authorizeUser, getIntegrationBaseUrl } from 'symphony-integration-commons';
 
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
+const unauthorizedErrorDialog = require('../templates/unauthorizedErrorDialog.hbs');
 const errorDialog = require('../templates/errorDialog.hbs');
 
 export default class BaseService {
@@ -29,7 +30,31 @@ export default class BaseService {
           }
         }
       })
-      .catch(() => this.openDialog('unexpectedErrorDialog', unexpectedErrorDialog(), {}));
+      .catch((error) => {
+        const response = error.response || {};
+        const status = response.status || 500;
+        const exclamationUrl = `${getIntegrationBaseUrl()}/apps/jira/img/exclamation_mark.svg`;
+
+        let template = {};
+
+        switch (status) {
+          case 401: {
+            template = unauthorizedErrorDialog({
+              exclamationUrl,
+            });
+            break;
+          }
+          default: {
+            template = unexpectedErrorDialog({
+              baseUrl,
+              exclamationUrl,
+            });
+            break;
+          }
+        }
+
+        this.openDialog('errorDialog', template, data);
+      });
   }
 
   closeDialog(dialog) {

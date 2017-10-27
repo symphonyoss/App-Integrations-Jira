@@ -1,3 +1,11 @@
 <dialog>
-    <h1>Unexpected error to perform this action, please try to reload this page or contact the administrator.</h1>
+    <div class="container">
+        <div class="header">
+            <div class="headerError">
+                <img src="{{exclamationUrl}}" />
+                <div>Error during JIRA authorization process</div>
+            </div>
+            <p class="value">Please make sure the address <a href="{{baseUrl}}" class="tempo-btn--link">{{baseUrl}}</a> is accessible.</p>
+        </div>
+    </div>
 </dialog>
