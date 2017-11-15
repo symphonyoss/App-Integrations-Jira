@@ -28,6 +28,8 @@ import java.util.Map;
  */
 public interface JiraParser {
 
+  String UNASSIGNED = "Unassigned";
+
   /**
    * Retrieve a list of events supported by the parser class.
    * @return Events supported by the parser class

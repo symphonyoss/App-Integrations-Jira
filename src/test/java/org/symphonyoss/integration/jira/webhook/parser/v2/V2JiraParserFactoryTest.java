@@ -40,8 +40,6 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParser;
 import org.symphonyoss.integration.jira.webhook.parser.NullJiraParser;
-import org.symphonyoss.integration.jira.webhook.parser.v1.CommentJiraParser;
-import org.symphonyoss.integration.jira.webhook.parser.v1.V1JiraParserFactory;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
 
@@ -67,12 +65,6 @@ public class V2JiraParserFactoryTest {
   @Spy
   private NullJiraParser defaultJiraParser;
 
-  @Spy
-  private CommentJiraParser commentJiraParser;
-
-  @Mock
-  private V1JiraParserFactory fallbackFactory;
-
   @InjectMocks
   private V2JiraParserFactory factory;
 
@@ -84,8 +76,6 @@ public class V2JiraParserFactoryTest {
     beans.add(defaultJiraParser);
 
     factory.init();
-
-    doReturn(defaultJiraParser).when(fallbackFactory).getParser(any(JsonNode.class));
   }
 
   @Test
@@ -110,20 +100,18 @@ public class V2JiraParserFactoryTest {
   }
 
   @Test
-  public void testGetV1Parser() {
+  public void testNotSupportedParser() {
     ObjectNode node = JsonNodeFactory.instance.objectNode();
     node.put(ISSUE_EVENT_TYPE_NAME, JIRA_ISSUE_COMMENTED);
 
-    doReturn(commentJiraParser).when(fallbackFactory).getParser(node);
-
-    assertEquals(commentJiraParser, factory.getParser(node));
+    assertEquals(null, factory.getParser(node));
   }
 
   @Test
   public void testGetDefaultParser() {
     ObjectNode node = JsonNodeFactory.instance.objectNode();
 
-    assertEquals(defaultJiraParser, factory.getParser(node));
+    assertEquals(null, factory.getParser(node));
   }
 
   @Test
