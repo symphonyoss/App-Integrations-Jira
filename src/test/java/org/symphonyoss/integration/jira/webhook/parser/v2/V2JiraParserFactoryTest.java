@@ -18,6 +18,8 @@ package org.symphonyoss.integration.jira.webhook.parser.v2;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -31,6 +33,7 @@ import static org.symphonyoss.integration.jira.webhook.JiraEventConstants.WEBHOO
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,13 +42,18 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParser;
+import org.symphonyoss.integration.jira.webhook.parser.JiraParserException;
 import org.symphonyoss.integration.jira.webhook.parser.NullJiraParser;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
+import org.symphonyoss.integration.webhook.WebHookPayload;
+import org.symphonyoss.integration.webhook.parser.WebHookParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Unit test for {@link V2JiraParserFactory}
@@ -108,10 +116,30 @@ public class V2JiraParserFactoryTest {
   }
 
   @Test
-  public void testGetDefaultParser() {
+  public void testGetNullParser() {
     ObjectNode node = JsonNodeFactory.instance.objectNode();
 
     assertEquals(null, factory.getParser(node));
+  }
+
+  @Test
+  public void testGetDefaultParser() {
+    Map<String, String> emptyMap = Collections.emptyMap();
+    String body = "{}";
+    WebHookPayload payload = new WebHookPayload(emptyMap, emptyMap, body);
+
+    WebHookParser parser = factory.getParser(payload);
+    assertNotNull(parser);
+    assertNull(parser.parse(payload));
+  }
+
+  @Test(expected = JiraParserException.class)
+  public void testInvalidPayload() {
+    Map<String, String> emptyMap = Collections.emptyMap();
+    String body = StringUtils.EMPTY;
+    WebHookPayload payload = new WebHookPayload(emptyMap, emptyMap, body);
+
+    factory.getParser(payload);
   }
 
   @Test
