@@ -21,11 +21,13 @@ import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.B
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpStatusCodes;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.authorization.AuthorizationException;
 import org.symphonyoss.integration.authorization.AuthorizationRepositoryService;
@@ -85,6 +87,12 @@ public class JiraAuthorizationManager {
 
   public static final String PUBLIC_KEY_FILENAME_TEMPLATE = "%s_app_pub.pem";
 
+  private static final String PUBLIC_KEY_DATA_TEMPLATE = "apps.%s.public_key.data";
+
+  private static final String PRIVATE_KEY_DATA_TEMPLATE = "apps.%s.private_key.data";
+
+  public static final String PRIVATE_KEY = "privateKey";
+
   public static final String PUBLIC_KEY = "publicKey";
 
   public static final String CONSUMER_KEY = "consumerKey";
@@ -119,6 +127,9 @@ public class JiraAuthorizationManager {
 
   @Autowired
   private CryptoService cryptoService;
+
+  @Autowired
+  private Environment environment;
 
   /**
    * Application public key cache
@@ -158,10 +169,21 @@ public class JiraAuthorizationManager {
       return publicKey;
     }
 
-    String filename = getPublicKeyFilename(authModel, application);
-    String publicKey = readKey(filename);
+    String dataEnv = String.format(PUBLIC_KEY_DATA_TEMPLATE, application.getId());
+    String data = environment.getProperty(dataEnv);
+
+    String publicKey;
+
+    if (StringUtils.isNotEmpty(data)) {
+      byte[] pkBytes = Base64.decodeBase64(data.getBytes());
+      publicKey = new String(pkBytes);
+    } else {
+      String filename = getPublicKeyFilename(authModel, application);
+      publicKey = readKeyFromFile(filename);
+    }
 
     if (StringUtils.isEmpty(publicKey)) {
+      LOGGER.warn("Application public key not found");
       return null;
     }
 
@@ -175,11 +197,12 @@ public class JiraAuthorizationManager {
         return pkAsString;
       }
     } catch (Exception e) {
+      LOGGER.warn("Application public key is invalid");
       throw new IntegrationRuntimeException(COMPONENT,
           MSG.getMessage("integration.jira.public.key.validation"), e);
     }
 
-    LOGGER.warn("Application public key is invalid, please check the file {}", filename);
+
     return null;
   }
 
@@ -212,10 +235,21 @@ public class JiraAuthorizationManager {
     Application application = properties.getApplication(appType);
     AppAuthorizationModel authModel = application.getAuthorization();
 
-    String filename = getPrivateKeyFilename(authModel, application);
-    String privateKey = readKey(filename);
+    String dataEnv = String.format(PRIVATE_KEY_DATA_TEMPLATE, application.getId());
+    String data = environment.getProperty(dataEnv);
+
+    String privateKey;
+
+    if (StringUtils.isNotEmpty(data)) {
+      byte[] pkBytes = Base64.decodeBase64(data.getBytes());
+      privateKey = new String(pkBytes);
+    } else {
+      String filename = getPrivateKeyFilename(authModel, application);
+      privateKey = readKeyFromFile(filename);
+    }
 
     if (StringUtils.isEmpty(privateKey)) {
+      LOGGER.warn("Application private key not found");
       return null;
     }
 
@@ -229,11 +263,11 @@ public class JiraAuthorizationManager {
         return pkAsString;
       }
     } catch (Exception e) {
+      LOGGER.warn("Application private key is invalid");
       throw new IntegrationRuntimeException(COMPONENT,
           MSG.getMessage("integration.jira.private.key.validation"), e);
     }
 
-    LOGGER.warn("Application private key is invalid, please check the file {}", filename);
     return null;
   }
 
@@ -256,7 +290,7 @@ public class JiraAuthorizationManager {
    * @param fileName Public/private key filename
    * @return Application public/private key or null if the file not found
    */
-  private String readKey(String fileName) {
+  private String readKeyFromFile(String fileName) {
     try {
       String certsDir = utils.getCertsDirectory();
       Path keyPath = Paths.get(certsDir + fileName);

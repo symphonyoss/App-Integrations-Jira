@@ -28,10 +28,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager
     .PRIVATE_KEY_FILENAME;
 import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager.PUBLIC_KEY;
+import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager.PRIVATE_KEY;
 import static org.symphonyoss.integration.jira.authorization.JiraAuthorizationManager
     .PUBLIC_KEY_FILENAME;
 
+
 import com.google.api.client.http.HttpMethods;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -42,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -53,6 +57,7 @@ import org.symphonyoss.integration.authorization.UserAuthorizationData;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1Exception;
 import org.symphonyoss.integration.authorization.oauth.v1.OAuth1HttpRequestException;
 import org.symphonyoss.integration.exception.CryptoException;
+import org.symphonyoss.integration.exception.IntegrationRuntimeException;
 import org.symphonyoss.integration.exception.bootstrap.CertificateNotFoundException;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Data;
 import org.symphonyoss.integration.jira.authorization.oauth.v1.JiraOAuth1Exception;
@@ -74,8 +79,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,10 +119,10 @@ public class JiraAuthorizationManagerTest {
   private static final String DEFAULT_CONSUMER_NAME = "Symphony Consumer";
 
   private static final String EXPECTED_PUBLIC_KEY =
-      "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC6yaUNjzhKUK7/8X8vCAXkSDp+\n"
-          + "zy1UGhAXMthChPPtDb5kixc6WMLDdGjRRPvzZBROo1vk7K7fum4YXCNHwcSS26Nf\n"
-          + "GJCLCFoW64tKyFhxcVZ7lU43Unhji50S0Bb3reniB0ophJ8UEOjH2qiy3hOTtUNF\n"
-          + "JynqT6wBqrpTGodBmwIDAQAB\n";
+      "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9BaaZt5eL+xilEMQvV775sIPy\n"
+          + "mgtkrasBC08IcPR5qV8cDJxpsdRn2ScBaxKtoFqswFmyFFdL7GVtrDGbpn88F0NM\n"
+          + "/jQ7I+3wRhWW4za1AsPJF7uCXJKM9IANOaXtWMt75PK2QLcJg9CH74BnEHpi0hD/\n"
+          + "ky32LXNU/b8tHQ9FzQIDAQAB\n";
 
   private static final String EXPECTED_PRIVATE_KEY =
       "MIICeQIBADANBgkqhkiG9w0BAQEFAASCAmMwggJfAgEAAoGBAN8wcSF5AE7sL30p\n"
@@ -181,6 +190,9 @@ public class JiraAuthorizationManagerTest {
   @MockBean
   private CryptoService cryptoService;
 
+  @MockBean
+  private Environment environment;
+
   @BeforeClass
   public static void startup() {
     SETTINGS.setType(JIRA_APP_TYPE);
@@ -194,6 +206,35 @@ public class JiraAuthorizationManagerTest {
     UserKeyManagerData userKeyManagerData = new UserKeyManagerData();
     userKeyManagerData.setPrivateKey(MOCK_PRIVATE_KEY);
     doReturn(userKeyManagerData).when(userService).getBotUserAccountKeyData(anyString());
+  }
+
+  @Test(expected = IntegrationRuntimeException.class)
+  public void testInvalidPublicKeyData() {
+    String invalidPk = "invalid";
+    String pk = Base64.encodeBase64String(invalidPk.getBytes());
+
+    doReturn(pk).when(environment).getProperty("apps.jira.public_key.data");
+    doReturn(invalidPk).when(rsaKeyUtils).trimPublicKey(invalidPk);
+    doThrow(RuntimeException.class).when(rsaKeyUtils).getPublicKey(invalidPk);
+
+    AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
+    validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
+
+    assertNull(result.getProperties().get(PUBLIC_KEY));
+  }
+
+  @Test
+  public void testPublicKeyData() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    String pk = Base64.encodeBase64String(EXPECTED_PUBLIC_KEY.getBytes());
+
+    doReturn(pk).when(environment).getProperty("apps.jira.public_key.data");
+    doReturn(EXPECTED_PUBLIC_KEY).when(rsaKeyUtils).trimPublicKey(EXPECTED_PUBLIC_KEY);
+    doReturn(publicKey).when(rsaKeyUtils).getPublicKey(EXPECTED_PUBLIC_KEY);
+
+    AppAuthorizationModel result = authManager.getAuthorizationModel(SETTINGS);
+    validateAppAuthorizationModel(result, DEFAULT_IB_PORT);
+
+    assertEquals(EXPECTED_PUBLIC_KEY, result.getProperties().get(PUBLIC_KEY));
   }
 
   @Test
@@ -256,7 +297,7 @@ public class JiraAuthorizationManagerTest {
   @Test
   public void testIsUserUnauthorized()
       throws AuthorizationException, URISyntaxException, CryptoException,
-      OAuth1HttpRequestException, MalformedURLException {
+      MalformedURLException {
     JiraOAuth1Data jiraAuthData = new JiraOAuth1Data(MOCK_TOKEN, MOCK_TOKEN);
     UserAuthorizationData userData = new UserAuthorizationData(MOCK_URL, MOCK_USER, jiraAuthData);
 
@@ -312,6 +353,21 @@ public class JiraAuthorizationManagerTest {
 
     doReturn(EXPECTED_PRIVATE_KEY).when(rsaKeyUtils).trimPrivateKey(anyString());
     doReturn(privateKey).when(rsaKeyUtils).getPrivateKey(anyString());
+
+    doReturn(MOCK_URL).when(jiraOAuth1Provider).requestAuthorizationUrl(anyString());
+
+    String url = authManager.getAuthorizationUrl(SETTINGS, MOCK_URL, MOCK_USER);
+
+    assertEquals(MOCK_URL, url);
+  }
+
+  @Test
+  public void testGetAuthorizationUrlFromPkData() throws AuthorizationException, URISyntaxException {
+    String pk = Base64.encodeBase64String(EXPECTED_PRIVATE_KEY.getBytes());
+
+    doReturn(pk).when(environment).getProperty("apps.jira.private_key.data");
+    doReturn(EXPECTED_PRIVATE_KEY).when(rsaKeyUtils).trimPrivateKey(EXPECTED_PRIVATE_KEY);
+    doReturn(privateKey).when(rsaKeyUtils).getPrivateKey(EXPECTED_PRIVATE_KEY);
 
     doReturn(MOCK_URL).when(jiraOAuth1Provider).requestAuthorizationUrl(anyString());
 
