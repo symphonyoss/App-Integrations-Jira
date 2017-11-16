@@ -50,13 +50,13 @@ import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserResolver;
 import org.symphonyoss.integration.jira.webhook.parser.JiraWebHookParserAdapter;
 import org.symphonyoss.integration.jira.webhook.parser.NullJiraParser;
-import org.symphonyoss.integration.jira.webhook.parser.v1.CommentJiraParser;
-import org.symphonyoss.integration.jira.webhook.parser.v1.IssueCreatedJiraParser;
-import org.symphonyoss.integration.jira.webhook.parser.v1.IssueUpdatedJiraParser;
+import org.symphonyoss.integration.jira.webhook.parser.v2.CommentMetadataParser;
+import org.symphonyoss.integration.jira.webhook.parser.v2.IssueStateMetadataParser;
 import org.symphonyoss.integration.json.JsonUtils;
 import org.symphonyoss.integration.model.config.IntegrationSettings;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.AppAuthorizationModel;
+import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.service.UserService;
 import org.symphonyoss.integration.webhook.WebHookPayload;
 import org.symphonyoss.integration.webhook.exception.WebHookParseException;
@@ -89,7 +89,8 @@ public class JiraWebHookIntegrationTest {
   private static final String ISSUE_UPDATED_WITHOUT_HASHTAG =
       "parser/issueUpdatedJiraParser/jiraCallbackSampleIssueUpdatedWithoutHashTagLabel.json";
 
-  private static final String COMMENT_ADDED_FILENAME = "parser/commentJiraParser/jiraCallbackSampleCommentAdded.json";
+  private static final String COMMENT_ADDED_FILENAME =
+      "parser/commentJiraParser/jiraCallbackSampleCommentAdded.json";
 
   private static final String COMMENT_ADDED_WITH_MENTION_FILENAME =
       "parser/commentJiraParser/jiraCallbackSampleCommentAddedWithMention.json";
@@ -128,14 +129,17 @@ public class JiraWebHookIntegrationTest {
   @Mock
   private UserService userService;
 
-  @InjectMocks
-  private IssueCreatedJiraParser issueCreatedJiraParser = new IssueCreatedJiraParser();
+  @Mock
+  private IntegrationProperties integrationProperties;
 
   @InjectMocks
-  private CommentJiraParser commentJiraParser = new CommentJiraParser();
+  private IssueStateMetadataParser issueStateJiraParser =
+      new IssueStateMetadataParser(userService, integrationProperties);
 
   @InjectMocks
-  private IssueUpdatedJiraParser issueUpdatedJiraParser = new IssueUpdatedJiraParser();
+  private CommentMetadataParser commentJiraParser =
+      new CommentMetadataParser(userService, integrationProperties);
+
   private String authorizationURL = "www.authorizantionURL.com";
 
   @Before
@@ -144,6 +148,10 @@ public class JiraWebHookIntegrationTest {
         "ppires@symphony.com");
 
     factories.add(factory);
+
+    // Post contruct methods are not called by the Mockito test engine
+    issueStateJiraParser.init();
+    commentJiraParser.init();
 
     doReturn(factory).when(parserResolver).getFactory();
   }
@@ -161,16 +169,18 @@ public class JiraWebHookIntegrationTest {
   public void testIssueCreated() throws IOException, WebHookParseException {
     String body = getBody(ISSUE_CREATED_FILENAME);
 
-    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(),
+        Collections.<String, String>emptyMap(), body);
 
-    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(issueCreatedJiraParser);
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(issueStateJiraParser);
     doReturn(parser).when(factory).getParser(payload);
 
     Message result = jiraWhi.parse(payload);
 
     assertNotNull(result);
 
-    String expected = readFile("parser/issueCreatedJiraParser/jiraMessageMLIssueCreated.xml");
+    String expected =
+        readFile("parser/issueCreatedJiraParser/jiraMessageMLIssueCreated.xml");
 
     assertEquals(expected, result.getMessage());
   }
@@ -192,7 +202,7 @@ public class JiraWebHookIntegrationTest {
     WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(),
         Collections.<String, String>emptyMap(), body);
 
-    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(issueUpdatedJiraParser);
+    JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(issueStateJiraParser);
     doReturn(parser).when(factory).getParser(any(WebHookPayload.class));
 
     Message result = jiraWhi.parse(payload);
@@ -226,7 +236,8 @@ public class JiraWebHookIntegrationTest {
 
     createNewUser();
 
-    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(),
+        Collections.<String, String>emptyMap(), body);
 
     JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(commentJiraParser);
     doReturn(parser).when(factory).getParser(payload);
@@ -235,7 +246,8 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFile("parser/commentJiraParser/jiraMessageMLIssueCommentedWithMention.xml");
+    String expected =
+        readFile("parser/commentJiraParser/jiraMessageMLIssueCommentedWithMention.xml");
 
     assertEquals(expected, result.getMessage());
   }
@@ -244,7 +256,8 @@ public class JiraWebHookIntegrationTest {
   public void testCommentUpdated() throws IOException, WebHookParseException {
     String body = getBody(COMMENT_UPDATED_FILENAME);
 
-    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(),
+        Collections.<String, String>emptyMap(), body);
 
     JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(commentJiraParser);
     doReturn(parser).when(factory).getParser(payload);
@@ -264,7 +277,8 @@ public class JiraWebHookIntegrationTest {
 
     User user1 = createNewUser();
 
-    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(),
+        Collections.<String, String>emptyMap(), body);
 
     JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(commentJiraParser);
     doReturn(parser).when(factory).getParser(payload);
@@ -273,7 +287,8 @@ public class JiraWebHookIntegrationTest {
 
     assertNotNull(result);
 
-    String expected = readFile("parser/commentJiraParser/jiraMessageMLIssueCommentUpdatedWithMention.xml");
+    String expected =
+        readFile("parser/commentJiraParser/jiraMessageMLIssueCommentUpdatedWithMention.xml");
 
     assertEquals(expected, result.getMessage());
   }
@@ -292,7 +307,8 @@ public class JiraWebHookIntegrationTest {
   public void testCommentDeleted() throws IOException, WebHookParseException {
     String body = getBody(COMMENT_DELETED_FILENAME);
 
-    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(),
+        Collections.<String, String>emptyMap(), body);
 
     JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(commentJiraParser);
     doReturn(parser).when(factory).getParser(payload);
@@ -309,7 +325,8 @@ public class JiraWebHookIntegrationTest {
   @Test
   public void testNoEventPayload() throws WebHookParseException {
     String body = "{ \"random\": \"json\" }";
-    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), body);
+    WebHookPayload payload = new WebHookPayload(Collections.<String, String>emptyMap(),
+        Collections.<String, String>emptyMap(), body);
 
     JiraWebHookParserAdapter parser = new JiraWebHookParserAdapter(defaultJiraParser);
     doReturn(parser).when(factory).getParser(payload);
@@ -367,7 +384,8 @@ public class JiraWebHookIntegrationTest {
     IntegrationSettings settings = new IntegrationSettings();
     jiraWhi.onConfigChange(settings);
     User user = createNewUser();
-    doReturn(authorizationURL).when(authManager).getAuthorizationUrl(settings, MOCK_URL, user.getId());
+    doReturn(authorizationURL).when(authManager)
+        .getAuthorizationUrl(settings, MOCK_URL, user.getId());
     String result = jiraWhi.getAuthorizationUrl(MOCK_URL, user.getId());
     assertEquals(authorizationURL, result);
   }
@@ -418,7 +436,8 @@ public class JiraWebHookIntegrationTest {
 
   @Test(expected = OAuth1MissingParametersException.class)
   public void testAuthorizeTemporaryTokenBlank() throws AuthorizationException {
-    AuthorizationPayload payload = new AuthorizationPayload(Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap(), "body");
+    AuthorizationPayload payload = new AuthorizationPayload(Collections.<String, String>emptyMap(),
+        Collections.<String, String>emptyMap(), "body");
     jiraWhi.authorize(payload);
   }
 
@@ -427,7 +446,8 @@ public class JiraWebHookIntegrationTest {
     User user = createNewUser();
     Map<String, String> params = new HashMap<>();
     params.put(TEMPORARY_TOKEN, TEMPORARY_TOKEN);
-    AuthorizationPayload payload = new AuthorizationPayload(params, Collections.<String, String>emptyMap(), "body");
+    AuthorizationPayload payload =
+        new AuthorizationPayload(params, Collections.<String, String>emptyMap(), "body");
     jiraWhi.authorize(payload);
   }
 
@@ -436,7 +456,8 @@ public class JiraWebHookIntegrationTest {
     Map<String, String> params = new HashMap<>();
     params.put(TEMPORARY_TOKEN, TEMPORARY_TOKEN);
     params.put(VERIFICATION_CODE, VERIFICATION_CODE);
-    AuthorizationPayload payload = new AuthorizationPayload(params, Collections.<String, String>emptyMap(), "body");
+    AuthorizationPayload payload =
+        new AuthorizationPayload(params, Collections.<String, String>emptyMap(), "body");
     jiraWhi.authorize(payload);
   }
 
@@ -447,9 +468,12 @@ public class JiraWebHookIntegrationTest {
     Map<String, String> params = new HashMap<>();
     params.put(TEMPORARY_TOKEN, TEMPORARY_TOKEN);
     params.put(VERIFICATION_CODE, VERIFICATION_CODE);
-    AuthorizationPayload payload = new AuthorizationPayload(params, Collections.<String, String>emptyMap(), "body");
+    AuthorizationPayload payload =
+        new AuthorizationPayload(params, Collections.<String, String>emptyMap(), "body");
     jiraWhi.authorize(payload);
-    verify(authManager,times(1)).authorizeTemporaryToken(settings, payload.getParameters().get(TEMPORARY_TOKEN), payload.getParameters().get(VERIFICATION_CODE));
+    verify(authManager, times(1)).authorizeTemporaryToken(settings,
+        payload.getParameters().get(TEMPORARY_TOKEN),
+        payload.getParameters().get(VERIFICATION_CODE));
 
   }
 
@@ -476,9 +500,13 @@ public class JiraWebHookIntegrationTest {
   private String readFile(String fileName) throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     String expected =
-        FileUtils.readFileToString(new File(classLoader.getResource(fileName).getPath()), Charset.defaultCharset());
-    return expected = expected.replaceAll("\n", "");
+        FileUtils.readFileToString(new File(classLoader.getResource(fileName).getPath()),
+            Charset.defaultCharset());
+
+    return expected;
   }
+
+
 
   private void mockUsers(String... emails) {
     for (String email : emails) {

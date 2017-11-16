@@ -79,7 +79,6 @@ import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.URL_P
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.USERNAME_PATH;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.USER_PATH;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.BASE_URL;
-import static org.symphonyoss.integration.jira.webhook.parser.v1.IssueJiraParser.UNASSIGNED;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -90,7 +89,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.symphonyoss.integration.entity.model.User;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParser;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserException;
-import org.symphonyoss.integration.jira.webhook.parser.v1.JiraParserUtils;
+import org.symphonyoss.integration.jira.webhook.parser.JiraParserUtils;
 import org.symphonyoss.integration.model.message.Message;
 import org.symphonyoss.integration.model.yaml.IntegrationProperties;
 import org.symphonyoss.integration.parser.ParserUtils;

@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParser;
 import org.symphonyoss.integration.jira.webhook.parser.JiraParserFactory;
-import org.symphonyoss.integration.jira.webhook.parser.v1.V1JiraParserFactory;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
 
 import java.util.ArrayList;
@@ -38,9 +37,6 @@ public class V2JiraParserFactory extends JiraParserFactory {
   @Autowired
   private List<JiraMetadataParser> beans;
 
-  @Autowired
-  private V1JiraParserFactory fallbackFactory;
-
   @Override
   public boolean accept(MessageMLVersion version) {
     return MessageMLVersion.V2.equals(version);
@@ -49,17 +45,5 @@ public class V2JiraParserFactory extends JiraParserFactory {
   @Override
   protected List<JiraParser> getBeans() {
     return new ArrayList<JiraParser>(beans);
-  }
-
-  @Override
-  public JiraParser getParser(JsonNode node) {
-    JiraParser result = super.getParser(node);
-
-    if (result == null) {
-      // Fallback use V1 Factory
-      return fallbackFactory.getParser(node);
-    }
-
-    return result;
   }
 }

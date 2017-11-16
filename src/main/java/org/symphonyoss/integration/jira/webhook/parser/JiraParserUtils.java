@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.symphonyoss.integration.jira.webhook.parser.v1;
+package org.symphonyoss.integration.jira.webhook.parser;
 
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.integration.parser.ParserUtils;

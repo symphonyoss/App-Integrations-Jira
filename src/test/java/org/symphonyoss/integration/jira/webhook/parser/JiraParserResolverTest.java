@@ -17,7 +17,6 @@
 package org.symphonyoss.integration.jira.webhook.parser;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +25,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.integration.event.MessageMLVersionUpdatedEventData;
-import org.symphonyoss.integration.jira.webhook.parser.v1.V1JiraParserFactory;
 import org.symphonyoss.integration.jira.webhook.parser.v2.V2JiraParserFactory;
 import org.symphonyoss.integration.model.message.MessageMLVersion;
 
@@ -44,9 +42,6 @@ public class JiraParserResolverTest {
   private List<JiraParserFactory> factories = new ArrayList<>();
 
   @Spy
-  private V1JiraParserFactory v1Factory;
-
-  @Spy
   private V2JiraParserFactory v2Factory;
 
   @InjectMocks
@@ -54,27 +49,13 @@ public class JiraParserResolverTest {
 
   @Before
   public void setup() {
-    factories.add(v1Factory);
     factories.add(v2Factory);
   }
 
   @Test
-  public void testInit() {
-    resolver.init();
-    assertEquals(v1Factory, resolver.getFactory());
-  }
-
-  @Test
-  public void testHandleMessageMLV1() {
-    MessageMLVersionUpdatedEventData event = new MessageMLVersionUpdatedEventData(MessageMLVersion.V1);
-    resolver.handleMessageMLVersionUpdatedEvent(event);
-
-    assertEquals(v1Factory, resolver.getFactory());
-  }
-
-  @Test
   public void testHandleMessageMLV2() {
-    MessageMLVersionUpdatedEventData event = new MessageMLVersionUpdatedEventData(MessageMLVersion.V2);
+    MessageMLVersionUpdatedEventData event =
+        new MessageMLVersionUpdatedEventData(MessageMLVersion.V2);
     resolver.handleMessageMLVersionUpdatedEvent(event);
 
     assertEquals(v2Factory, resolver.getFactory());
