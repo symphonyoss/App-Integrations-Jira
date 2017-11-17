@@ -207,7 +207,10 @@ To give a better visual information, JIRA's messages have specific flair color (
 |Task                     |     Blue    |
 
 # JIRA 2-way integration
-Besides the capacity of receiving notifications through Webhooks, the JIRA integration can also perform actions on your JIRA instance. Currently, there are two availables actions: assign a ticket to another user and comment on a ticket. Before we go into these actions, let us take a look on how to configure this funcionality, running the following steps:
+Besides the capacity of receiving notifications through Webhooks, the JIRA integration can also perform actions on your JIRA instance. Currently, there are two availables actions: assign a ticket to another user and comment on a ticket. Before we go into these actions, let us take a look on how to configure this funcionality.
 
+## The OAuth 1.0 authorization
+In order to call JIRA's APIs, you must be logged in your JIRA account and allow Symphony to call these APIs on behalf of you. This is only possible because of [OAuth](https://en.wikipedia.org/wiki/OAuth) mechanism, which uses [RSA Keys](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) to establish a secure channel. So, we have to generate these keys, performing the following steps:
 
+1. 
 
