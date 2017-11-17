@@ -214,3 +214,7 @@ In order to call JIRA's APIs, you must be logged in your JIRA account and allow 
 
 1. 
 
+
+
+MENTION https://integrations.symphony.com/v1.0/docs/jira-application-link-configuration#section-setting-up-the-application-link-for-2-way-integration
+
