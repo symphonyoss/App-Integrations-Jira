@@ -205,3 +205,9 @@ To give a better visual information, JIRA's messages have specific flair color (
 |Incident Severity 3      |    Orange   |
 |||
 |Task                     |     Blue    |
+
+# JIRA 2-way integration
+Besides the capacity of receiving notifications through Webhooks, the JIRA integration can also perform actions on your JIRA instance. Currently, there are two availables actions: assign a ticket to another user and comment on a ticket. Before we go into these actions, let us take a look on how to configure this funcionality, running the following steps:
+
+
+
