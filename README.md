@@ -213,4 +213,4 @@ Besides the capacity of receiving notifications through Webhooks, some integrati
 Please follow [these steps](https://github.com/SymphonyOSF/Apps/blob/README.md#2-way-integration) to install the certificates and prepare your JIRA integration to work as a 2-way integration.
 
 ## Configure the application link
-After you have configured the Integration Bridge, it is time to tell your JIRA instance that you are ready to go! Please follow [these steps](https://integrations.symphony.com/v1.0/docs/jira-application-link-configuration#section-setting-up-the-application-link-for-2-way-integration) in order to do it.
+After you have configured the Integration Bridge, it is time to tell your JIRA instance that you are ready to go! Please follow [these steps](https://integrations.symphony.com/v1.0/docs/jira-application-link-configuration#section-installation-and-configuration-on-jira) in order to do it.
