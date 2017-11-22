@@ -205,3 +205,12 @@ To give a better visual information, JIRA's messages have specific flair color (
 |Incident Severity 3      |    Orange   |
 |||
 |Task                     |     Blue    |
+
+# 2-Way integration
+In addition to receiving notifications through webhooks, some integrations (Apps) can also be used to perform actions within their associated third-party services. The JIRA integration is the first to support this functionality. Currently, there are two available actions: assigning a ticket to user and commenting on a ticket. Enabling this functionality requires configuration changes within the Integration Bridge, and within JIRA.
+
+## Installation
+Please follow [these steps](https://github.com/SymphonyOSF/Apps#2-way-integration) to install the certificates and prepare your JIRA integration to work as a 2-Way integration.
+
+## Configure the application link
+After you have configured the Integration Bridge, it is time to tell your JIRA instance that you are ready to go! Please follow [these steps](https://integrations.symphony.com/v1.0/docs/jira-application-link-configuration#section-installation-and-configuration-on-jira) in order to do so.
