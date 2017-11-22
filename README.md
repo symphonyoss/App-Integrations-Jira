@@ -206,15 +206,11 @@ To give a better visual information, JIRA's messages have specific flair color (
 |||
 |Task                     |     Blue    |
 
-# JIRA 2-way integration
-Besides the capacity of receiving notifications through Webhooks, the JIRA integration can also perform actions on your JIRA instance. Currently, there are two availables actions: assign a ticket to another user and comment on a ticket. Before we go into these actions, let us take a look on how to configure this funcionality.
+# 2-way integration
+Besides the capacity of receiving notifications through Webhooks, some integrations (Apps) can also perform actions on their instances. Currently, there are two availables actions: assign a ticket to another user and comment on a ticket. Before we go into these actions, let us take a look on how to configure this funcionality.
 
-## The OAuth 1.0 authorization
-In order to call JIRA's APIs, you must be logged in your JIRA account and allow Symphony to call these APIs on behalf of you. This is only possible because of [OAuth](https://en.wikipedia.org/wiki/OAuth) mechanism, which uses [RSA Keys](https://en.wikipedia.org/wiki/RSA_(cryptosystem)) to establish a secure channel. So, we have to generate these keys, performing the following steps:
+## Installation
+Please follow [these steps](https://github.com/SymphonyOSF/Apps/blob/README.md#2-way-integration) to install the certificates and prepare your JIRA integration to work as a 2-way integration.
 
-1. 
-
-
-
-MENTION https://integrations.symphony.com/v1.0/docs/jira-application-link-configuration#section-setting-up-the-application-link-for-2-way-integration
-
+## Configure the application link
+After you have configured the Integration Bridge, it is time to tell your JIRA instance that you are ready to go! Please follow [these steps](https://integrations.symphony.com/v1.0/docs/jira-application-link-configuration#section-setting-up-the-application-link-for-2-way-integration) in order to do it.
