@@ -37,7 +37,7 @@ export default class DialogBuilder {
       exclamationUrl: `${getIntegrationBaseUrl()}/apps/jira/img/exclamation_mark.svg`,
       url: data.entity.issue.url,
       key: data.entity.issue.key,
-      subject: data.entity.issue.subject.replace(/<mention email="(.*)"\/>/, '$1'),
+      subject: data.entity.issue.subject.replace(/<mention email="(.*)"\/>/, '<email-mention value="$1" />'),
       actionText: this.actionText,
       content: this.innerContent,
       errorMessage: this.errorMessage,
