@@ -93,9 +93,6 @@ export default class CommentService extends BaseService {
       this.updateDialog('commentIssue', template.layout, template.data);
     } else {
       dialogBuilder.disableButtons(true);
-
-      const savedComment = this.comment;
-      this.comment = savedComment;
       this.performAssignUserAction(data);
     }
   }
