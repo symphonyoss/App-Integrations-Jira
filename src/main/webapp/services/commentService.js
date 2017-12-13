@@ -83,7 +83,7 @@ export default class CommentService extends BaseService {
   }
 
   save(data) {
-    const commentTemplate = commentDialog();
+    const commentTemplate = commentDialog({ commentText: this.comment });
     const dialogBuilder = new DialogBuilder('Comment on', commentTemplate);
 
     if (this.comment === '') {
