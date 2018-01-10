@@ -14,6 +14,7 @@ export default class AssignUserService extends BaseService {
     super(serviceName);
     this.selectedUser = {};
     this.currentAssignee = null;
+    this.errorData = null;
   }
 
   successDialog(data) {
@@ -139,6 +140,7 @@ export default class AssignUserService extends BaseService {
         this.successDialog(data);
       })
       .catch((error) => {
+        this.errorData = data;
         const assignTemplate = assignDialog();
         const dialogBuilder = new DialogBuilder('Assign', assignTemplate, this.currentAssignee);
 
@@ -175,5 +177,9 @@ export default class AssignUserService extends BaseService {
 
   deselected() {
     this.selectedUser = {};
+    const assignTemplate = assignDialog();
+    const dialogBuilder = new DialogBuilder('Assign', assignTemplate);
+    const template = this.retrieveTemplate(dialogBuilder, this.errorData, this.serviceName, false);
+    this.updateDialog('assignIssue', template.layout, template.data);
   }
 }
