@@ -2,6 +2,8 @@ import { authorizeUser, getIntegrationBaseUrl } from 'symphony-integration-commo
 
 const unexpectedErrorDialog = require('../templates/unexpectedErrorDialog.hbs');
 const unauthorizedErrorDialog = require('../templates/unauthorizedErrorDialog.hbs');
+const configurationErrorDialog = require('../templates/configurationErrorDialog.hbs');
+
 const errorDialog = require('../templates/errorDialog.hbs');
 
 export default class BaseService {
@@ -28,6 +30,14 @@ export default class BaseService {
           } else {
             Promise.reject(new Error(500));
           }
+        } else {
+          // This will only happen when the auth process returns a 401 but there is a configuration
+          // problem inside the JiraOauth, then authorizeUser only returns FALSE
+          const exclamationUrl = `${getIntegrationBaseUrl()}/apps/jira/img/exclamation_mark.svg`;
+          const template = configurationErrorDialog({
+            exclamationUrl,
+          });
+          this.openDialog('errorDialog', template, data);
         }
       })
       .catch((error) => {
