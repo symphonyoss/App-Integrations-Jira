@@ -16,10 +16,10 @@
 
 package org.symphonyoss.integration.jira.webhook.parser.v2;
 
-import static org.symphonyoss.integration.jira.webhook.JiraEventConstants.ISSUE_EVENT_TYPE_NAME;
-import static org.symphonyoss.integration.jira.webhook.JiraEventConstants.JIRA_ISSUE_COMMENTED;
-import static org.symphonyoss.integration.jira.webhook.JiraEventConstants.JIRA_ISSUE_COMMENT_DELETED;
-import static org.symphonyoss.integration.jira.webhook.JiraEventConstants.JIRA_ISSUE_COMMENT_EDITED;
+import static org.symphonyoss.integration.jira.webhook.JiraEventConstants.JIRA_COMMENT_ADDED;
+import static org.symphonyoss.integration.jira.webhook.JiraEventConstants.JIRA_COMMENT_DELETED;
+import static org.symphonyoss.integration.jira.webhook.JiraEventConstants.JIRA_COMMENT_UPDATED;
+import static org.symphonyoss.integration.jira.webhook.JiraEventConstants.WEBHOOK_EVENT;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.ACTION_ENTITY_FIELD;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.BODY_PATH;
 import static org.symphonyoss.integration.jira.webhook.JiraParserConstants.COMMENT_PATH;
@@ -51,20 +51,18 @@ public class CommentMetadataParser extends JiraMetadataParser {
 
   private static final String METADATA_FILE = "metadataIssueCommented.xml";
   private static final String TEMPLATE_FILE = "templateIssueCommented.xml";
-  private static final String COMMENT_LINK_SUFFIX =
-      "focusedCommentId=%s&amp;page=com.atlassian.jira.plugin.system"
-          + ".issuetabpanels%%3Acomment-tabpanel#comment-%s";
 
   private final Map<String, String> actions = new HashMap<>();
 
 
   @Autowired
-  public CommentMetadataParser(UserService userService, IntegrationProperties integrationProperties) {
+  public CommentMetadataParser(UserService userService,
+      IntegrationProperties integrationProperties) {
     super(userService, integrationProperties);
 
-    actions.put(JIRA_ISSUE_COMMENTED, "Commented");
-    actions.put(JIRA_ISSUE_COMMENT_EDITED, "Edited Comment");
-    actions.put(JIRA_ISSUE_COMMENT_DELETED, "Deleted Comment");
+    actions.put(JIRA_COMMENT_ADDED, "Commented");
+    actions.put(JIRA_COMMENT_UPDATED, "Edited Comment");
+    actions.put(JIRA_COMMENT_DELETED, "Deleted Comment");
   }
 
   @Override
@@ -79,7 +77,7 @@ public class CommentMetadataParser extends JiraMetadataParser {
 
   @Override
   public List<String> getEvents() {
-    return Arrays.asList(JIRA_ISSUE_COMMENTED, JIRA_ISSUE_COMMENT_DELETED, JIRA_ISSUE_COMMENT_EDITED);
+    return Arrays.asList(JIRA_COMMENT_ADDED, JIRA_COMMENT_DELETED, JIRA_COMMENT_UPDATED);
   }
 
   @Override
@@ -101,7 +99,7 @@ public class CommentMetadataParser extends JiraMetadataParser {
    * @param input The root json node
    */
   private void processCommentAction(JsonNode input) {
-    String webHookEvent = input.path(ISSUE_EVENT_TYPE_NAME).asText();
+    String webHookEvent = input.path(WEBHOOK_EVENT).asText();
     ObjectNode commentNode = (ObjectNode) input.with(COMMENT_PATH);
     if (commentNode != null) {
       commentNode.put(ACTION_ENTITY_FIELD, actions.get(webHookEvent));

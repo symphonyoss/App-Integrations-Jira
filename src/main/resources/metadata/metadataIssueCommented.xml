@@ -48,5 +48,8 @@
         <field key="url" value="comment.link" />
         <field key="body" value="comment.body" />
         <field key="action" value="comment.action" />
+        <object id="updateAuthor" type="com.symphony.integration.jira.updateAuthor" version="1.0">
+            <field key="displayName" value="comment.updateAuthor.displayName" />
+        </object>
     </object>
 </metadata>

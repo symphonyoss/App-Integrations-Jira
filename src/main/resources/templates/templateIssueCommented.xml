@@ -6,8 +6,10 @@
                     <img src="${entity['jiraIssueCommented'].issue.priority.iconUrl}" class="icon" />
                     <a class="tempo-text-color--link" href="${entity['jiraIssueCommented'].issue.url}">${entity['jiraIssueCommented'].issue.key}</a>
                     <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].issue.subject} - </span>
-                    <span class="tempo-text-color--normal">${entity['jiraIssueCommented'].user.displayName}</span>
-                    <span class="tempo-text-color--green">${entity['jiraIssueCommented'].comment.action}</span>
+                    <#if (entity['jiraIssueCommented'].comment.action != "Deleted Comment")>
+                        <span class="tempo-text-color--normal">${entity["jiraIssueCommented"].comment.updateAuthor.displayName}</span>
+                    </#if>
+                    <span class="tempo-text-color--green">${entity["jiraIssueCommented"].comment.action}</span>
                 </div>
             </header>
             <#if (entity['jiraIssueCommented'].comment.body)??>

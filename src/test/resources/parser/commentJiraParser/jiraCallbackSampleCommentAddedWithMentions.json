@@ -1,7 +1,6 @@
 {
   "timestamp": 1463578203491,
-  "webhookEvent": "jira:issue_updated",
-  "issue_event_type_name": "issue_commented",
+  "webhookEvent": "comment_created",
   "user": {
     "self": "https://jira.atlassian.com/rest/api/2/user?username=test",
     "name": "test",

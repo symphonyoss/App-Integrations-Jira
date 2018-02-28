@@ -62,7 +62,12 @@
       "type": "com.symphony.integration.jira.comment",
       "version": "1.0",
       "body": "Hey, <mention email=\"test.user@test.com\"/>, adding a comment to user2",
-      "action": "Commented"
+      "action": "Commented",
+      "updateAuthor": {
+        "type": "com.symphony.integration.jira.updateAuthor",
+        "version": "1.0",
+        "displayName": "Milton2"
+      }
     }
   }
 }
