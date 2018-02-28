@@ -432,8 +432,10 @@ public abstract class JiraMetadataParser extends MetadataParser implements JiraP
    */
   private void processUser(JsonNode input) {
     // Get user that performs the action
-    ObjectNode userNode = (ObjectNode) input.path(USER_PATH);
-    augmentUserInformation(userNode);
+    JsonNode userNode = input.path(USER_PATH);
+    if(userNode instanceof ObjectNode) {
+      augmentUserInformation((ObjectNode) userNode);
+    }
   }
 
   /**
