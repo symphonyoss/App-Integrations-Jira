@@ -74,16 +74,16 @@ public class JiraOAuth1Provider extends OAuth1Provider {
 
     try {
       this.baseUrl = new URL(baseUrl);
-      requestTemporaryTokenUrl = new URL(this.baseUrl, REQUEST_TEMPORARY_TOKEN_PATH);
-      authorizeTemporaryTokenUrl = new URL(this.baseUrl, AUTHORIZE_TEMPORARY_TOKEN_PATH);
-      requestAccessTokenUrl = new URL(this.baseUrl, REQUEST_ACCESS_TOKEN_PATH);
+      requestTemporaryTokenUrl = new URL(this.baseUrl.toExternalForm().concat(REQUEST_TEMPORARY_TOKEN_PATH));
+      authorizeTemporaryTokenUrl = new URL(this.baseUrl.toExternalForm().concat(AUTHORIZE_TEMPORARY_TOKEN_PATH));
+      requestAccessTokenUrl = new URL(this.baseUrl.toExternalForm().concat(REQUEST_ACCESS_TOKEN_PATH));
     } catch (MalformedURLException e) {
       throw new JiraOAuth1Exception(MSG.getMessage(INVALID_BASE_URL, baseUrl),
           e, MSG.getMessage(INVALID_BASE_URL_SOLUTION));
     }
 
     try {
-      this.authorizationCallbackUrl = new URL(authorizationCallbackUrl);
+      this.authorizationCallbackUrl = new URL(new URL(authorizationCallbackUrl).toExternalForm());
     } catch (MalformedURLException e) {
       throw new JiraOAuth1Exception(
           MSG.getMessage(INVALID_CALLBACK_URL, authorizationCallbackUrl),

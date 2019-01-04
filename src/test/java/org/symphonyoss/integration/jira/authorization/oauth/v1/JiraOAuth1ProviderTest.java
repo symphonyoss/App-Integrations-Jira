@@ -32,7 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class JiraOAuth1ProviderTest {
 
-  private static final String BASE_URL = "http://jira.atlassian.com";
+  private static final String BASE_URL = "http://jira.atlassian.com/jira";
   private static final String REQUEST_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
   private static final String AUTHORIZE_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/authorize";
   private static final String REQUEST_ACCESS_TOKEN_PATH = "/plugins/servlet/oauth/access-token";
