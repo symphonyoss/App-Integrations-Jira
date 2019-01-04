@@ -18,6 +18,7 @@ package org.symphonyoss.integration.jira.authorization.oauth.v1;
 
 import static org.symphonyoss.integration.jira.properties.JiraErrorMessageKeys.BUNDLE_FILENAME;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -73,7 +74,7 @@ public class JiraOAuth1Provider extends OAuth1Provider {
     this.privateKey = privateKey;
 
     try {
-      this.baseUrl = new URL(baseUrl);
+      this.baseUrl = new URL(StringUtils.strip(baseUrl,"/"));
       requestTemporaryTokenUrl = new URL(this.baseUrl.toExternalForm().concat(REQUEST_TEMPORARY_TOKEN_PATH));
       authorizeTemporaryTokenUrl = new URL(this.baseUrl.toExternalForm().concat(AUTHORIZE_TEMPORARY_TOKEN_PATH));
       requestAccessTokenUrl = new URL(this.baseUrl.toExternalForm().concat(REQUEST_ACCESS_TOKEN_PATH));
