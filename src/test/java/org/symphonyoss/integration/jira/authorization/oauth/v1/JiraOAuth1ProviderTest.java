@@ -19,6 +19,7 @@ package org.symphonyoss.integration.jira.authorization.oauth.v1;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -66,12 +67,12 @@ public class JiraOAuth1ProviderTest {
     assertEquals(CONSUMER_KEY, authProvider.getConsumerKey());
     assertEquals(PRIVATE_KEY, authProvider.getPrivateKey());
     assertEquals(CALLBACK_URL, authProvider.getAuthorizationCallbackUrl().toString());
-    assertEquals(BASE_URL + REQUEST_TEMPORARY_TOKEN_PATH,
-        authProvider.getRequestTemporaryTokenUrl().toString());
-    assertEquals(BASE_URL + AUTHORIZE_TEMPORARY_TOKEN_PATH,
-        authProvider.getAuthorizeTemporaryTokenUrl().toString());
-    assertEquals(BASE_URL + REQUEST_ACCESS_TOKEN_PATH,
-        authProvider.getRequestAccessTokenUrl().toString());
+    assertEquals(StringUtils.strip(BASE_URL,"/") + REQUEST_TEMPORARY_TOKEN_PATH,
+        authProvider.getRequestTemporaryTokenUrl().toExternalForm());
+    assertEquals(StringUtils.strip(BASE_URL,"/") + AUTHORIZE_TEMPORARY_TOKEN_PATH,
+        authProvider.getAuthorizeTemporaryTokenUrl().toExternalForm());
+    assertEquals(StringUtils.strip(BASE_URL,"/") + REQUEST_ACCESS_TOKEN_PATH,
+        authProvider.getRequestAccessTokenUrl().toExternalForm());
   }
 
   @Test(expected = JiraOAuth1Exception.class)
