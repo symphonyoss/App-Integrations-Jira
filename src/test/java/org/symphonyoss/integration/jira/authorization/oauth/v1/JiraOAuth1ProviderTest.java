@@ -19,6 +19,7 @@ package org.symphonyoss.integration.jira.authorization.oauth.v1;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -32,7 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class JiraOAuth1ProviderTest {
 
-  private static final String BASE_URL = "http://jira.atlassian.com";
+  private static final String BASE_URL = "http://jira.atlassian.com/jira/";
   private static final String REQUEST_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/request-token";
   private static final String AUTHORIZE_TEMPORARY_TOKEN_PATH = "/plugins/servlet/oauth/authorize";
   private static final String REQUEST_ACCESS_TOKEN_PATH = "/plugins/servlet/oauth/access-token";
@@ -66,12 +67,12 @@ public class JiraOAuth1ProviderTest {
     assertEquals(CONSUMER_KEY, authProvider.getConsumerKey());
     assertEquals(PRIVATE_KEY, authProvider.getPrivateKey());
     assertEquals(CALLBACK_URL, authProvider.getAuthorizationCallbackUrl().toString());
-    assertEquals(BASE_URL + REQUEST_TEMPORARY_TOKEN_PATH,
-        authProvider.getRequestTemporaryTokenUrl().toString());
-    assertEquals(BASE_URL + AUTHORIZE_TEMPORARY_TOKEN_PATH,
-        authProvider.getAuthorizeTemporaryTokenUrl().toString());
-    assertEquals(BASE_URL + REQUEST_ACCESS_TOKEN_PATH,
-        authProvider.getRequestAccessTokenUrl().toString());
+    assertEquals(StringUtils.strip(BASE_URL,"/") + REQUEST_TEMPORARY_TOKEN_PATH,
+        authProvider.getRequestTemporaryTokenUrl().toExternalForm());
+    assertEquals(StringUtils.strip(BASE_URL,"/") + AUTHORIZE_TEMPORARY_TOKEN_PATH,
+        authProvider.getAuthorizeTemporaryTokenUrl().toExternalForm());
+    assertEquals(StringUtils.strip(BASE_URL,"/") + REQUEST_ACCESS_TOKEN_PATH,
+        authProvider.getRequestAccessTokenUrl().toExternalForm());
   }
 
   @Test(expected = JiraOAuth1Exception.class)
