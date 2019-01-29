@@ -103,7 +103,7 @@ public class JiraWebHookIntegrationTest {
 
   private static final String COMMENT_DELETED_FILENAME =
       "parser/commentJiraParser/jiraCallbackSampleCommentDeleted.json";
-  public static final String MOCK_URL = "www.test.com";
+  public static final String MOCK_URL = "http://www.test.com/jira";
   private static final String ACCESS_TOKEN = "ACCESS TOKEN";
   private static final String TEMPORARY_TOKEN = "oauth_token";
   private static final String VERIFICATION_CODE = "oauth_verifier";
