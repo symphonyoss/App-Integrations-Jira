@@ -355,8 +355,8 @@ public class JiraAuthorizationManager {
     JiraOAuth1Provider provider = getJiraOAuth1Provider(settings, url);
 
     try {
-      URL myselfUrl = new URL(url);
-      myselfUrl = new URL(myselfUrl, PATH_JIRA_API_MY_SELF);
+      URL myselfUrl = new URL(StringUtils.strip(url,"/"));
+      myselfUrl = new URL(myselfUrl.toExternalForm().concat(PATH_JIRA_API_MY_SELF));
       HttpResponse response =
           provider.makeAuthorizedRequest(jiraOAuth1Data.getAccessToken(), myselfUrl,
               HttpMethods.GET, null);

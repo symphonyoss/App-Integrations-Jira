@@ -41,7 +41,7 @@ public class SearchAssignableUsersService extends CommonJiraService {
   private static final String SERVICE_NAME = "Search Assignable Users Service";
 
   private static final String PATH_JIRA_API_SEARCH_USERS =
-      "rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
+      "/rest/api/latest/user/assignable/search?issueKey=%s&username=%s&maxResults=%s";
 
   @Value("${applications.jira.api.maxNumberOfResults:10}")
   private Integer maxResults;
@@ -80,5 +80,4 @@ public class SearchAssignableUsersService extends CommonJiraService {
     return SERVICE_NAME;
   }
 }
-
 

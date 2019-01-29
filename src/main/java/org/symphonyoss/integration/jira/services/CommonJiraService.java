@@ -124,8 +124,8 @@ public abstract class CommonJiraService {
    */
   protected URL getServiceUrl(String baseUrl, String path) {
     try {
-      URL jiraBaseUrl = new URL(baseUrl);
-      return new URL(jiraBaseUrl, path);
+      URL jiraBaseUrl = new URL((StringUtils.strip(baseUrl,"/")));
+      return new URL(jiraBaseUrl.toExternalForm().concat(path));
     } catch (MalformedURLException e) {
       String errorMessage = MSG.getMessage(INVALID_URL_ERROR, baseUrl);
       throw new InvalidJiraURLException(COMPONENT, errorMessage, e);
@@ -139,5 +139,4 @@ public abstract class CommonJiraService {
   protected abstract String getServiceName();
 
 }
-
 
