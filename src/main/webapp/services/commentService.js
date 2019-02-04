@@ -86,7 +86,7 @@ export default class CommentService extends BaseService {
     const commentTemplate = commentDialog({ commentText: this.comment });
     const dialogBuilder = new DialogBuilder('Comment on', commentTemplate);
 
-    if (this.comment === '') {
+    if (this.comment.trim() === '') {
       dialogBuilder.error('Invalid comment');
 
       const template = this.retrieveTemplate(dialogBuilder, data, this.serviceName);

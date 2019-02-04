@@ -107,7 +107,7 @@ public abstract class CommonJiraService {
    * Thrown {@link InvalidJiraCommentException} exception
    */
   public void validateComment(String comment) {
-    if (StringUtils.isEmpty(comment)) {
+    if (StringUtils.isEmpty(comment.trim())) {
       String message = MSG.getMessage(INVALID_COMMENT);
       String solution = MSG.getMessage(INVALID_COMMENT_SOLUTION);
 
